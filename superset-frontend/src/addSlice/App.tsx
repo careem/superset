@@ -22,7 +22,7 @@ import { ThemeProvider } from '@superset-ui/core';
 import setupApp from '../setup/setupApp';
 import setupPlugins from '../setup/setupPlugins';
 import { DynamicPluginProvider } from '../components/DynamicPlugins';
-import AddSliceContainer from './AddSliceContainer';
+import ExtendedSliceContainer from './ExtendedSliceContainer';
 import { initFeatureFlags } from '../featureFlags';
 import { theme } from '../preamble';
 
@@ -39,7 +39,7 @@ initFeatureFlags(bootstrapData.common.feature_flags);
 const App = () => (
   <ThemeProvider theme={theme}>
     <DynamicPluginProvider>
-      <AddSliceContainer />
+      <ExtendedSliceContainer />
     </DynamicPluginProvider>
   </ThemeProvider>
 );

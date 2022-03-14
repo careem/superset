@@ -90,7 +90,7 @@ interface TableSelectorProps {
   onSchemaChange?: (schema?: string) => void;
   onSchemasLoad?: () => void;
   onCatalogsLoad?: () => void;
-  onCatalagChange?: (catalog?: string) => void;
+  onCatalogChange?: (catalog?: string) => void;
   onTableChange?: (tableName?: string, schema?: string) => void;
   onTablesLoad?: (options: Array<any>) => void;
   readOnly?: boolean;
@@ -163,7 +163,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   tableName,
   catalog,
   onCatalogsLoad,
-  onCatalagChange,
+  onCatalogChange,
 }) => {
   const [currentDatabase, setCurrentDatabase] = useState<
     DatabaseObject | undefined
@@ -204,7 +204,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       if (previousRefresh !== refresh) setPreviousRefresh(refresh);
       fetchTables(encodedEndpoint, forceRefresh);
     }
-  }, [[refresh, currentDatabase, currentCatalog, currentSchema, onTablesLoad]]);
+  }, [refresh, currentDatabase, currentCatalog, currentSchema, onTablesLoad]);
 
   function getEndpoint({
     schema,
@@ -277,8 +277,8 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
 
   const internalCatalogChange = (catalog?: string) => {
     setCurrentCatalog(catalog);
-    if (onCatalagChange) {
-      onCatalagChange(catalog);
+    if (onCatalogChange) {
+      onCatalogChange(catalog);
     }
     internalSchemaChange(undefined);
     internalTableChange(undefined);
@@ -366,7 +366,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     <TableSelectorWrapper>
       {renderDatabaseSelector()}
       {sqlLabMode && !formMode && <div className="divider" />}
-      {renderTableSelect()}
+      {shouldLoadTables(database) && renderTableSelect()}
     </TableSelectorWrapper>
   );
 };

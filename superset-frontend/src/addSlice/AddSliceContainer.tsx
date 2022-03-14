@@ -45,7 +45,7 @@ export type AddSliceContainerState = {
 const ESTIMATED_NAV_HEIGHT = 56;
 const ELEMENTS_EXCEPT_VIZ_GALLERY = ESTIMATED_NAV_HEIGHT + 250;
 
-const StyledContainer = styled.div`
+export const StyledContainer = styled.div`
   ${({ theme }) => `
     flex: 1 1 auto;
     display: flex;
@@ -143,7 +143,7 @@ const StyledContainer = styled.div`
   `}
 `;
 
-const TooltipContent = styled.div<{ hasDescription: boolean }>`
+export const TooltipContent = styled.div<{ hasDescription: boolean }>`
   ${({ theme, hasDescription }) => `
     .tooltip-header {
       font-size: ${
@@ -167,7 +167,7 @@ const TooltipContent = styled.div<{ hasDescription: boolean }>`
   `}
 `;
 
-const StyledLabel = styled.span`
+export const StyledLabel = styled.span`
   ${({ theme }) => `
     position: absolute;
     left: ${theme.gridUnit * 3}px;

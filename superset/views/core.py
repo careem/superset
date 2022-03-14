@@ -60,7 +60,6 @@ from superset import (
 from superset.charts.dao import ChartDAO
 from superset.common.chart_data import ChartDataResultFormat, ChartDataResultType
 from superset.common.db_query_status import QueryStatus
-from superset.connectors.base.models import BaseDatasource
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import (
     AnnotationDatasource,
@@ -72,7 +71,6 @@ from superset.dashboards.commands.importers.v0 import ImportDashboardsCommand
 from superset.dashboards.dao import DashboardDAO
 from superset.databases.dao import DatabaseDAO
 from superset.databases.filters import DatabaseFilter
-from superset.datasets.commands.exceptions import DatasetNotFoundError
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import (
     CacheLoadError,
@@ -142,6 +140,7 @@ from superset.views.base import (
     json_success,
     validate_sqlatable,
 )
+
 from superset.views.utils import (
     _deserialize_results_payload,
     bootstrap_user_data,
@@ -157,6 +156,7 @@ from superset.views.utils import (
     sanitize_datasource_data,
 )
 from superset.viz import BaseViz
+from superset.views.explore_response import ExploreResponse
 
 config = app.config
 SQLLAB_QUERY_COST_ESTIMATE_TIMEOUT = config["SQLLAB_QUERY_COST_ESTIMATE_TIMEOUT"]
@@ -737,9 +737,10 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
     def explore(
         self, datasource_type: Optional[str] = None, datasource_id: Optional[int] = None
     ) -> FlaskResponse:
-        initial_form_data = {}
 
+        initial_form_data = {}
         form_data_key = request.args.get("form_data_key")
+        
         if form_data_key:
             parameters = CommandParameters(actor=g.user, key=form_data_key)
             value = GetFormDataCommand(parameters).run()
@@ -775,18 +776,19 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             )
         except SupersetException:
             datasource_id = None
-            # fallback unkonw datasource to table type
             datasource_type = SqlaTable.type
 
-        datasource: Optional[BaseDatasource] = None
-        if datasource_id is not None:
+        explore_response = ExploreResponse(form_data, slc, query_context)
+
+        if datasource_id:
+            datasource, datasource_name = explore_response.single_dataset(datasource_id, datasource_type)
+        else:
             try:
-                datasource = ConnectorRegistry.get_datasource(
-                    cast(str, datasource_type), datasource_id, db.session
-                )
-            except DatasetNotFoundError:
-                pass
-        datasource_name = datasource.name if datasource else _("[Missing Dataset]")
+                datasource, datasource_name = explore_response.multiple_dataset()
+                return json_success(json.dumps({ "datasource_id" : datasource.id }))
+            except Exception as error:
+                payload = {"errors": [error.to_dict()]}
+                return json_error_response(status=422, payload=payload)
 
         if datasource:
             if config["ENABLE_ACCESS_REQUEST"] and (
@@ -803,6 +805,7 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
                 )
 
         viz_type = form_data.get("viz_type")
+
         if not viz_type and datasource and datasource.default_endpoint:
             return redirect(datasource.default_endpoint)
 
@@ -844,11 +847,13 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
                 slice_download_perm,
                 datasource.id,
                 datasource.type,
-                datasource.name,
+                datasource_name,
                 query_context,
             )
+
         standalone_mode = ReservedUrlParameters.is_standalone_mode()
         force = request.args.get("force") in {"force", "1", "true"}
+
         dummy_datasource_data: Dict[str, Any] = {
             "type": datasource_type,
             "name": datasource_name,
@@ -856,6 +861,7 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             "metrics": [],
             "database": {"id": 0, "backend": ""},
         }
+
         try:
             datasource_data = datasource.data if datasource else dummy_datasource_data
         except (SupersetException, SQLAlchemyError):
@@ -878,6 +884,7 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             "forced_height": request.args.get("height"),
             "common": common_bootstrap_payload(),
         }
+
         if slc:
             title = slc.slice_name
         elif datasource:
