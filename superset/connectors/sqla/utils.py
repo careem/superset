@@ -33,6 +33,14 @@ from superset.sql_parse import ParsedQuery
 if TYPE_CHECKING:
     from superset.connectors.sqla.models import SqlaTable
 
+COLUMN_EXPRESSION_MAPPINGS = {
+    "day": "cast(day as VARCHAR(10))"
+}
+
+PRESTO_DATABASE_NAME = "presto"
+
+MULTI_TABLE_COLUMN_DAY_LENGTH = 5
+
 
 def get_physical_table_metadata(
     database: Database, table_name: str, schema_name: Optional[str] = None,

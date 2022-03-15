@@ -75,7 +75,11 @@ from superset import app, db, is_feature_enabled, security_manager
 from superset.columns.models import Column as NewColumn
 from superset.common.db_query_status import QueryStatus
 from superset.connectors.base.models import BaseColumn, BaseDatasource, BaseMetric
+
 from superset.connectors.sqla.utils import (
+    COLUMN_EXPRESSION_MAPPINGS,
+    MULTI_TABLE_COLUMN_DAY_LENGTH,
+    PRESTO_DATABASE_NAME,
     get_physical_table_metadata,
     get_virtual_table_metadata,
 )
@@ -1208,7 +1212,15 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                         from_dttm, to_dttm,
                     )
                 )
-            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+
+            if self.database.backend == PRESTO_DATABASE_NAME and (dttm_col.column_name == "day" or 
+                (len(dttm_col.column_name) == MULTI_TABLE_COLUMN_DAY_LENGTH and dttm_col.column_name[-3:] == "day")
+            ):
+                dttm_col.expression = COLUMN_EXPRESSION_MAPPINGS["day"]
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+                dttm_col.expression = ""
+            else:
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
 
         # Always remove duplicates by column name, as sometimes `metrics_exprs`
         # can have the same name as a groupby column (e.g. when users use
