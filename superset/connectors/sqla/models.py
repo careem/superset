@@ -1213,10 +1213,8 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                     )
                 )
 
-            if self.database.backend == PRESTO_DATABASE_NAME and (dttm_col.column_name == "day" or 
-                (len(dttm_col.column_name) == MULTI_TABLE_COLUMN_DAY_LENGTH and dttm_col.column_name[-3:] == "day")
-            ):
-                dttm_col.expression = COLUMN_EXPRESSION_MAPPINGS["day"]
+            if self.database.backend == PRESTO_DATABASE_NAME and (dttm_col.column_name == "day"):
+                dttm_col.expression = "cast({} as VARCHAR(10))".format(dttm_col.column_name)
                 time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
                 dttm_col.expression = ""
             else:
