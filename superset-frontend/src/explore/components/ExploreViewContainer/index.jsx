@@ -61,6 +61,9 @@ import {
   LOG_ACTIONS_CHANGE_EXPLORE_CONTROLS,
 } from '../../../logger/LogUtils';
 
+import { isMultiDatasource } from './utils';
+import MultidataSourcePanel from '../MultidataSourcePanel';
+
 const propTypes = {
   ...ExploreChartPanel.propTypes,
   height: PropTypes.string,
@@ -586,12 +589,21 @@ function ExploreViewContainer(props) {
             />
           </span>
         </div>
-        <DataSourcePanel
-          datasource={props.datasource}
-          controls={props.controls}
-          actions={props.actions}
-          shouldForceUpdate={shouldForceUpdate}
-        />
+        {isMultiDatasource(props.datasource.datasource_name) ? (
+          <MultidataSourcePanel
+            actions={props.actions}
+            controls={props.controls}
+            datasource={props.datasource}
+            shouldForceUpdate={shouldForceUpdate}
+          />
+        ) : (
+          <DataSourcePanel
+            actions={props.actions}
+            controls={props.controls}
+            datasource={props.datasource}
+            shouldForceUpdate={shouldForceUpdate}
+          />
+        )}
       </Resizable>
       {isCollapsed ? (
         <div

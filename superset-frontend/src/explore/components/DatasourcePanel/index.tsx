@@ -49,19 +49,19 @@ export interface Props {
   shouldForceUpdate?: number;
 }
 
-const Button = styled.button`
+export const Button = styled.button`
   background: none;
   border: none;
   text-decoration: underline;
   color: ${({ theme }) => theme.colors.primary.dark1};
 `;
 
-const ButtonContainer = styled.div`
+export const ButtonContainer = styled.div`
   text-align: center;
   padding-top: 2px;
 `;
 
-const DatasourceContainer = styled.div`
+export const DatasourceContainer = styled.div`
   ${({ theme }) => css`
     background-color: ${theme.colors.grayscale.light4};
     position: relative;
@@ -120,7 +120,7 @@ const LabelWrapper = styled.div`
   }
 `;
 
-const LabelContainer = (props: {
+export const LabelContainer = (props: {
   children: React.ReactElement;
   className: string;
 }) => {
@@ -135,7 +135,7 @@ const LabelContainer = (props: {
   );
 };
 
-const enableExploreDnd = isFeatureEnabled(
+export const enableExploreDnd = isFeatureEnabled(
   FeatureFlag.ENABLE_EXPLORE_DRAG_AND_DROP,
 );
 

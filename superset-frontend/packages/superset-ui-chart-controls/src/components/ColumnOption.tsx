@@ -42,7 +42,7 @@ export function ColumnOption({
   labelRef,
   showType = false,
 }: ColumnOptionProps) {
-  const { expression, column_name, type_generic } = column;
+  const { expression, column_name, type_generic, temp_name } = column;
   const hasExpression = expression && expression !== column_name;
   const type = hasExpression ? 'expression' : type_generic;
   const [tooltipText, setTooltipText] = useState<ReactNode>(column.column_name);
@@ -68,7 +68,7 @@ export function ColumnOption({
         placement="top"
       >
         <span className="m-r-5 option-label column-option-label" ref={labelRef}>
-          {getColumnLabelText(column)}
+          {temp_name ? temp_name : getColumnLabelText(column)}
         </span>
       </Tooltip>
 
