@@ -238,15 +238,15 @@ supersetNode:
     - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; /usr/bin/run-server.sh"
   connections:
     # Change in case of bringing your own redis and then also set redis.enabled:false
-    redis_host: "host.minikube.internal"
+    redis_host: ""
     # redis_password: superset
     redis_port: "6379"
     # You need to change below configuration incase bringing own PostgresSQL instance and also set postgresql.enabled:false
-    db_host: "host.minikube.internal"
-    db_port: "3306"
-    db_user: root
-    db_pass: Beaconhouse00.
-    db_name: superset
+    db_host: ""
+    db_port: ""
+    db_user:
+    db_pass:
+    db_name:
   env: {}
   forceReload: false # If true, forces deployment to reload on each upgrade
   initContainers:
