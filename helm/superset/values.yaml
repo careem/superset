@@ -240,13 +240,13 @@ supersetNode:
     # Change in case of bringing your own redis and then also set redis.enabled:false
     redis_host: ""
     # redis_password: superset
-    redis_port: "6379"
-    # You need to change below configuration incase bringing own PostgresSQL instance and also set postgresql.enabled:false
+    redis_port: ""
+    # You need to change below configuration incase bringing own MySQL instance and also set postgresql.enabled:false
     db_host: ""
     db_port: ""
-    db_user:
-    db_pass:
-    db_name:
+    db_user: ""
+    db_pass: ""
+    db_name: ""
   env: {}
   forceReload: false # If true, forces deployment to reload on each upgrade
   initContainers:
