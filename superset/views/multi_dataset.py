@@ -99,7 +99,15 @@ class CreateMultiDatasetCommand(CreateMixin, BaseCommand):
         any_date_col = None
         db_engine_spec = dataset.db_engine_spec
 
-        old_columns = db.session.query(TableColumn).filter(TableColumn.table == dataset)
+        old_columns = (
+            (
+                db.session.query(TableColumn)
+                .filter(TableColumn.table_id == dataset.id)
+                .all()
+            )
+            if dataset.id
+            else dataset.columns
+        )
 
         old_columns_by_name: Dict[str, TableColumn] = {
             col.column_name: col for col in old_columns
@@ -113,7 +121,7 @@ class CreateMultiDatasetCommand(CreateMixin, BaseCommand):
             ]
         )
 
-        dataset.columns = []
+        columns = []
 
         for col in new_columns:
             old_column = old_columns_by_name.pop(col["name"], None)
@@ -132,13 +140,13 @@ class CreateMultiDatasetCommand(CreateMixin, BaseCommand):
                 new_column.expression = ""
             new_column.groupby = True
             new_column.filterable = True
-            dataset.columns.append(new_column)
+            columns.append(new_column)
             if not any_date_col and new_column.is_temporal:
                 any_date_col = col["name"]
 
-        dataset.columns.extend(
-            [col for col in old_columns_by_name.values() if col.expression]
-        )
+        # add back calculated (virtual) columns
+        columns.extend([col for col in old_columns if col.expression])
+        dataset.columns = columns
 
         metrics.append(
             SqlMetric(

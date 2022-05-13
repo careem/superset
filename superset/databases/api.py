@@ -51,7 +51,7 @@ from superset.databases.commands.update import UpdateDatabaseCommand
 from superset.databases.commands.validate import ValidateDatabaseParametersCommand
 from superset.databases.dao import DatabaseDAO
 from superset.databases.decorators import check_datasource_access
-from superset.databases.filters import DatabaseFilter
+from superset.databases.filters import DatabaseFilter, DatabaseUploadEnabledFilter
 from superset.databases.schemas import (
     database_schemas_query_schema,
     DatabaseFunctionNamesResponse,
@@ -63,6 +63,7 @@ from superset.databases.schemas import (
     get_export_ids_schema,
     SchemasResponseSchema,
     SelectStarResponseSchema,
+    TableExtraMetadataResponseSchema,
     TableMetadataResponseSchema,
     database_catalogs_query_schema,
     CatalogsResponseSchema
@@ -72,8 +73,8 @@ from superset.db_engine_specs import get_available_engine_specs
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.extensions import security_manager
 from superset.models.core import Database
-from superset.typing import FlaskResponse
-from superset.utils.core import error_msg_from_exception
+from superset.superset_typing import FlaskResponse
+from superset.utils.core import error_msg_from_exception, parse_js_uri_path_item
 from superset.views.base_api import (
     BaseSupersetModelRestApi,
     requires_form_data,
@@ -91,6 +92,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         RouteMethod.EXPORT,
         RouteMethod.IMPORT,
         "table_metadata",
+        "table_extra_metadata",
         "select_star",
         "schemas",
         "test_connection",
@@ -127,6 +129,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "parameters_schema",
         "server_cert",
         "sqlalchemy_uri",
+        "is_managed_externally",
     ]
     list_columns = [
         "allow_file_upload",
@@ -149,6 +152,8 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "extra",
         "force_ctas_schema",
         "id",
+        "disable_data_preview",
+        "has_catalogs"
     ]
     add_columns = [
         "database_name",
@@ -168,7 +173,10 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "encrypted_extra",
         "server_cert",
     ]
+
     edit_columns = add_columns
+
+    search_filters = {"allow_file_upload": [DatabaseUploadEnabledFilter]}
 
     list_select_columns = list_columns + ["extra", "sqlalchemy_uri", "password"]
     order_columns = [
@@ -197,6 +205,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         DatabaseRelatedObjectsResponse,
         DatabaseTestConnectionSchema,
         DatabaseValidateParametersSchema,
+        TableExtraMetadataResponseSchema,
         TableMetadataResponseSchema,
         SelectStarResponseSchema,
         SchemasResponseSchema,
@@ -237,8 +246,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                         type: number
                       result:
                         $ref: '#/components/schemas/{{self.__class__.__name__}}.post'
-            302:
-              description: Redirects to the current digest
             400:
               $ref: '#/components/responses/400'
             401:
@@ -514,6 +521,10 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         database = self.datamodel.get(pk, self._base_filters)
         if not database:
             return self.response_404()
+        if not database.has_catalogs:
+          return self.response(
+                500, message="Database does not support catalogs"
+          )
         try:
             catalogs = database.get_all_catalog_names(
                 cache=database.schema_cache_enabled,
@@ -531,7 +542,8 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
     @rison(database_schemas_query_schema)
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".catalog.schemas",
+        action=lambda self, *args,
+        **kwargs: f"{self.__class__.__name__}" f".catalog.schemas",
         log_to_statsd=False,
     )
     def catalog_schemas(self, pk: int, catalog_name: str, **kwargs: Any) -> FlaskResponse:
@@ -575,6 +587,10 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         database = self.datamodel.get(pk, self._base_filters)
         if not database:
             return self.response_404()
+        if not database.has_catalogs:
+          return self.response(
+                500, message="Database does not support catalogs"
+          )
         try:
             schemas = database.get_all_catalog_schema_names(
               catalog_name=catalog_name,
@@ -648,6 +664,69 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             return self.response_422(error_msg_from_exception(ex))
         self.incr_stats("success", self.table_metadata.__name__)
         return self.response(200, **table_info)
+
+    @expose("/<int:pk>/table_extra/<table_name>/<schema_name>/", methods=["GET"])
+    @protect()
+    @check_datasource_access
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
+        f".table_extra_metadata",
+        log_to_statsd=False,
+    )
+    def table_extra_metadata(
+        self, database: Database, table_name: str, schema_name: str
+    ) -> FlaskResponse:
+        """Table schema info
+        ---
+        get:
+          summary: >-
+            Get table extra metadata
+          description: >-
+            Response depends on each DB engine spec normally focused on partitions
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+            description: The database id
+          - in: path
+            schema:
+              type: string
+            name: table_name
+            description: Table name
+          - in: path
+            schema:
+              type: string
+            name: schema_name
+            description: Table schema
+          responses:
+            200:
+              description: Table extra metadata information
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/TableExtraMetadataResponseSchema"
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
+        self.incr_stats("init", self.table_metadata.__name__)
+
+        parsed_schema = parse_js_uri_path_item(schema_name, eval_undefined=True)
+        table_name = parse_js_uri_path_item(table_name)  # type: ignore
+        payload = database.db_engine_spec.extra_table_metadata(
+            database, table_name, parsed_schema
+        )
+        return self.response(200, **payload)
 
     @expose("/<int:pk>/select_star/<table_name>/", methods=["GET"])
     @expose("/<int:pk>/select_star/<table_name>/<schema_name>/", methods=["GET"])
@@ -779,7 +858,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             schema:
               type: integer
           responses:
-            200:
             200:
               description: Query result
               content:
@@ -1004,7 +1082,10 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         database = DatabaseDAO.find_by_id(pk)
         if not database:
             return self.response_404()
-        return self.response(200, function_names=database.function_names,)
+        return self.response(
+            200,
+            function_names=database.function_names,
+        )
 
     @expose("/available/", methods=["GET"])
     @protect()
