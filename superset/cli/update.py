@@ -18,7 +18,6 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
 from typing import Optional
 
 import click
@@ -51,39 +50,6 @@ logger = logging.getLogger(__name__)
 def set_database_uri(database_name: str, uri: str, skip_create: bool) -> None:
     """Updates a database connection URI"""
     database_utils.get_or_create_db(database_name, uri, not skip_create)
-
-
-@click.command()
-@with_appcontext
-@click.option(
-    "--datasource",
-    "-d",
-    help="Specify which datasource name to load, if "
-    "omitted, all datasources will be refreshed",
-)
-@click.option(
-    "--merge",
-    "-m",
-    is_flag=True,
-    default=False,
-    help="Specify using 'merge' property during operation. " "Default value is False.",
-)
-def refresh_druid(datasource: str, merge: bool) -> None:
-    """Refresh druid datasources"""
-    # pylint: disable=import-outside-toplevel
-    from superset.connectors.druid.models import DruidCluster
-
-    session = db.session()
-
-    for cluster in session.query(DruidCluster).all():
-        try:
-            cluster.refresh_datasources(datasource_name=datasource, merge_flag=merge)
-        except Exception as ex:  # pylint: disable=broad-except
-            print("Error while processing cluster '{}'\n{}".format(cluster, str(ex)))
-            logger.exception(ex)
-        cluster.metadata_last_refreshed = datetime.now()
-        print("Refreshed metadata from cluster " "[" + cluster.cluster_name + "]")
-    session.commit()
 
 
 @click.command()
@@ -128,7 +94,7 @@ def update_api_docs() -> None:
     """Regenerate the openapi.json file in docs"""
     superset_dir = os.path.abspath(os.path.dirname(__file__))
     openapi_json = os.path.join(
-        superset_dir, "..", "docs", "src", "resources", "openapi.json"
+        superset_dir, "..", "..", "docs", "static", "resources", "openapi.json"
     )
     api_version = "v1"
 
@@ -149,6 +115,7 @@ def update_api_docs() -> None:
         click.secho("Generating openapi.json", fg="green")
         with open(openapi_json, "w") as outfile:
             json.dump(api_spec.to_dict(), outfile, sort_keys=True, indent=2)
+            outfile.write("\n")
     else:
         click.secho("API version not found", err=True)
 

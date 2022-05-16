@@ -33,7 +33,6 @@ from typing import (
     Union,
 )
 
-import jwt
 from flask import current_app, Flask, g, Request
 from flask_appbuilder import Model
 from flask_appbuilder.models.sqla.interface import SQLAInterface
@@ -54,6 +53,7 @@ from flask_appbuilder.security.views import (
 )
 from flask_appbuilder.widgets import ListWidget
 from flask_login import AnonymousUserMixin, LoginManager
+from jwt.api_jwt import _jwt_global_obj
 from sqlalchemy import and_, or_
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import Session
@@ -79,7 +79,6 @@ from superset.utils.urls import get_url_host
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
     from superset.connectors.base.models import BaseDatasource
-    from superset.connectors.druid.models import DruidCluster
     from superset.models.core import Database
     from superset.models.dashboard import Dashboard
     from superset.models.sql_lab import Query
@@ -153,9 +152,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
     GAMMA_READ_ONLY_MODEL_VIEWS = {
         "Dataset",
-        "DruidColumnInlineView",
-        "DruidDatasourceModelView",
-        "DruidMetricInlineView",
         "Datasource",
     } | READ_ONLY_MODEL_VIEWS
 
@@ -189,6 +185,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         "can_update_role",
         "all_query_access",
         "can_grant_guest_token",
+        "can_set_embedded",
     }
 
     READ_ONLY_PERMISSION = {
@@ -238,6 +235,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
     )
 
     guest_user_cls = GuestUser
+    pyjwt_for_guest_token = _jwt_global_obj
 
     def create_login_manager(self, app: Flask) -> LoginManager:
         lm = super().create_login_manager(app)
@@ -323,7 +321,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         return self.can_access("all_database_access", "all_database_access")
 
-    def can_access_database(self, database: Union["Database", "DruidCluster"]) -> bool:
+    def can_access_database(self, database: "Database") -> bool:
         """
         Return True if the user can fully access the Superset database, False otherwise.
 
@@ -726,12 +724,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 self.auth_role_public,
                 merge=True,
             )
-        if current_app.config.get("PUBLIC_ROLE_LIKE_GAMMA", False):
-            logger.warning(
-                "The config `PUBLIC_ROLE_LIKE_GAMMA` is deprecated and will be removed "
-                "in Superset 1.0. Please use `PUBLIC_ROLE_LIKE` instead."
-            )
-            self.copy_role("Gamma", self.auth_role_public, merge=True)
 
         self.create_missing_perms()
 
@@ -1222,6 +1214,17 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         ids.sort()  # Combinations rather than permutations
         return ids
 
+    def get_guest_rls_filters_str(self, table: "BaseDatasource") -> List[str]:
+        return [f.get("clause", "") for f in self.get_guest_rls_filters(table)]
+
+    def get_rls_cache_key(self, datasource: "BaseDatasource") -> List[str]:
+        rls_ids = []
+        if datasource.is_rls_supported:
+            rls_ids = self.get_rls_ids(datasource)
+        rls_str = [str(rls_id) for rls_id in rls_ids]
+        guest_rls = self.get_guest_rls_filters_str(datasource)
+        return guest_rls + rls_str
+
     @staticmethod
     def raise_for_user_activity_access(user_id: int) -> None:
         user = g.user if g.user and g.user.get_id() else None
@@ -1259,10 +1262,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 for dashboard_role in dashboard.roles
             )
 
-        if self.is_guest_user():
-            can_access = self.has_guest_access(
-                GuestTokenResourceType.DASHBOARD, dashboard.id
-            )
+        if self.is_guest_user() and dashboard.embedded:
+            can_access = self.has_guest_access(dashboard)
         else:
             can_access = (
                 is_user_admin()
@@ -1298,7 +1299,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _get_current_epoch_time() -> float:
-        """ This is used so the tests can mock time """
+        """This is used so the tests can mock time"""
         return time.time()
 
     @staticmethod
@@ -1307,6 +1308,24 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if callable(audience):
             audience = audience()
         return audience
+
+    @staticmethod
+    def validate_guest_token_resources(resources: GuestTokenResources) -> None:
+        # pylint: disable=import-outside-toplevel
+        from superset.embedded.dao import EmbeddedDAO
+        from superset.embedded_dashboard.commands.exceptions import (
+            EmbeddedDashboardNotFoundError,
+        )
+        from superset.models.dashboard import Dashboard
+
+        for resource in resources:
+            if resource["type"] == GuestTokenResourceType.DASHBOARD.value:
+                # TODO (embedded): remove this check once uuids are rolled out
+                dashboard = Dashboard.get(str(resource["id"]))
+                if not dashboard:
+                    embedded = EmbeddedDAO.find_by_id(str(resource["id"]))
+                    if not embedded:
+                        raise EmbeddedDashboardNotFoundError()
 
     def create_guest_access_token(
         self,
@@ -1320,7 +1339,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         audience = self._get_guest_token_jwt_audience()
         # calculate expiration time
         now = self._get_current_epoch_time()
-        exp = now + (exp_seconds * 1000)
+        exp = now + exp_seconds
         claims = {
             "user": user,
             "resources": resources,
@@ -1331,7 +1350,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             "aud": audience,
             "type": "guest",
         }
-        token = jwt.encode(claims, secret, algorithm=algo)
+        token = self.pyjwt_for_guest_token.encode(claims, secret, algorithm=algo)
         return token
 
     def get_guest_user_from_request(self, req: Request) -> Optional[GuestUser]:
@@ -1367,7 +1386,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
     def get_guest_user_from_token(self, token: GuestToken) -> GuestUser:
         return self.guest_user_cls(
-            token=token, roles=[self.find_role(current_app.config["GUEST_ROLE_NAME"])],
+            token=token,
+            roles=[self.find_role(current_app.config["GUEST_ROLE_NAME"])],
         )
 
     def parse_jwt_guest_token(self, raw_token: str) -> Dict[str, Any]:
@@ -1379,7 +1399,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
         algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
         audience = self._get_guest_token_jwt_audience()
-        return jwt.decode(raw_token, secret, algorithms=[algo], audience=audience)
+        return self.pyjwt_for_guest_token.decode(
+            raw_token, secret, algorithms=[algo], audience=audience
+        )
 
     @staticmethod
     def is_guest_user(user: Optional[Any] = None) -> bool:
@@ -1398,15 +1420,26 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             return g.user
         return None
 
-    def has_guest_access(
-        self, resource_type: GuestTokenResourceType, resource_id: Union[str, int]
-    ) -> bool:
+    def has_guest_access(self, dashboard: "Dashboard") -> bool:
         user = self.get_current_guest_user_if_guest()
         if not user:
             return False
 
-        strid = str(resource_id)
-        for resource in user.resources:
-            if resource["type"] == resource_type.value and str(resource["id"]) == strid:
+        dashboards = [
+            r
+            for r in user.resources
+            if r["type"] == GuestTokenResourceType.DASHBOARD.value
+        ]
+
+        # TODO (embedded): remove this check once uuids are rolled out
+        for resource in dashboards:
+            if str(resource["id"]) == str(dashboard.id):
+                return True
+
+        if not dashboard.embedded:
+            return False
+
+        for resource in dashboards:
+            if str(resource["id"]) == str(dashboard.embedded[0].uuid):
                 return True
         return False
