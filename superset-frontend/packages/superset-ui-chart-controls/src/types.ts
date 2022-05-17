@@ -65,6 +65,7 @@ export interface DatasourceMeta {
   granularity_sqla?: string;
   datasource_name: string | null;
   description: string | null;
+  extra: string | null;
 }
 
 export interface ControlPanelState {

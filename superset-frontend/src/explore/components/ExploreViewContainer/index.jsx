@@ -618,12 +618,21 @@ function ExploreViewContainer(props) {
               />
             </span>
           </div>
-          <DataSourcePanel
-            datasource={props.datasource}
-            controls={props.controls}
-            actions={props.actions}
-            shouldForceUpdate={shouldForceUpdate}
-          />
+          {isMultiDatasource(props.datasource) ? (
+            <MultidataSourcePanel
+              actions={props.actions}
+              controls={props.controls}
+              datasource={props.datasource}
+              shouldForceUpdate={shouldForceUpdate}
+            />
+          ) : (
+            <DataSourcePanel
+              actions={props.actions}
+              controls={props.controls}
+              datasource={props.datasource}
+              shouldForceUpdate={shouldForceUpdate}
+            />
+          )}
         </Resizable>
         {isCollapsed ? (
           <div

@@ -51,11 +51,11 @@ export interface Props {
   shouldForceUpdate?: number;
 }
 
-const enableExploreDnd = isFeatureEnabled(
+export const enableExploreDnd = isFeatureEnabled(
   FeatureFlag.ENABLE_EXPLORE_DRAG_AND_DROP,
 );
 
-const Button = styled.button`
+export const Button = styled.button`
   background: none;
   border: none;
   text-decoration: underline;

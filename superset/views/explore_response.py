@@ -1,6 +1,7 @@
 from uuid import uuid4
 from typing import Any, Dict, List, Optional, cast
 
+import json
 from flask import g
 from superset import db
 from superset.models.slice import Slice
@@ -231,12 +232,15 @@ class ExploreResponse():
                 "table_name": table_name,
                 "database": presto_database,
                 "database_id": presto_database.id,
-                "sql": "{} {}".format(sql_query, SQL_POSTFIX_SCHEMA)
+                "sql": "{} {}".format(sql_query, SQL_POSTFIX_SCHEMA),
             }).run()
         except Exception as ex:
             raise SupersetGenericDBErrorException(message=ex.message)
 
-        changed_model = UpdateDatasetCommand(g.user, new_model.id, {"sql": sql_query}).run()
+        changed_model = UpdateDatasetCommand(g.user, new_model.id, {
+            "sql": sql_query, 
+            "extra": json.dumps({"multi_table_name": table_name})
+        }).run()
 
         datasource = ConnectorRegistry.get_datasource(
             cast(str, changed_model.type), changed_model.id, db.session

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   ColumnMeta,
@@ -27,6 +27,8 @@ import {
   ButtonContainer,
   DatasourceContainer,
 } from '../DatasourcePanel';
+
+import { MULTI_DATASET_JOIN_KEY } from '../ExploreViewContainer/utils';
 
 const SMALLCASE_A_ASCII_CODE = 97;
 
@@ -62,7 +64,11 @@ export default function MultidataSourcePanel({
     return columns.filter(column => column.column_name.startsWith(columnAlias));
   }
 
-  const tableNames = getTableNames(datasource.datasource_name || '');
+  const tableName = datasource.extra
+    ? JSON.parse(datasource.extra)[MULTI_DATASET_JOIN_KEY]
+    : datasource.datasource_name;
+
+  const tableNames = getTableNames(tableName || '');
 
   const tableColumns = {};
   const initialShowColumns = {};
@@ -280,7 +286,7 @@ export default function MultidataSourcePanel({
                         lists.columns[table].length,
                       )}
                     </div>
-                    {columnSlices[table].map(col => (
+                    {columnSlices[table].map((col: ColumnMeta) => (
                       <LabelContainer
                         key={col.column_name + String(shouldForceUpdate)}
                         className="column"
