@@ -112,14 +112,12 @@ const LabelWrapper = styled.div`
     margin: ${theme.gridUnit * 2}px 0;
     border-radius: 4px;
     padding: 0 ${theme.gridUnit}px;
-
     &:first-of-type {
       margin-top: 0;
     }
     &:last-of-type {
       margin-bottom: 0;
     }
-
     ${enableExploreDnd &&
     css`
       padding: 0;
@@ -128,15 +126,12 @@ const LabelWrapper = styled.div`
         background-color: ${theme.colors.grayscale.light3};
       }
     `}
-
     & > span {
       white-space: nowrap;
     }
-
     .option-label {
       display: inline;
     }
-
     .metric-option {
       & > svg {
         min-width: ${theme.gridUnit * 4}px;
@@ -155,17 +150,16 @@ const SectionHeader = styled.span`
   `}
 `;
 
-const StyledInfoboxWrapper = styled.div`
+export const StyledInfoboxWrapper = styled.div`
   ${({ theme }) => css`
     margin: 0 ${theme.gridUnit * 2.5}px;
-
     span {
       text-decoration: underline;
     }
   `}
 `;
 
-const LabelContainer = (props: {
+export const LabelContainer = (props: {
   children: React.ReactElement;
   className: string;
 }) => {

@@ -1,21 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import {
+  Dataset,
   ColumnMeta,
   ControlConfig,
-  DatasourceMeta,
 } from '@superset-ui/chart-controls';
 
 import _, { debounce } from 'lodash';
 import { matchSorter, rankings } from 'match-sorter';
-import { t } from '@superset-ui/core';
+import { t, DatasourceType } from '@superset-ui/core';
 
+import Alert from 'src/components/Alert';
 import Collapse from 'src/components/Collapse';
 import { FAST_DEBOUNCE } from 'src/constants';
 import { Input } from 'src/components/Input';
 import Control from 'src/explore/components/Control';
+import { SaveDatasetModal } from 'src/SqlLab/components/SaveDatasetModal';
 
 import { DndItemType } from '../DndItemType';
+import { ExploreDatasource } from 'src/SqlLab/types';
 import { ExploreActions } from 'src/explore/actions/exploreActions';
 import { StyledColumnOption, StyledMetricOption } from '../optionRenderers';
 import DatasourcePanelDragOption from '../DatasourcePanel/DatasourcePanelDragOption';
@@ -26,18 +29,20 @@ import {
   enableExploreDnd,
   ButtonContainer,
   DatasourceContainer,
+  StyledInfoboxWrapper
 } from '../DatasourcePanel';
 
 import { MULTI_DATASET_JOIN_KEY } from '../ExploreViewContainer/utils';
 
+
 const SMALLCASE_A_ASCII_CODE = 97;
 
 interface DatasourceControl extends ControlConfig {
-  datasource?: DatasourceMeta;
+  datasource?: ExploreDatasource;
 }
 
 interface Props {
-  datasource: DatasourceMeta;
+  datasource: Dataset;
   controls: {
     datasource: DatasourceControl;
   };
@@ -95,6 +100,7 @@ export default function MultidataSourcePanel({
 
   const [inputValue, setInputValue] = useState('');
   const [showAllMetrics, setShowAllMetrics] = useState(false);
+  const [showSaveDatasetModal, setShowSaveDatasetModal] = useState(false);
   const [showAllColumns, setShowAllColumns] = useState(initialShowColumns);
 
   const [lists, setList] = useState({
@@ -130,6 +136,11 @@ export default function MultidataSourcePanel({
         [lists.columns[table], showAllColumns[table]],
       )),
   );
+
+  const showInfoboxCheck = () => {
+    if (sessionStorage.getItem('showInfobox') === 'false') return false;
+    return true;
+  };
 
   function updateShowColumns(tableName: string) {
     const updatedShowColumns = _.cloneDeep(showAllColumns);
@@ -221,6 +232,29 @@ export default function MultidataSourcePanel({
           placeholder={t('Search Metrics & Columns')}
         />
         <div className="field-selections">
+        {datasource.type === DatasourceType.Query && showInfoboxCheck() && (
+            <StyledInfoboxWrapper>
+              <Alert
+                closable
+                onClose={() => sessionStorage.setItem('showInfobox', 'false')}
+                type="info"
+                message=""
+                description={
+                  <>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setShowSaveDatasetModal(true)}
+                      className="add-dataset-alert-description"
+                    >
+                      {t('Create a dataset')}
+                    </span>
+                    {t(' to edit or add columns and metrics.')}
+                  </>
+                }
+              />
+            </StyledInfoboxWrapper>
+          )}          
           <Collapse
             ghost
             expandIconPosition="right"
@@ -341,6 +375,13 @@ export default function MultidataSourcePanel({
 
   return (
     <DatasourceContainer>
+      <SaveDatasetModal
+        visible={showSaveDatasetModal}
+        onHide={() => setShowSaveDatasetModal(false)}
+        buttonTextOnSave={t('Save')}
+        buttonTextOnOverwrite={t('Overwrite')}
+        datasource={datasource}
+      />
       <Control {...datasourceControl} name="datasource" actions={actions} />
       {datasource.id != null && mainBody}
     </DatasourceContainer>
