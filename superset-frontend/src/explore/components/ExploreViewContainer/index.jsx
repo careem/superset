@@ -629,6 +629,7 @@ function ExploreViewContainer(props) {
             />
           ) : (
             <DataSourcePanel
+              user={props.user}
               actions={props.actions}
               controls={props.controls}
               datasource={props.datasource}
