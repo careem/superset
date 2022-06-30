@@ -258,7 +258,8 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
   >([]);
   const [comparator, setComparator] = useState(props.adhocFilter.comparator);
   const [loadingComparatorSuggestions, setLoadingComparatorSuggestions] =
-    useState(false);
+    useState<boolean>(false);
+  const [showFilterInput, setShowFilterInput] = useState<boolean>(false);
 
   const {
     advancedDataTypesState,
@@ -362,7 +363,9 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
     onChange: onComparatorChange,
     notFoundContent: t('Type a value here'),
     disabled: DISABLE_INPUT_OPERATORS.includes(operatorId),
-    placeholder: createSuggestionsPlaceholder(),
+    placeholder: createSuggestionsPlaceholder()
+      ? createSuggestionsPlaceholder()
+      : t('Select Suggestions'),
     autoFocus: shouldFocusComparator,
   };
 
@@ -374,7 +377,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
       const { datasource } = props;
       const col = props.adhocFilter.subject;
       const having = props.adhocFilter.clause === CLAUSES.HAVING;
-
+      setSuggestions([]);
       if (col && datasource && datasource.filter_select && !having) {
         const controller = new AbortController();
         const { signal } = controller;
@@ -382,6 +385,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
           controller.abort();
         }
         setLoadingComparatorSuggestions(true);
+        setShowFilterInput(false);
         SupersetClient.get({
           signal,
           endpoint: `/superset/filter/${datasource.type}/${datasource.id}/${col}/`,
@@ -397,8 +401,11 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
           })
           .catch(() => {
             setSuggestions([]);
+            setShowFilterInput(true);
             setLoadingComparatorSuggestions(false);
           });
+      } else {
+        setShowFilterInput(true);
       }
     };
     refreshComparatorSuggestions();
@@ -463,7 +470,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
           }))}
         {...operatorSelectProps}
       />
-      {MULTI_OPERATORS.has(operatorId) || suggestions.length > 0 ? (
+      {MULTI_OPERATORS.has(operatorId) || (suggestions && !showFilterInput) ? (
         <Tooltip
           title={
             advancedDataTypesState.errorMessage ||
