@@ -41,8 +41,8 @@ import { Tooltip } from 'src/components/Tooltip';
 import { Input } from 'src/components/Input';
 import { optionLabel } from 'src/utils/common';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
-import useAdvancedDataTypes from './useAdvancedDataTypes';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import useAdvancedDataTypes from './useAdvancedDataTypes';
 
 const StyledInput = styled(Input)`
   margin-bottom: ${({ theme }) => theme.gridUnit * 4}px;
@@ -393,11 +393,10 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
           endpoint: `/superset/filter/${datasource.type}/${datasource.id}/${col}/`,
         })
           .then(({ json }) => {
-            if(!json){
-              setShowFilterInput(true)
-              setSuggestions([])
-            }
-            else{
+            if (!json) {
+              setShowFilterInput(true);
+              setSuggestions([]);
+            } else {
               setSuggestions(
                 json.map((suggestion: null | number | boolean | string) => ({
                   value: suggestion,
@@ -407,12 +406,13 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
             }
             setLoadingComparatorSuggestions(false);
           })
-          .catch((error) => {
-            addDangerToast(error && error.statusText ? error.statusText : t('NOT_SUPPORTED'));
+          .catch(error => {
+            addDangerToast(
+              error && error.statusText ? error.statusText : t('NOT_SUPPORTED'),
+            );
             setSuggestions([]);
             setShowFilterInput(true);
             setLoadingComparatorSuggestions(false);
-
           });
       } else {
         setShowFilterInput(true);
