@@ -42,6 +42,7 @@ import { Input } from 'src/components/Input';
 import { optionLabel } from 'src/utils/common';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import useAdvancedDataTypes from './useAdvancedDataTypes';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 
 const StyledInput = styled(Input)`
   margin-bottom: ${({ theme }) => theme.gridUnit * 4}px;
@@ -260,6 +261,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
   const [loadingComparatorSuggestions, setLoadingComparatorSuggestions] =
     useState<boolean>(false);
   const [showFilterInput, setShowFilterInput] = useState<boolean>(false);
+  const { addDangerToast } = useToasts();
 
   const {
     advancedDataTypesState,
@@ -391,18 +393,26 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
           endpoint: `/superset/filter/${datasource.type}/${datasource.id}/${col}/`,
         })
           .then(({ json }) => {
-            setSuggestions(
-              json.map((suggestion: null | number | boolean | string) => ({
-                value: suggestion,
-                label: optionLabel(suggestion),
-              })),
-            );
+            if(!json){
+              setShowFilterInput(true)
+              setSuggestions([])
+            }
+            else{
+              setSuggestions(
+                json.map((suggestion: null | number | boolean | string) => ({
+                  value: suggestion,
+                  label: optionLabel(suggestion),
+                })),
+              );
+            }
             setLoadingComparatorSuggestions(false);
           })
-          .catch(() => {
+          .catch((error) => {
+            addDangerToast(error && error.statusText ? error.statusText : t('NOT_SUPPORTED'));
             setSuggestions([]);
             setShowFilterInput(true);
             setLoadingComparatorSuggestions(false);
+
           });
       } else {
         setShowFilterInput(true);
