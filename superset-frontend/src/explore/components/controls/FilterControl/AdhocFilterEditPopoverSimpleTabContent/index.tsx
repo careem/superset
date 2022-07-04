@@ -261,7 +261,6 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
   const [loadingComparatorSuggestions, setLoadingComparatorSuggestions] =
     useState<boolean>(false);
   const [showFilterInput, setShowFilterInput] = useState<boolean>(false);
-  const { addDangerToast } = useToasts();
 
   const {
     advancedDataTypesState,
@@ -407,9 +406,6 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
             setLoadingComparatorSuggestions(false);
           })
           .catch(error => {
-            addDangerToast(
-              error && error.statusText ? error.statusText : t('NOT_SUPPORTED'),
-            );
             setSuggestions([]);
             setShowFilterInput(true);
             setLoadingComparatorSuggestions(false);
