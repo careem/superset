@@ -132,7 +132,8 @@ class TestExportDatasetsCommand(SupersetTestCase):
             "description": "Energy consumption",
             "extra": None,
             "fetch_values_predicate": None,
-            "filter_select_enabled": False,
+            "filter_select":True,
+            "filter_select_enabled": True,
             "main_dttm_col": None,
             "metrics": [
                 {
