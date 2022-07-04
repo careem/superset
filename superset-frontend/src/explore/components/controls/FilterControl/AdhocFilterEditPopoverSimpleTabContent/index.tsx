@@ -41,7 +41,6 @@ import { Tooltip } from 'src/components/Tooltip';
 import { Input } from 'src/components/Input';
 import { optionLabel } from 'src/utils/common';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
-import { useToasts } from 'src/components/MessageToasts/withToasts';
 import useAdvancedDataTypes from './useAdvancedDataTypes';
 
 const StyledInput = styled(Input)`
