@@ -295,7 +295,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
   const createSuggestionsPlaceholder = () => {
     const optionsRemaining = getOptionsRemaining();
     const placeholder = t('%s option(s)', optionsRemaining);
-    return optionsRemaining ? placeholder : '';
+    return optionsRemaining ? placeholder : 'Select Suggestions';
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -363,9 +363,7 @@ const AdhocFilterEditPopoverSimpleTabContent: React.FC<Props> = props => {
     onChange: onComparatorChange,
     notFoundContent: t('Type a value here'),
     disabled: DISABLE_INPUT_OPERATORS.includes(operatorId),
-    placeholder: createSuggestionsPlaceholder()
-      ? createSuggestionsPlaceholder()
-      : t('Select Suggestions'),
+    placeholder: createSuggestionsPlaceholder(),
     autoFocus: shouldFocusComparator,
   };
 
