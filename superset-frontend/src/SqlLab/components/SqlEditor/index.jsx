@@ -73,6 +73,7 @@ import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';
 import ScheduleQueryButton from '../ScheduleQueryButton';
+import FlashCreationButton from '../FlaskCreationButton';
 import EstimateQueryCostButton from '../EstimateQueryCostButton';
 import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
@@ -95,6 +96,8 @@ const bootstrapData = JSON.parse(
 const validatorMap =
   bootstrapData?.common?.conf?.SQL_VALIDATORS_BY_ENGINE || {};
 const scheduledQueriesConf = bootstrapData?.common?.conf?.SCHEDULED_QUERIES;
+const flasHCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
+
 
 const LimitSelectStyled = styled.span`
   ${({ theme }) => `
@@ -221,6 +224,7 @@ class SqlEditor extends React.PureComponent {
 
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
     this.renderDropdown = this.renderDropdown.bind(this);
+
   }
 
   UNSAFE_componentWillMount() {
@@ -719,6 +723,20 @@ class SqlEditor extends React.PureComponent {
           )}
         </div>
         <div className="rightItems">
+        {scheduledQueriesConf &&
+        <span>
+            <FlashCreationButton
+              defaultLabel={this.props.queryEditor.title}
+              sql={this.props.queryEditor.sql}
+              onSchedule={this.props.actions.scheduleQuery}
+              schema={this.props.queryEditor.schema}
+              dbId={this.props.queryEditor.dbId}
+              scheduleQueryWarning={this.props.scheduleQueryWarning}
+              tooltip={'Schedule it'}
+              disabled={false}
+            />
+            </span>
+          }
           <span>
             <SaveQuery
               query={qe}

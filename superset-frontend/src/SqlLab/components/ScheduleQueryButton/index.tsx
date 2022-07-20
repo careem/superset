@@ -150,6 +150,7 @@ const ScheduleQueryButton: FunctionComponent<ScheduleQueryButtonProps> = ({
   }: {
     formData: Omit<FormProps<Record<string, any>>, 'schema'>;
   }) => {
+    console.log('json object', formData)
     const query = {
       label,
       description,
