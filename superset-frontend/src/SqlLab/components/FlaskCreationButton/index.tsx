@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState,useRef } from 'react';
 import SchemaForm, { FormProps, FormValidation } from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
 import { Input, TextArea } from 'src/components/Input';
 import { t, styled } from '@superset-ui/core';
 import * as chrono from 'chrono-node';
-import ModalTrigger from 'src/components/ModalTrigger';
+import ModalTrigger, { ModalTriggerRef } from 'src/components/ModalTrigger';
 import { Form, FormItem } from 'src/components/Form';
 import Button from 'src/components/Button';
 import Icons from 'src/components/Icons';
@@ -48,12 +48,25 @@ const getJSONSchema = () => {
   if (jsonSchema) {
     Object.entries(jsonSchema.properties).forEach(
       ([key, value]: [string, any]) => {
-        if (value.default && value.format === 'date-time') {
-          jsonSchema.properties[key] = {
-            ...value,
-            default: chrono.parseDate(value.default).toISOString(),
-          };
+        if(key === 'target_db_name'){
+          console.log('change enum to target db')
+          value.enum = ["Pinot Flashes"]
         }
+        if(value.default){
+          if (value.format === 'date-time') {
+            jsonSchema.properties[key] = {
+              ...value,
+              default: chrono.parseDate(value.default).toISOString(),
+            };
+          }
+          if (value.format === 'date') {
+            jsonSchema.properties[key] = {
+              ...value,
+              default: chrono.parseDate(value.default).toISOString().split("T")[0],
+            };
+          }
+        }
+
       },
     );
     return jsonSchema;
@@ -146,7 +159,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const [description, setDescription] = useState('');
   const [label, setLabel] = useState(defaultLabel);
   const [showFlashModal, setShowFlashModal] = useState<boolean>(false);
-  let saveModal: ModalTrigger | null;
+  const saveModal: ModalTriggerRef | null = useRef() as ModalTriggerRef;
+
 
   const onScheduleSubmit = ({
     formData,
@@ -154,16 +168,16 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     formData: Omit<FormProps<Record<string, any>>, 'schema'>;
   }) => {
     console.log('form values===', formData)
-    const query = {
-      label,
-      description,
-      db_id: dbId,
-      schema,
-      sql,
-      extra_json: JSON.stringify({ schedule_info: formData }),
-    };
-    onSchedule(query);
-    saveModal?.close();
+    // const query = {
+    //   label,
+    //   description,
+    //   db_id: dbId,
+    //   schema,
+    //   sql,
+    //   extra_json: JSON.stringify({ schedule_info: formData }),
+    // };
+    // onSchedule(query);
+    // saveModal?.current?.close();
   };
 
   const renderModalBody = () => (
@@ -201,9 +215,11 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           <StyledJsonSchema>
             <SchemaForm
               schema={getJSONSchema()}
-              uiSchema={getUISchema}
+              uiSchema={getUISchema()}
               onSubmit={onScheduleSubmit}
               validate={getValidator()}
+              liveValidate
+
 
             >
               <Button
@@ -230,9 +246,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   return (
     <span className="ScheduleQueryButton">
       <ModalTrigger
-        ref={ref => {
-          saveModal = ref;
-        }}
+        ref={saveModal}
         modalTitle={t('Create Flash Object')}
         modalBody={renderModalBody()}
         triggerNode={

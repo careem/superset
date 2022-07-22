@@ -710,56 +710,49 @@ FLASH_CREATION = {
     # and saved into the `extra` field of saved queries.
     # See: https://github.com/mozilla-services/react-jsonschema-form
     'JSONSCHEMA': {
-        'type': 'object',
-        'properties': {
-            "Target DB Name": {
+        "type": "object",
+        "properties": {
+            "target_db_name": {
+                "title": "Target DB Name",
                 "type": "string",
                 "enum": [
-                    "Pinot-flashes",
-                    "Pinot-flashes-2",
+                    "Pinot Flashes",
+                    "Pinot-flashes-2"
                 ],
-                "default": "Pinot-flashes"
+                "default": "Pinot Flashes"
             },
-            'domain': {
-                'type': 'string',
-                'title': 'Domain',
+            "domain": {
+                "type": "string",
+                "title": "Domain"
             },
-            'service': {
-                'type': 'string',
-                'title': 'Service',
+            "service": {
+                "type": "string",
+                "title": "Service"
             },
-            'dataset': {
-                'type': 'string',
-                'title': 'Dataset',
+            "dataset": {
+                "type": "string",
+                "title": "Dataset"
             },
-            'target_table_name': {
-                'type': 'string',
-                'title': 'Table Name',
-                "readOnly": "true"
+            "target_table_name": {
+                "type": "string",
+                "title": "Table Name",
+                "readOnly": True
             },
-            "FlashType": {
+            "flash_type": {
+                "title":"Flash Type",
                 "type": "string",
                 "enum": [
                     "Short Term",
-                    "Long Term",
+                    "Long Term"
                 ],
-                "default": "Short Term"
-            },
-            'slack_channel': {
-                'type': 'string',
-                'title': 'Slack Channel',
-            },
-            'slack_handle': {
-            'type': 'string',
-            'title': 'Slack Handle',
+                "default": "Long Term"
             },
 
-
-            'ttl': {
-                'type': 'string',
-                'title': 'TTL',
-                'format': 'date',
-                'default': 'today',
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "today"
             },
             "Schedule Type": {
                 "type": "string",
@@ -770,60 +763,65 @@ FLASH_CREATION = {
                 ],
                 "default": "Daily"
             },
-             'schedule_date_time': {
-                'type': 'string',
-                'title': 'Schedule Start Time',
-                'format': 'date-time',
-                'default': 'today at 11:59 am'
-            },
+             "schedule_date_time": {
+                "type": "string",
+                "title": "Schedule Start Time",
+                "format": "date-time",
+                "default": "today at 11:59 am"
+            }
         },
-         "required": ["dataset","FlashType"],
-           "allOf": [
-                    {
-                    "if": {
-                        "properties": {
-                        "FlashType": {
-                            "const": "Long Term"
-                        }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                        'slack_channel': {
-                                'type': 'string',
-                                'title': 'Slack Channel',
-                            },
-                            'slack_handle': {
-                                'type': 'string',
-                                'title': 'Slack Handle',
-                            },
+         'dependencies': {
+            "flash_type": {
+            "oneOf": [
 
+                {
+                "properties": {
+                    "flash_type": {
+                    "enum": [
+                        "Long Term"
+                    ]
+                    },
+                     "slack_channel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern":"#[A-Za-z0-9]"
                         },
-                        "required": [
-                        "slack_channel","slack_handle"
-                        ]
-                    }
+                        "slack_handle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern":"@[A-Za-z0-9]"
+                        }
+                },
+                "required": [
+                    "slack_channel","slack_handle"
+                ]
+                },
+                {
+                "properties": {
+                    "flash_type": {
+                    "enum": [
+                        "Short Term"
+                    ]
                     },
+                },
+                }
             ]
-
+            }
+                }
     },
     'UISCHEMA': {
-        'dependencies': {
-            'ui:help': (
-                'Check the documentation for the correct format when '
-                'defining dependencies.'
-            ),
-    }
+
+            'slack_channel': {
+                        'ui:placeholder': '#slack_channel_name',
+                    },
+                    'slack_handle': {
+                        'ui:placeholder': '@slack_handle_name',
+                    },
+
+
+
     },
     'VALIDATION': [
-        # ensure that start_date <= end_date
-        {
-            'name': 'less_equal',
-            'arguments': ['start_date', 'end_date'],
-            'message': 'End date cannot be before start date',
-            # this is where the error message is shown
-            'container': 'end_date',
-        },
 
     ],
     # link to the scheduler; this example links to an Airflow pipeline
@@ -833,7 +831,6 @@ FLASH_CREATION = {
         'dag_id=query_${id}_${extra_json.schedule_info.output_table}'
     ),
 }
-
 # ---------------------------------------------------
 # Time grain configurations
 # ---------------------------------------------------
