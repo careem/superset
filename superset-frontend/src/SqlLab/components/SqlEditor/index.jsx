@@ -726,14 +726,8 @@ class SqlEditor extends React.PureComponent {
         {scheduledQueriesConf &&
         <span>
             <FlashCreationButton
-              defaultLabel={this.props.queryEditor.title}
               sql={this.props.queryEditor.sql}
-              onSchedule={this.props.actions.scheduleQuery}
-              schema={this.props.queryEditor.schema}
-              dbId={this.props.queryEditor.dbId}
-              scheduleQueryWarning={this.props.scheduleQueryWarning}
-              tooltip={'Schedule it'}
-              disabled={false}
+              onCreate={this.props.actions.scheduleQuery}
             />
             </span>
           }

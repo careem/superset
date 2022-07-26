@@ -715,21 +715,17 @@ FLASH_CREATION = {
             "target_db_name": {
                 "title": "Target DB Name",
                 "type": "string",
-                "enum": [
-                    "Pinot Flashes",
-                    "Pinot-flashes-2"
-                ],
-                "default": "Pinot Flashes"
+
             },
-            "domain": {
+            "domain_name": {
                 "type": "string",
                 "title": "Domain"
             },
-            "service": {
+            "service_name": {
                 "type": "string",
                 "title": "Service"
             },
-            "dataset": {
+            "dataset_name": {
                 "type": "string",
                 "title": "Dataset"
             },
@@ -742,38 +738,31 @@ FLASH_CREATION = {
                 "title":"Flash Type",
                 "type": "string",
                 "enum": [
+                    "One Time",
                     "Short Term",
                     "Long Term"
                 ],
-                "default": "Long Term"
+                "default": "Short Term"
             },
-
             "ttl": {
                 "type": "string",
                 "title": "TTL",
                 "format": "date",
-                "default": "today"
+                "default": "7 days from now"
             },
-            "Schedule Type": {
-                "type": "string",
-                "enum": [
-                    "Daily",
-                    "Weekly",
-                    "Monthly"
-                ],
-                "default": "Daily"
-            },
-             "schedule_date_time": {
-                "type": "string",
-                "title": "Schedule Start Time",
-                "format": "date-time",
-                "default": "today at 11:59 am"
-            }
+
         },
-         'dependencies': {
+        "required": [ "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "flash_type",
+            "ttl",
+        ],
+
+        'dependencies': {
             "flash_type": {
             "oneOf": [
-
                 {
                 "properties": {
                     "flash_type": {
@@ -781,20 +770,34 @@ FLASH_CREATION = {
                         "Long Term"
                     ]
                     },
-                     "slack_channel": {
-                                "type": "string",
-                                "title": "Slack Channel",
-                                "pattern":"#[A-Za-z0-9]"
-                        },
-                        "slack_handle": {
-                                "type": "string",
-                                "title": "Slack Handle",
-                                "pattern":"@[A-Za-z0-9]"
-                        }
+                    "team_slack_channel": {
+                            "type": "string",
+                            "title": "Slack Channel",
+                            "pattern":"^(#)[A-Za-z0-9_-\s&!]+$"
+                    },
+                    "team_slack_handle": {
+                            "type": "string",
+                            "title": "Slack Handle",
+                            "pattern":"^(@)[A-Za-z0-9_-\s&!]+$"
+                    },
+                    "schedule_type": {
+                    "title":"Schedule Type",
+                    "type": "string",
+                    "enum": [
+                        "Daily",
+                        "Weekly",
+                        "Monthly"
+                    ],
+                    "default": "Daily"
+                    },
+                    "schedule_start_time": {
+                    "type": "string",
+                    "title": "Schedule Start Time",
+                    "format": "date-time",
+                    "default": "today at 12 am"
+                    }
                 },
-                "required": [
-                    "slack_channel","slack_handle"
-                ]
+                "required": ["team_slack_channel","team_slack_handle","schedule_type","schedule_start_time"]
                 },
                 {
                 "properties": {
@@ -803,22 +806,50 @@ FLASH_CREATION = {
                         "Short Term"
                     ]
                     },
+                     "schedule_type": {
+                    "title":"Schedule Type",
+                    "type": "string",
+                    "enum": [
+                        "Daily",
+                        "Weekly",
+                        "Monthly"
+                    ],
+                    "default": "Daily"
+                    },
+                    "schedule_start_time": {
+                    "type": "string",
+                    "title": "Schedule Start Time",
+                    "format": "date-time",
+                    "default": "today at 12am"
+                    }
                 },
+                "required": ["schedule_type","schedule_start_time"]
                 }
             ]
             }
                 }
     },
+
     'UISCHEMA': {
+        "ui:order": [
+            "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "target_table_name",
+            "flash_type",
+            "*",
+            "ttl",
+            "schedule_type",
+            "schedule_start_time"
 
-            'slack_channel': {
-                        'ui:placeholder': '#slack_channel_name',
-                    },
-                    'slack_handle': {
-                        'ui:placeholder': '@slack_handle_name',
-                    },
-
-
+        ],
+         'team_slack_channel': {
+            'ui:placeholder': '#slack_channel_name',
+        },
+        'team_slack_handle': {
+            'ui:placeholder': '@slack_handle_name',
+        },
 
     },
     'VALIDATION': [
