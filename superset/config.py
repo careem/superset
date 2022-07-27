@@ -240,7 +240,7 @@ PROXY_FIX_CONFIG = {"x_for": 1, "x_proto": 1, "x_host": 1, "x_port": 1, "x_prefi
 # Configuration for scheduling queries from SQL Lab.
 SCHEDULED_QUERIES: Dict[str, Any] = {}
 
-FLASH_CREATION:Dict[str, Any] = {}
+FLASH_CREATION: Dict[str, Any] = {}
 
 # ------------------------------
 # GLOBALS FOR APP Builder
@@ -633,77 +633,77 @@ SCHEDULED_QUERIES = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
     # See: https://github.com/mozilla-services/react-jsonschema-form
-    'JSONSCHEMA': {
-        'title': 'Schedule',
-        'description': (
-            'In order to schedule a query, you need to specify when it '
-            'should start running, when it should stop running, and how '
-            'often it should run. You can also optionally specify '
-            'dependencies that should be met before the query is '
-            'executed. Please read the documentation for best practices '
-            'and more information on how to specify dependencies.'
+    "JSONSCHEMA": {
+        "title": "Schedule",
+        "description": (
+            "In order to schedule a query, you need to specify when it "
+            "should start running, when it should stop running, and how "
+            "often it should run. You can also optionally specify "
+            "dependencies that should be met before the query is "
+            "executed. Please read the documentation for best practices "
+            "and more information on how to specify dependencies."
         ),
-        'type': 'object',
-        'properties': {
-            'output_table': {
-                'type': 'string',
-                'title': 'Output table name',
+        "type": "object",
+        "properties": {
+            "output_table": {
+                "type": "string",
+                "title": "Output table name",
             },
-            'start_date': {
-                'type': 'string',
-                'title': 'Start date',
+            "start_date": {
+                "type": "string",
+                "title": "Start date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': 'tomorrow at 9am',
+                "format": "date-time",
+                "default": "tomorrow at 9am",
             },
-            'end_date': {
-                'type': 'string',
-                'title': 'End date',
+            "end_date": {
+                "type": "string",
+                "title": "End date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': '9am in 30 days',
+                "format": "date-time",
+                "default": "9am in 30 days",
             },
-            'schedule_interval': {
-                'type': 'string',
-                'title': 'Schedule interval',
+            "schedule_interval": {
+                "type": "string",
+                "title": "Schedule interval",
             },
-            'dependencies': {
-                'type': 'array',
-                'title': 'Dependencies',
-                'items': {
-                    'type': 'string',
+            "dependencies": {
+                "type": "array",
+                "title": "Dependencies",
+                "items": {
+                    "type": "string",
                 },
             },
         },
     },
-    'UISCHEMA': {
-        'schedule_interval': {
-            'ui:placeholder': '@daily, @weekly, etc.',
+    "UISCHEMA": {
+        "schedule_interval": {
+            "ui:placeholder": "@daily, @weekly, etc.",
         },
-        'dependencies': {
-            'ui:help': (
-                'Check the documentation for the correct format when '
-                'defining dependencies.'
+        "dependencies": {
+            "ui:help": (
+                "Check the documentation for the correct format when "
+                "defining dependencies."
             ),
         },
     },
-    'VALIDATION': [
+    "VALIDATION": [
         # ensure that start_date <= end_date
         {
-            'name': 'less_equal',
-            'arguments': ['start_date', 'end_date'],
-            'message': 'End date cannot be before start date',
+            "name": "less_equal",
+            "arguments": ["start_date", "end_date"],
+            "message": "End date cannot be before start date",
             # this is where the error message is shown
-            'container': 'end_date',
+            "container": "end_date",
         },
     ],
     # link to the scheduler; this example links to an Airflow pipeline
     # that uses the query id and the output table as its name
-    'linkback': (
-        'https://airflow.example.com/admin/airflow/tree?'
-        'dag_id=query_${id}_${extra_json.schedule_info.output_table}'
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
     ),
 }
 
@@ -711,138 +711,109 @@ FLASH_CREATION = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
     # See: https://github.com/mozilla-services/react-jsonschema-form
-    'JSONSCHEMA': {
+    "JSONSCHEMA": {
         "type": "object",
         "properties": {
             "target_db_name": {
                 "title": "Target DB Name",
                 "type": "string",
             },
-            "domain_name": {
-                "type": "string",
-                "title": "Domain"
-            },
-            "service_name": {
-                "type": "string",
-                "title": "Service"
-            },
-            "dataset_name": {
-                "type": "string",
-                "title": "Dataset"
-            },
+            "domain_name": {"type": "string", "title": "Domain"},
+            "service_name": {"type": "string", "title": "Service"},
+            "dataset_name": {"type": "string", "title": "Dataset"},
             "target_table_name": {
                 "type": "string",
                 "title": "Table Name",
-                "readOnly": True
+                "readOnly": True,
             },
             "flash_type": {
-                "title":"Flash Type",
+                "title": "Flash Type",
                 "type": "string",
-                "enum": [
-                    "One Time",
-                    "Short Term",
-                    "Long Term"
-                ],
-                "default": "One Time"
+                "enum": ["One Time", "Short Term", "Long Term"],
+                "default": "One Time",
             },
             "ttl": {
                 "type": "string",
                 "title": "TTL",
                 "format": "date",
-                "default": "7 days from now"
+                "default": "7 days from now",
             },
             "c_domain": {
                 "title": "C Domain",
                 "type": "string",
             },
-             "c_service": {
+            "c_service": {
                 "title": "C Service",
                 "type": "string",
             },
         },
-        "required": [ "target_db_name",
+        "required": [
+            "target_db_name",
             "domain_name",
             "service_name",
             "dataset_name",
             "flash_type",
             "ttl",
-
         ],
-
-        'dependencies': {
+        "dependencies": {
             "flash_type": {
-            "oneOf": [
-                {
-                "properties": {
-                    "flash_type": {
-                    "enum": [
-                        "Long Term"
-                    ]
+                "oneOf": [
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Long Term"]},
+                            "team_slack_channel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern": "^(#)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "team_slack_handle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["Daily", "Weekly", "Monthly"],
+                                "default": "Daily",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                                "default": "today at 12 am",
+                            },
+                        },
+                        "required": [
+                            "team_slack_channel",
+                            "team_slack_handle",
+                            "schedule_type",
+                            "schedule_start_time",
+                        ],
                     },
-                    "team_slack_channel": {
-                            "type": "string",
-                            "title": "Slack Channel",
-                            "pattern":"^(#)[A-Za-z0-9_-\\s&!]+$"
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Short Term"]},
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["Daily", "Weekly", "Monthly"],
+                                "default": "Daily",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                                "default": "today at 12am",
+                            },
+                        },
+                        "required": ["schedule_type", "schedule_start_time"],
                     },
-                    "team_slack_handle": {
-                            "type": "string",
-                            "title": "Slack Handle",
-                            "pattern":"^(@)[A-Za-z0-9_-\\s&!]+$"
-                    },
-                    "schedule_type": {
-                    "title":"Schedule Type",
-                    "type": "string",
-                    "enum": [
-                        "Daily",
-                        "Weekly",
-                        "Monthly"
-                    ],
-                    "default": "Daily"
-                    },
-                    "schedule_start_time": {
-                    "type": "string",
-                    "title": "Schedule Start Time",
-                    "format": "date-time",
-                    "default": "today at 12 am"
-                    }
-                },
-                "required": ["team_slack_channel",
-                "team_slack_handle",
-                "schedule_type",
-                "schedule_start_time"]
-                },
-                {
-                "properties": {
-                    "flash_type": {
-                    "enum": [
-                        "Short Term"
-                    ]
-                    },
-                     "schedule_type": {
-                    "title":"Schedule Type",
-                    "type": "string",
-                    "enum": [
-                        "Daily",
-                        "Weekly",
-                        "Monthly"
-                    ],
-                    "default": "Daily"
-                    },
-                    "schedule_start_time": {
-                    "type": "string",
-                    "title": "Schedule Start Time",
-                    "format": "date-time",
-                    "default": "today at 12am"
-                    }
-                },
-                "required": ["schedule_type","schedule_start_time"]
-                }
-            ]
+                ]
             }
-                }
+        },
     },
-
-    'UISCHEMA': {
+    "UISCHEMA": {
         "ui:order": [
             "target_db_name",
             "domain_name",
@@ -855,25 +826,21 @@ FLASH_CREATION = {
             "schedule_type",
             "schedule_start_time",
             "c_domain",
-            "c_service"
-
+            "c_service",
         ],
-         'team_slack_channel': {
-            'ui:placeholder': '#slack_channel_name',
+        "team_slack_channel": {
+            "ui:placeholder": "#slack_channel_name",
         },
-        'team_slack_handle': {
-            'ui:placeholder': '@slack_handle_name',
+        "team_slack_handle": {
+            "ui:placeholder": "@slack_handle_name",
         },
-
     },
-    'VALIDATION': [
-
-    ],
+    "VALIDATION": [],
     # link to the scheduler; this example links to an Airflow pipeline
     # that uses the query id and the output table as its name
-    'linkback': (
-        'https://airflow.example.com/admin/airflow/tree?'
-        'dag_id=query_${id}_${extra_json.schedule_info.output_table}'
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
     ),
 }
 # ---------------------------------------------------
