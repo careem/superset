@@ -17,7 +17,7 @@
  * under the License.
  */
 import React, { FunctionComponent, useState, useRef, useEffect } from 'react';
-import SchemaForm, { FormProps } from 'react-jsonschema-form';
+import SchemaForm from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
 import { t, styled } from '@superset-ui/core';
 import * as chrono from 'chrono-node';
@@ -26,10 +26,10 @@ import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import Icons from 'src/components/Icons';
 import { removeUnnecessaryProperties } from 'src/utils/commonHelper';
-import { FlashTypes } from './enums';
 import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import { FlashTypes } from './enums';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -48,34 +48,15 @@ const getJSONSchema = () => {
 
 const getUISchema = () => flashObjectConfig?.UISCHEMA;
 
-type Result = {
+type Query = {
   query?: string;
   language?: string;
 };
 interface FlashCreationButtonProps {
-  latestQueryFormData?: object
+  latestQueryFormData?: object;
   sql?: string;
   onCreate?: Function;
 }
-
-export const StyledButtonComponent = styled(Button)`
-  ${({ theme }) => `
-    background: none;
-    text-transform: none;
-    padding: 0px;
-    color: ${theme.colors.grayscale.dark2};
-    font-size: 14px;
-    font-weight: ${theme.typography.weights.normal};
-    &:disabled {
-      background: none;
-      color: ${theme.colors.grayscale.dark2};
-      &:hover {
-        background: none;
-        color: ${theme.colors.grayscale.dark2};
-      }
-    }
-  `}
-`;
 
 const StyledJsonSchema = styled.div`
   i.glyphicon {
@@ -98,12 +79,12 @@ const StyledJsonSchema = styled.div`
 const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   sql,
   latestQueryFormData,
-  onCreate = () => {},
+  onCreate = () => { },
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Array<string>>([]);
   const [formData, setFormData] = useState({});
-  const [sqlQuery, setSqlQuery] = useState<Result>({});
+  const [sqlQuery, setSqlQuery] = useState<Query>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const canCreateFlashObject = !!sql || !!latestQueryFormData;
@@ -124,7 +105,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               jsonSchema.properties[key] = {
                 ...value,
                 enum: dbDropdown,
-                default: dbDropdown[0]
+                default: dbDropdown[0],
               };
             }
             if (value.default) {
@@ -162,9 +143,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       resultFormat: 'json',
       resultType,
     })
-      .then(({ json }) =>
-      {
-        let query = Object.assign({}, json.result[0])
+      .then(({ json }) => {
+        const query = { ...json.result[0] };
         setSqlQuery(query);
         setIsLoading(false);
         setError(null);
@@ -173,9 +153,9 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         getClientErrorObject(response).then(({ error, message }) => {
           setError(
             error ||
-              message ||
-              response.statusText ||
-              t('Sorry, An error occurred'),
+            message ||
+            response.statusText ||
+            t('Sorry, An error occurred'),
           );
           setIsLoading(false);
         });
@@ -186,19 +166,19 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     loadQueryFromData('query');
   }, [JSON.stringify(latestQueryFormData)]);
 
-
   const transformErrors = (errors: any) =>
-  errors.map((error: any) => {
-    if (error.name === 'pattern') {
-      if (error.property === '.team_slack_channel') {
-        error.message = 'Slack Channel must start with #';
+    errors.map((error: any) => {
+      const newError = { ...error };
+      if (error.name === 'pattern') {
+        if (error.property === '.team_slack_channel') {
+          newError.message = 'Slack Channel must start with #';
+        }
+        if (error.property === '.team_slack_handle') {
+          newError.message = 'Slack Handle must start with @';
+        }
       }
-      if (error.property === '.team_slack_handle') {
-        error.message = 'Slack Handle must start with @';
-      }
-    }
-    return error;
-  });
+      return newError;
+    });
 
   if (isLoading) {
     return <Loading />;
@@ -245,19 +225,15 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
   };
 
-  const onFlashCreationSubmit = ({
-    formData,
-  }: {
-    formData: Omit<FormProps<Record<string, any>>, 'schema'>;
-  }) => {
+  const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    if (payload["flash_type"] === FlashTypes.SHORT_TERM) {
+    if (payload.flash_type === FlashTypes.SHORT_TERM) {
       removeUnnecessaryProperties(payload, [
         'team_slack_channel',
         'team_slack_handle',
       ]);
     }
-    if (payload["flash_type"] === FlashTypes.ONE_TIME) {
+    if (payload.flash_type === FlashTypes.ONE_TIME) {
       removeUnnecessaryProperties(payload, [
         'team_slack_channel',
         'team_slack_handle',
@@ -316,10 +292,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           <Button
             tooltip={
               canCreateFlashObject
-                ? t('Create the flash object')
+                ? t('Create Flash Object')
                 : t(
-                    'You must run the query successfully first and then try creating a flash object',
-                  )
+                  'You must run the query successfully first and then try creating a flash object',
+                )
             }
             disabled={!canCreateFlashObject}
             buttonSize="small"

@@ -28,7 +28,7 @@ import {
   t,
 } from '@superset-ui/core';
 import { toggleActive, deleteActiveReport } from 'src/reports/actions/reports';
-import { scheduleQuery } from '/src/SqlLab/actions/sqlLab';
+import { scheduleQuery } from 'src/SqlLab/actions/sqlLab';
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import AlteredSliceTag from 'src/components/AlteredSliceTag';
 import Button from 'src/components/Button';
@@ -118,7 +118,7 @@ export const ExploreChartHeader = ({
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -186,14 +186,14 @@ export const ExploreChartHeader = ({
         }
         rightPanelAdditionalItems={
           <>
-            <Tooltip title={t('Create Flash Object')}>
-              <div>
-                <FlashCreationButton
-                  latestQueryFormData={latestQueryFormData}
-                  onCreate={actions.scheduleQuery}
-                />
-              </div>
-            </Tooltip>
+
+            <div>
+              <FlashCreationButton
+                latestQueryFormData={latestQueryFormData}
+                onCreate={actions.scheduleQuery}
+              />
+            </div>
+
             <Tooltip
               title={
                 saveDisabled

@@ -241,11 +241,7 @@ function ExploreViewContainer(props) {
 
   const theme = useTheme();
 
-
-  const defaultSidebarsWidth = {
-    controls_width: 320,
-    datasource_width: 300,
-  };
+  const defaultSidebarsWidth = { controls_width: 320, datasource_width: 300 };
 
   const addHistory = useCallback(
     async ({ isReplace = false, title } = {}) => {

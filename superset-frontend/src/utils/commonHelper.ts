@@ -21,9 +21,10 @@ export const removeUnnecessaryProperties = (
   formObject: Object,
   properties: Array<string>,
 ) => {
+  const formObjLocalRef = formObject;
   Object.keys(formObject).forEach(key => {
     if (properties.includes(key)) {
-      delete formObject[key];
+      delete formObjLocalRef[key];
     }
   });
 };
