@@ -79,7 +79,7 @@ const StyledJsonSchema = styled.div`
 const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   sql,
   latestQueryFormData,
-  onCreate = () => { },
+  onCreate = () => {},
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Array<string>>([]);
@@ -153,9 +153,9 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         getClientErrorObject(response).then(({ error, message }) => {
           setError(
             error ||
-            message ||
-            response.statusText ||
-            t('Sorry, An error occurred'),
+              message ||
+              response.statusText ||
+              t('Sorry, An error occurred'),
           );
           setIsLoading(false);
         });
@@ -294,8 +294,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               canCreateFlashObject
                 ? t('Create Flash Object')
                 : t(
-                  'You must run the query successfully first and then try creating a flash object',
-                )
+                    'You must run the query successfully first and then try creating a flash object',
+                  )
             }
             disabled={!canCreateFlashObject}
             buttonSize="small"

@@ -782,12 +782,12 @@ FLASH_CREATION = {
                     "team_slack_channel": {
                             "type": "string",
                             "title": "Slack Channel",
-                            "pattern":"^(#)[A-Za-z0-9_-\s&!]+$"
+                            "pattern":"^(#)[A-Za-z0-9_-\\s&!]+$"
                     },
                     "team_slack_handle": {
                             "type": "string",
                             "title": "Slack Handle",
-                            "pattern":"^(@)[A-Za-z0-9_-\s&!]+$"
+                            "pattern":"^(@)[A-Za-z0-9_-\\s&!]+$"
                     },
                     "schedule_type": {
                     "title":"Schedule Type",
@@ -806,7 +806,10 @@ FLASH_CREATION = {
                     "default": "today at 12 am"
                     }
                 },
-                "required": ["team_slack_channel","team_slack_handle","schedule_type","schedule_start_time"]
+                "required": ["team_slack_channel",
+                "team_slack_handle",
+                "schedule_type",
+                "schedule_start_time"]
                 },
                 {
                 "properties": {

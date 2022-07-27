@@ -118,7 +118,7 @@ export const ExploreChartHeader = ({
           }
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -186,7 +186,6 @@ export const ExploreChartHeader = ({
         }
         rightPanelAdditionalItems={
           <>
-
             <div>
               <FlashCreationButton
                 latestQueryFormData={latestQueryFormData}
