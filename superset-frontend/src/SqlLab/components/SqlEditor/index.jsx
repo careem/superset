@@ -73,7 +73,7 @@ import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';
 import ScheduleQueryButton from '../ScheduleQueryButton';
-import FlashCreationButton from '../FlaskCreationButton';
+import FlashCreationButton from '../FlashCreationButton';
 import EstimateQueryCostButton from '../EstimateQueryCostButton';
 import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
@@ -93,10 +93,11 @@ const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
   appContainer.getAttribute('data-bootstrap') || '{}',
 );
+
 const validatorMap =
   bootstrapData?.common?.conf?.SQL_VALIDATORS_BY_ENGINE || {};
 const scheduledQueriesConf = bootstrapData?.common?.conf?.SCHEDULED_QUERIES;
-const flasHCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
+const flashCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
 
 
 const LimitSelectStyled = styled.span`
@@ -723,14 +724,14 @@ class SqlEditor extends React.PureComponent {
           )}
         </div>
         <div className="rightItems">
-        {scheduledQueriesConf &&
-        <span>
+
+       {flashCreationConf && <span>
             <FlashCreationButton
               sql={this.props.queryEditor.sql}
               onCreate={this.props.actions.scheduleQuery}
             />
-            </span>
-          }
+        </span>}
+
           <span>
             <SaveQuery
               query={qe}

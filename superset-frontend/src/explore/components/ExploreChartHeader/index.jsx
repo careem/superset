@@ -28,6 +28,7 @@ import {
   t,
 } from '@superset-ui/core';
 import { toggleActive, deleteActiveReport } from 'src/reports/actions/reports';
+import {scheduleQuery} from '/src/sqlLab/actions/SqlLab'
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import AlteredSliceTag from 'src/components/AlteredSliceTag';
 import Button from 'src/components/Button';
@@ -36,6 +37,8 @@ import PropertiesModal from 'src/explore/components/PropertiesModal';
 import { sliceUpdated } from 'src/explore/actions/exploreActions';
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
+import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import FlashCreationButton from 'src/SqlLab/components/FlashCreationButton';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -53,11 +56,13 @@ const propTypes = {
   saveDisabled: PropTypes.bool,
 };
 
+
 const saveButtonStyles = theme => css`
   color: ${theme.colors.primary.dark2};
   & > span[role='img'] {
     margin-right: 0;
-  }
+  };
+  margin-left: 10px;
 `;
 
 export const ExploreChartHeader = ({
@@ -182,6 +187,18 @@ export const ExploreChartHeader = ({
           ) : null
         }
         rightPanelAdditionalItems={
+          <>
+            <Tooltip title={
+              t('Create Flash Object')
+            }
+          >
+            <div>
+            <FlashCreationButton
+          sql={latestQueryFormData}
+          onCreate={actions.scheduleQuery}
+          />
+            </div>
+          </Tooltip>
           <Tooltip
             title={
               saveDisabled
@@ -202,7 +219,10 @@ export const ExploreChartHeader = ({
                 {t('Save')}
               </Button>
             </div>
+
           </Tooltip>
+          </>
+
         }
         additionalActionsMenu={menu}
         menuDropdownProps={{
@@ -226,7 +246,7 @@ ExploreChartHeader.propTypes = propTypes;
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { sliceUpdated, toggleActive, deleteActiveReport },
+    { sliceUpdated, toggleActive, deleteActiveReport, scheduleQuery },
     dispatch,
   );
 }

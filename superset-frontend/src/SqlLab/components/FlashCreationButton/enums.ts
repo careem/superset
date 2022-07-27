@@ -3,3 +3,4 @@ export enum FlashTypes {
   SHORT_TERM = 'Short Term',
   LONG_TERM = 'Long Term'
 }
+

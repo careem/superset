@@ -47,9 +47,6 @@ const getUISchema = () => flashObjectConfig?.UISCHEMA;
 interface FlashCreationButtonProps {
   sql: string;
   onCreate?: Function;
-  scheduleQueryWarning: string | null;
-  disabled: boolean;
-  tooltip: string;
 }
 
 
@@ -94,11 +91,7 @@ const StyledJsonSchema = styled.div`
 const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   sql,
   onCreate = () => {},
-  scheduleQueryWarning,
-  tooltip,
-  disabled = false,
 }) => {
-  const [showFlashModal, setShowFlashModal] = useState<boolean>(false);
   const [flashSchema,setFlashSchema] = useState(getJSONSchema())
   const [dbDropdown,setDbDropdown] = useState<Array<string>>([])
   const [formData,setFormData] = useState({})
@@ -130,7 +123,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               if (value.format === 'date-time') {
                 jsonSchema.properties[key] = {
                   ...value,
-                  default: chrono.parseDate(value.default).toUTCString(),
+                  default: chrono.parseDate(value.default).toISOString(),
                 };
               }
               if (value.format === 'date') {
@@ -168,14 +161,14 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     if(formData){
       if(formData['flash_type'] === FlashTypes.LONG_TERM){
         formData.ttl = chrono.parseDate('90 days from now').toISOString().split("T")[0]
-        formData.schedule_start_time = new Date().toUTCString()
+        formData.schedule_start_time = new Date().toISOString()
       }
       else if(formData['flash_type'] === FlashTypes.SHORT_TERM){
         formData.ttl = chrono.parseDate('7 days from now').toISOString().split("T")[0]
-        formData.schedule_start_time = new Date().toUTCString()
+        formData.schedule_start_time = new Date().toISOString()
       }
       else{
-
+        formData.ttl = chrono.parseDate('7 days from now').toISOString().split("T")[0]
       }
       if(formData.domain_name || formData.service_name  || formData.dataset_name ){
         formData.target_table_name = [formData.domain_name , formData.service_name , formData.dataset_name ].filter(val => val != null).join('_')
@@ -200,10 +193,11 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     const flash = {
       created_by: user?.email,
       sql_squery: sql,
-      sql,
       ...payload
     };
-    onCreate(flash);
+
+    console.log('flash===',flash)
+    // onCreate(flash);
     saveModal?.current?.close();
   };
 
@@ -232,13 +226,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           </StyledJsonSchema>
         </Col>
       </Row>
-      {scheduleQueryWarning && (
-        <Row>
-          <Col xs={24}>
-            <small>{scheduleQueryWarning}</small>
-          </Col>
-        </Row>
-      )}
     </Form>
   );
 

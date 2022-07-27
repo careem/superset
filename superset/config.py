@@ -240,6 +240,8 @@ PROXY_FIX_CONFIG = {"x_for": 1, "x_proto": 1, "x_host": 1, "x_port": 1, "x_prefi
 # Configuration for scheduling queries from SQL Lab.
 SCHEDULED_QUERIES: Dict[str, Any] = {}
 
+FLASH_CREATION:Dict[str, Any] = {}
+
 # ------------------------------
 # GLOBALS FOR APP Builder
 # ------------------------------
@@ -742,7 +744,7 @@ FLASH_CREATION = {
                     "Short Term",
                     "Long Term"
                 ],
-                "default": "Short Term"
+                "default": "One Time"
             },
             "ttl": {
                 "type": "string",
@@ -750,7 +752,14 @@ FLASH_CREATION = {
                 "format": "date",
                 "default": "7 days from now"
             },
-
+            "c_domain": {
+                "title": "C Domain",
+                "type": "string",
+            },
+             "c_service": {
+                "title": "C Service",
+                "type": "string",
+            },
         },
         "required": [ "target_db_name",
             "domain_name",
@@ -758,6 +767,7 @@ FLASH_CREATION = {
             "dataset_name",
             "flash_type",
             "ttl",
+
         ],
 
         'dependencies': {
@@ -841,7 +851,9 @@ FLASH_CREATION = {
             "*",
             "ttl",
             "schedule_type",
-            "schedule_start_time"
+            "schedule_start_time",
+            "c_domain",
+            "c_service"
 
         ],
          'team_slack_channel': {

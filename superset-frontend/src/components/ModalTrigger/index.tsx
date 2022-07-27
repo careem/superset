@@ -97,7 +97,6 @@ const ModalTrigger = React.forwardRef(
             data-test="btn-modal-trigger"
             tooltip={tooltip}
             onClick={open}
-            disabled={disabled}
           >
             {triggerNode}
           </Button>
