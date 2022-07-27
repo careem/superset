@@ -70,7 +70,10 @@ export type ScheduleQueriesProps = {
   };
 };
 export type FeatureFlagMap = {
-  [key in Exclude<FeatureFlag, FeatureFlag.SCHEDULED_QUERIES & FeatureFlag.FLASH_CREATION>]?: boolean;
+  [key in Exclude<
+    FeatureFlag,
+    FeatureFlag.SCHEDULED_QUERIES & FeatureFlag.FLASH_CREATION
+  >]?: boolean;
 } & {
   SCHEDULED_QUERIES?: ScheduleQueriesProps;
   FLASH_CREATION?: ScheduleQueriesProps;

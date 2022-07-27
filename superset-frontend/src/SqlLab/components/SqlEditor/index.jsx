@@ -99,7 +99,6 @@ const validatorMap =
 const scheduledQueriesConf = bootstrapData?.common?.conf?.SCHEDULED_QUERIES;
 const flashCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
 
-
 const LimitSelectStyled = styled.span`
   ${({ theme }) => `
     .ant-dropdown-trigger {
@@ -225,7 +224,6 @@ class SqlEditor extends React.PureComponent {
 
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
     this.renderDropdown = this.renderDropdown.bind(this);
-
   }
 
   UNSAFE_componentWillMount() {
@@ -724,13 +722,14 @@ class SqlEditor extends React.PureComponent {
           )}
         </div>
         <div className="rightItems">
-
-       {flashCreationConf && <span>
-            <FlashCreationButton
-              sql={this.props.queryEditor.sql}
-              onCreate={this.props.actions.scheduleQuery}
-            />
-        </span>}
+          {flashCreationConf && (
+            <span>
+              <FlashCreationButton
+                sql={this.props.queryEditor.sql}
+                onCreate={this.props.actions.scheduleQuery}
+              />
+            </span>
+          )}
 
           <span>
             <SaveQuery

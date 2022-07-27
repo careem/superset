@@ -717,7 +717,6 @@ FLASH_CREATION = {
             "target_db_name": {
                 "title": "Target DB Name",
                 "type": "string",
-
             },
             "domain_name": {
                 "type": "string",

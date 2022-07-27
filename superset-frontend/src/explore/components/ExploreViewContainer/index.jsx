@@ -241,7 +241,6 @@ function ExploreViewContainer(props) {
 
   const theme = useTheme();
 
-  console.log('props in charts==', props)
 
   const defaultSidebarsWidth = {
     controls_width: 320,

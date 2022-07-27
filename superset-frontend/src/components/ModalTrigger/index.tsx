@@ -39,7 +39,7 @@ interface ModalTriggerProps {
   draggable?: boolean;
   draggableConfig?: any;
   destroyOnClose?: boolean;
-  disabled?:boolean
+  disabled?: boolean;
 }
 
 export interface ModalTriggerRef {
@@ -70,7 +70,7 @@ const ModalTrigger = React.forwardRef(
       responsive,
       width,
       maxWidth,
-      disabled
+      disabled,
     } = props;
 
     const close = () => {
@@ -102,7 +102,11 @@ const ModalTrigger = React.forwardRef(
           </Button>
         )}
         {!isButton && (
-          <span data-test="span-modal-trigger" onClick={disabled ? undefined : open} role="button">
+          <span
+            data-test="span-modal-trigger"
+            onClick={disabled ? undefined : open}
+            role="button"
+          >
             {triggerNode}
           </span>
         )}
