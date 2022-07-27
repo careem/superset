@@ -19,7 +19,7 @@
 import React, { FunctionComponent, useState, useRef, useEffect } from 'react';
 import SchemaForm, { FormProps } from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
-import { t, styled, ensureIsArray } from '@superset-ui/core';
+import { t, styled } from '@superset-ui/core';
 import * as chrono from 'chrono-node';
 import ModalTrigger, { ModalTriggerRef } from 'src/components/ModalTrigger';
 import { Form } from 'src/components/Form';
