@@ -167,6 +167,27 @@ export function scheduleQuery(query) {
       );
 }
 
+// export function createFlashObject(flash) {
+//   return dispatch =>
+//     FlashClient.post({
+//       endpoint: '/savedqueryviewapi/api/create/flashobject',
+//       postPayload: flash,
+//       stringify: false,
+//     })
+//       .then(() =>
+//         dispatch(
+//           addSuccessToast(
+//             t(
+//               'Your flash object has been created. To see details of your flash, navigate to Flash Management',
+//             ),
+//           ),
+//         ),
+//       )
+//       .catch(() =>
+//         dispatch(addDangerToast(t('Your flash object could not be created'))),
+//       );
+// }
+
 export function estimateQueryCost(query) {
   const { dbId, schema, sql, templateParams } = query;
   const endpoint =

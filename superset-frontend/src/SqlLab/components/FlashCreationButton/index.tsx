@@ -163,7 +163,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   };
 
   useEffect(() => {
-    loadQueryFromData('query');
+    latestQueryFormData && loadQueryFromData('query');
   }, [JSON.stringify(latestQueryFormData)]);
 
   const transformErrors = (errors: any) =>
@@ -241,7 +241,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         'schedule_start_time',
       ]);
     }
-    console.log('payloads===', payload);
     const flash = {
       created_by: user?.email,
       sql_squery: sql || sqlQuery?.query,
