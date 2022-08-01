@@ -29,7 +29,8 @@ import { removeUnnecessaryProperties } from 'src/utils/commonHelper';
 import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
-import { FlashTypes } from './enums';
+import { FlashTypes } from 'src/FlashManagement/enums';
+import { FlashObject, FormErrors } from 'src/FlashManagement/types';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -149,7 +150,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         setIsLoading(false);
         setError(null);
       })
-      .catch(response => {
+      .catch((response:any) => {
         getClientErrorObject(response).then(({ error, message }) => {
           setError(
             error ||
@@ -166,9 +167,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     latestQueryFormData && loadQueryFromData('query');
   }, [JSON.stringify(latestQueryFormData)]);
 
-  const transformErrors = (errors: any) =>
-    errors.map((error: any) => {
+  const transformErrors = (errors: FormErrors[]) =>
+    errors.map((error: FormErrors) => {
       const newError = { ...error };
+      console.log(newError)
       if (error.name === 'pattern') {
         if (error.property === '.team_slack_channel') {
           newError.message = 'Slack Channel must start with #';
@@ -227,6 +229,11 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 
   const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
+    // payload.schedule_start_time = (payload.schedule_start_time).replace("T"," ")
+    // payload.schedule_start_time = (payload.schedule_start_time).replace("Z","")
+    payload.schedule_start_time = "2022-08-01 12:30:00"
+
+
     if (payload.flash_type === FlashTypes.SHORT_TERM) {
       removeUnnecessaryProperties(payload, [
         'team_slack_channel',
@@ -243,12 +250,12 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
     const flash = {
       created_by: user?.email,
-      sql_squery: sql || sqlQuery?.query,
+      sql_query: sql || sqlQuery?.query,
       ...payload,
-    };
+    } as  FlashObject
 
     console.log('flash===', flash);
-    // onCreate(flash);
+    onCreate(flash);
     saveModal?.current?.close();
   };
 

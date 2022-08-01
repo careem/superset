@@ -51,6 +51,7 @@ import {
   saveQuery,
   addSavedQueryToTabState,
   scheduleQuery,
+  createFlashObject,
   setActiveSouthPaneTab,
   updateSavedQuery,
   validateQuery,
@@ -73,7 +74,7 @@ import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';
 import ScheduleQueryButton from '../ScheduleQueryButton';
-import FlashCreationButton from '../FlashCreationButton';
+import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
 import EstimateQueryCostButton from '../EstimateQueryCostButton';
 import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
@@ -726,7 +727,7 @@ class SqlEditor extends React.PureComponent {
             <span>
               <FlashCreationButton
                 sql={this.props.queryEditor.sql}
-                onCreate={this.props.actions.scheduleQuery}
+                onCreate={this.props.actions.createFlashObject}
               />
             </span>
           )}
@@ -864,6 +865,7 @@ function mapDispatchToProps(dispatch) {
       saveQuery,
       addSavedQueryToTabState,
       scheduleQuery,
+      createFlashObject,
       setActiveSouthPaneTab,
       updateSavedQuery,
       validateQuery,

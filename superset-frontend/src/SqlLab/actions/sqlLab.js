@@ -33,6 +33,8 @@ import {
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import COMMON_ERR_MESSAGES from 'src/utils/errorMessages';
 
+import { createFlash } from 'src/FlashManagement/services/flash.service';
+
 export const RESET_STATE = 'RESET_STATE';
 export const ADD_QUERY_EDITOR = 'ADD_QUERY_EDITOR';
 export const UPDATE_QUERY_EDITOR = 'UPDATE_QUERY_EDITOR';
@@ -167,26 +169,23 @@ export function scheduleQuery(query) {
       );
 }
 
-// export function createFlashObject(flash) {
-//   return dispatch =>
-//     FlashClient.post({
-//       endpoint: '/savedqueryviewapi/api/create/flashobject',
-//       postPayload: flash,
-//       stringify: false,
-//     })
-//       .then(() =>
-//         dispatch(
-//           addSuccessToast(
-//             t(
-//               'Your flash object has been created. To see details of your flash, navigate to Flash Management',
-//             ),
-//           ),
-//         ),
-//       )
-//       .catch(() =>
-//         dispatch(addDangerToast(t('Your flash object could not be created'))),
-//       );
-// }
+export function createFlashObject(flash) {
+  console.log('create flash call', flash);
+  return dispatch =>
+    createFlash(flash)
+      .then(() =>
+        dispatch(
+          addSuccessToast(
+            t(
+              'Your flash object has been created. To see details of your flash, navigate to Flash Management',
+            ),
+          ),
+        ),
+      )
+      .catch(() =>
+        dispatch(addDangerToast(t('Your flash object could not be created'))),
+      );
+}
 
 export function estimateQueryCost(query) {
   const { dbId, schema, sql, templateParams } = query;

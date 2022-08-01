@@ -116,6 +116,7 @@
     "ace-builds": "^1.4.14",
     "antd": "^4.9.4",
     "array-move": "^2.2.1",
+    "axios": "^0.27.2",
     "babel-plugin-typescript-to-proptypes": "^2.0.0",
     "bootstrap": "^3.4.1",
     "bootstrap-slider": "^10.0.0",

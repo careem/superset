@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,11 +17,32 @@
  * under the License.
  */
 
-export { default as callApi } from './callApi';
-export { default as SupersetClient } from './SupersetClient';
-export { default as SupersetClientClass } from './SupersetClientClass';
-export { default as FlashClient } from './FlashClient';
+ export interface FlashObject {
+  id?:number
+  created_by:string
+  dataset_name: string
+  domain_name: string
+  flash_type: string
+  schedule_start_time?: string
+  schedule_type?:string
+  service_name: string
+  sql_query:string
+  target_db_name:string
+  target_table_name: string
+  team_slack_channel?: string
+  team_slack_handle?: string
+  ttl:string
+  cdomain?:string
+  cservice?:string
+}
 
-
-export * from './types';
-export { default as __hack_reexport_connection } from './types';
+export interface FormErrors {
+  message:string
+  name:string
+  params: {
+    pattern: string
+  }
+  property: string
+  schemaPath : string
+  stack: string
+}
