@@ -17,19 +17,27 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+apt update
+apt install -y awscli
+apt install -y jq
+aws secretsmanager get-secret-value --region eu-west-1 --secret-id bdp/careem-insights --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > /tmp/secrets.env
+eval $(cat /tmp/secrets.env | sed 's/^/export /')
+rm -f /tmp/secrets.env
+
+STATSD_PORT=9125
 HYPHEN_SYMBOL='-'
+STATSD_PREFIX='careem.insights'
 
 gunicorn \
+    -k gevent \
     --bind "${SUPERSET_BIND_ADDRESS:-0.0.0.0}:${SUPERSET_PORT:-8088}" \
     --access-logfile "${ACCESS_LOG_FILE:-$HYPHEN_SYMBOL}" \
     --error-logfile "${ERROR_LOG_FILE:-$HYPHEN_SYMBOL}" \
-    --workers ${SERVER_WORKER_AMOUNT:-1} \
-    --worker-class ${SERVER_WORKER_CLASS:-gthread} \
-    --threads ${SERVER_THREADS_AMOUNT:-20} \
-    --timeout ${GUNICORN_TIMEOUT:-60} \
-    --keep-alive ${GUNICORN_KEEPALIVE:-2} \
-    --max-requests ${WORKER_MAX_REQUESTS:-0} \
-    --max-requests-jitter ${WORKER_MAX_REQUESTS_JITTER:-0} \
+    --workers ${SERVER_WORKER_AMOUNT:-10} \
+    --timeout ${GUNICORN_TIMEOUT:-120} \
     --limit-request-line ${SERVER_LIMIT_REQUEST_LINE:-0} \
     --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE:-0} \
+    --statsd-host=localhost:${STATSD_PORT} \
+    --statsd-prefix=${STATSD_PREFIX} \
     "${FLASK_APP}"
