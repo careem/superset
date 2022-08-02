@@ -34,7 +34,7 @@ gunicorn \
     --bind "${SUPERSET_BIND_ADDRESS:-0.0.0.0}:${SUPERSET_PORT:-8088}" \
     --access-logfile "${ACCESS_LOG_FILE:-$HYPHEN_SYMBOL}" \
     --error-logfile "${ERROR_LOG_FILE:-$HYPHEN_SYMBOL}" \
-    --workers ${SERVER_WORKER_AMOUNT:-10} \
+    --workers ${SERVER_WORKER_AMOUNT:-5} \
     --timeout ${GUNICORN_TIMEOUT:-120} \
     --limit-request-line ${SERVER_LIMIT_REQUEST_LINE:-0} \
     --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE:-0} \
