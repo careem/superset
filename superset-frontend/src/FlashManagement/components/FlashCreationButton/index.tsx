@@ -25,12 +25,16 @@ import ModalTrigger, { ModalTriggerRef } from 'src/components/ModalTrigger';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import Icons from 'src/components/Icons';
-import { removeUnnecessaryProperties } from 'src/utils/commonHelper';
+import {
+  convertToLocalDateTime,
+  removeUnnecessaryProperties,
+} from 'src/utils/commonHelper';
 import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/FlashManagement/enums';
 import { FlashObject, FormErrors } from 'src/FlashManagement/types';
+import moment from 'moment';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -84,7 +88,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Array<string>>([]);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<FlashObject | {}>({});
   const [sqlQuery, setSqlQuery] = useState<Query>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +117,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               if (value.format === 'date-time') {
                 jsonSchema.properties[key] = {
                   ...value,
-                  default: chrono.parseDate(value.default).toISOString(),
+                  default: convertToLocalDateTime(),
                 };
               }
               if (value.format === 'date') {
@@ -150,7 +154,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         setIsLoading(false);
         setError(null);
       })
-      .catch((response:any) => {
+      .catch((response: any) => {
         getClientErrorObject(response).then(({ error, message }) => {
           setError(
             error ||
@@ -164,13 +168,15 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   };
 
   useEffect(() => {
-    latestQueryFormData && loadQueryFromData('query');
+    if (latestQueryFormData) {
+      loadQueryFromData('query');
+    }
   }, [JSON.stringify(latestQueryFormData)]);
 
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
-      console.log(newError)
+      console.log(newError);
       if (error.name === 'pattern') {
         if (error.property === '.team_slack_channel') {
           newError.message = 'Slack Channel must start with #';
@@ -190,6 +196,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   }
 
   const onFieldChange = (formValues: any) => {
+    console.log('formValues==', formValues);
     const formData = { ...formValues };
     if (formData) {
       if (formData.flash_type === FlashTypes.LONG_TERM) {
@@ -197,13 +204,17 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           .parseDate('90 days from now')
           .toISOString()
           .split('T')[0];
-        formData.schedule_start_time = new Date().toISOString();
+        formData.schedule_start_time = convertToLocalDateTime(
+          formData.schedule_start_time,
+        );
       } else if (formData.flash_type === FlashTypes.SHORT_TERM) {
         formData.ttl = chrono
           .parseDate('7 days from now')
           .toISOString()
           .split('T')[0];
-        formData.schedule_start_time = new Date().toISOString();
+        formData.schedule_start_time = convertToLocalDateTime(
+          formData.schedule_start_time,
+        );
       } else {
         formData.ttl = chrono
           .parseDate('7 days from now')
@@ -229,11 +240,9 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 
   const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    // payload.schedule_start_time = (payload.schedule_start_time).replace("T"," ")
-    // payload.schedule_start_time = (payload.schedule_start_time).replace("Z","")
-    payload.schedule_start_time = "2022-08-01 12:30:00"
-
-
+    payload.schedule_start_time = moment(payload.schedule_start_time).format(
+      'YYYY-MM-DD hh:mm:ss',
+    );
     if (payload.flash_type === FlashTypes.SHORT_TERM) {
       removeUnnecessaryProperties(payload, [
         'team_slack_channel',
@@ -252,7 +261,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       created_by: user?.email,
       sql_query: sql || sqlQuery?.query,
       ...payload,
-    } as  FlashObject
+    } as FlashObject;
 
     console.log('flash===', flash);
     onCreate(flash);

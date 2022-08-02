@@ -17,32 +17,32 @@
  * under the License.
  */
 
- export interface FlashObject {
-  id?:number
-  created_by:string
-  dataset_name: string
-  domain_name: string
-  flash_type: string
-  schedule_start_time?: string
-  schedule_type?:string
-  service_name: string
-  sql_query:string
-  target_db_name:string
-  target_table_name: string
-  team_slack_channel?: string
-  team_slack_handle?: string
-  ttl:string
-  cdomain?:string
-  cservice?:string
+export interface FlashObject {
+  id?: number;
+  created_by: string;
+  dataset_name: string;
+  domain_name: string;
+  flash_type: string;
+  schedule_start_time?: string;
+  schedule_type?: string;
+  service_name: string;
+  sql_query: string;
+  target_db_name: string;
+  target_table_name: string;
+  team_slack_channel?: string;
+  team_slack_handle?: string;
+  ttl: string;
+  cdomain?: string;
+  cservice?: string;
 }
 
 export interface FormErrors {
-  message:string
-  name:string
+  message: string;
+  name: string;
   params: {
-    pattern: string
-  }
-  property: string
-  schemaPath : string
-  stack: string
+    pattern: string;
+  };
+  property: string;
+  schemaPath: string;
+  stack: string;
 }

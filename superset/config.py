@@ -781,7 +781,6 @@ FLASH_CREATION = {
                                 "type": "string",
                                 "title": "Schedule Start Time",
                                 "format": "date-time",
-                                "default": "today at 12 am",
                             },
                         },
                         "required": [
@@ -804,7 +803,6 @@ FLASH_CREATION = {
                                 "type": "string",
                                 "title": "Schedule Start Time",
                                 "format": "date-time",
-                                "default": "today at 12am",
                             },
                         },
                         "required": ["schedule_type", "schedule_start_time"],

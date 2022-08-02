@@ -63,7 +63,6 @@ const bootstrapData = JSON.parse(
 
 const flashCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
 
-
 const saveButtonStyles = theme => css`
   color: ${theme.colors.primary.dark2};
   & > span[role='img'] {
@@ -195,12 +194,14 @@ export const ExploreChartHeader = ({
         }
         rightPanelAdditionalItems={
           <>
-           {flashCreationConf && <div>
-              <FlashCreationButton
-                latestQueryFormData={latestQueryFormData}
-                onCreate={actions.scheduleQuery}
-              />
-            </div>}
+            {flashCreationConf && (
+              <div>
+                <FlashCreationButton
+                  latestQueryFormData={latestQueryFormData}
+                  onCreate={actions.scheduleQuery}
+                />
+              </div>
+            )}
 
             <Tooltip
               title={

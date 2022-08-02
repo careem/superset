@@ -70,11 +70,11 @@ import {
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import { EmptyStateBig } from 'src/components/EmptyState';
 import { isEmpty } from 'lodash';
+import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';
 import ScheduleQueryButton from '../ScheduleQueryButton';
-import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
 import EstimateQueryCostButton from '../EstimateQueryCostButton';
 import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';

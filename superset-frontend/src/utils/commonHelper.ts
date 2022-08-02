@@ -28,3 +28,10 @@ export const removeUnnecessaryProperties = (
     }
   });
 };
+
+export const convertToLocalDateTime = (date?: Date) => {
+  const newDate = date;
+  return newDate
+    ? new Date(newDate).toISOString()
+    : new Date().toISOString();
+};

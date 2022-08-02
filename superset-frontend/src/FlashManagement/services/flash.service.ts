@@ -1,20 +1,33 @@
-import {FlashClient} from '@superset-ui/core';
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import { FlashClient } from '@superset-ui/core';
 import { FlashObject } from '../types';
 
+// export const fetchUsers = async (): Promise<any> =>
+//   await FlashClient.get<FlashObject[]>('/users');
 
-export const fetchUsers = async (): Promise<any> => {
-  return await FlashClient.get<FlashObject[]>("/users");
-};
+export const createFlash = (payload: FlashObject): Promise<any> =>
+  FlashClient.post<FlashObject>('v1/flash/', payload);
 
-export const createFlash = async (payload: FlashObject): Promise<any> => {
-  console.log('flash api post==', payload)
-  return await FlashClient.post<FlashObject>("v1/flash/", payload);
-};
+// export const updateUser = async (user: FlashObject): Promise<any> =>
+//   await FlashClient.put<FlashObject>(`/users/${user.id}`, user);
 
-export const updateUser = async (user: FlashObject): Promise<any> => {
-  return await FlashClient.put<FlashObject>(`/users/${user.id}`, user);
-};
-
-export const deleteUser = async (user: FlashObject): Promise<any> => {
-  return await FlashClient.delete<FlashObject>(`/users/${user.id}`);
-};
+// export const deleteUser = async (user: FlashObject): Promise<any> =>
+//   await FlashClient.delete<FlashObject>(`/users/${user.id}`);
