@@ -54,6 +54,7 @@ import { datasourcesActions } from 'src/explore/actions/datasourcesActions';
 import { mountExploreUrl } from 'src/explore/exploreUtils';
 import { getFormDataFromControls } from 'src/explore/controlUtils';
 import * as exploreActions from 'src/explore/actions/exploreActions';
+import * as sqlActions from 'src/SqlLab/actions/sqlLab';
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
 import { useTabId } from 'src/hooks/useTabId';
 import ExploreChartPanel from '../ExploreChartPanel';
@@ -755,6 +756,7 @@ function mapDispatchToProps(dispatch) {
     ...saveModalActions,
     ...chartActions,
     ...logActions,
+    ...sqlActions,
   };
   return {
     actions: bindActionCreators(actions, dispatch),

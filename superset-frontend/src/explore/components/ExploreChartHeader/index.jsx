@@ -28,7 +28,6 @@ import {
   t,
 } from '@superset-ui/core';
 import { toggleActive, deleteActiveReport } from 'src/reports/actions/reports';
-import { scheduleQuery } from 'src/SqlLab/actions/sqlLab';
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import AlteredSliceTag from 'src/components/AlteredSliceTag';
 import Button from 'src/components/Button';
@@ -89,6 +88,7 @@ export const ExploreChartHeader = ({
 }) => {
   const { latestQueryFormData, sliceFormData } = chart;
   const [isPropertiesModalOpen, setIsPropertiesModalOpen] = useState(false);
+  console.log('actions in chart header==', actions);
 
   const fetchChartDashboardData = async () => {
     await SupersetClient.get({
@@ -198,7 +198,7 @@ export const ExploreChartHeader = ({
               <div>
                 <FlashCreationButton
                   latestQueryFormData={latestQueryFormData}
-                  onCreate={actions.scheduleQuery}
+                  onCreate={actions.createFlashObject}
                 />
               </div>
             )}
@@ -248,7 +248,7 @@ ExploreChartHeader.propTypes = propTypes;
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { sliceUpdated, toggleActive, deleteActiveReport, scheduleQuery },
+    { sliceUpdated, toggleActive, deleteActiveReport },
     dispatch,
   );
 }
