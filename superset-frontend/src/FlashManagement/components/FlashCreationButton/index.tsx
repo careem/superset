@@ -33,7 +33,7 @@ import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/FlashManagement/enums';
-import { FlashObject, FormErrors , Dropdown} from 'src/FlashManagement/types';
+import { FlashObject, FormErrors, Dropdown } from 'src/FlashManagement/types';
 import moment from 'moment';
 
 const appContainer = document.getElementById('app');
@@ -87,7 +87,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   onCreate = () => {},
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
-  const [dbDropdown, setDbDropdown] = useState<Dropdown | {}>();
+  const [dbDropdown, setDbDropdown] = useState<Dropdown>({
+    enum: [],
+    enumNames: [],
+  });
   const [formData, setFormData] = useState<FlashObject | {}>({});
   const [sqlQuery, setSqlQuery] = useState<Query>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +99,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const saveModal: ModalTriggerRef | null = useRef() as ModalTriggerRef;
 
   useEffect(() => {
-    const newDbDropdown = { enum: ["","Pinot-flashes", "Trino", "Presto"], enumNames: ["Please Select","Pinot-flashes", "Trino", "Presto"] }
+    const newDbDropdown = {
+      enum: ['', 'Pinot-flashes', 'Trino', 'Presto'],
+      enumNames: ['Please Select', 'Pinot-flashes', 'Trino', 'Presto'],
+    };
     setDbDropdown(newDbDropdown);
   }, []);
 
@@ -107,12 +113,20 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         Object.entries(jsonSchema.properties).forEach(
           ([key, value]: [string, any]) => {
             if (key === 'target_db_name') {
-              jsonSchema.properties[key] = {
-                ...value,
-                enum: dbDropdown && dbDropdown["enum"] ? dbDropdown["enum"] : [],
-                enumNames :dbDropdown && dbDropdown["enumNames"] ? dbDropdown["enumNames"] : [],
-                default: dbDropdown && dbDropdown["enumNames"] ? dbDropdown["enumNames"][0] : ""
-              };
+              if (dbDropdown) {
+                jsonSchema.properties[key] = {
+                  ...value,
+                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [],
+                  enumNames:
+                    dbDropdown && dbDropdown.enumNames
+                      ? dbDropdown.enumNames
+                      : [],
+                  default:
+                    dbDropdown && dbDropdown.enumNames
+                      ? dbDropdown.enumNames[0]
+                      : '',
+                };
+              }
             }
             if (value.default) {
               if (value.format === 'date-time') {

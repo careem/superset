@@ -48,6 +48,6 @@ export interface FormErrors {
 }
 
 export interface Dropdown {
-  enum : Array<string>
-  enumNames? : Array<string>
+  enum: Array<string>;
+  enumNames?: Array<string>;
 }
