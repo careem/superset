@@ -731,22 +731,16 @@ FLASH_CREATION = {
             "flash_type": {
                 "title": "Flash Type",
                 "type": "string",
-                "enum": ["Please Select", "One Time", "Short Term", "Long Term"],
-                "default": "One Time",
+                "enum": ["", "One Time", "Short Term", "Long Term"],
+                "enumNames": ["Please Select", "One Time (Valid upto 7 days)", "Short Term (Valid upto 7 days)", "Long Term (Valid upto 90 days)"],
+                "default": "Please Select",
             },
             "ttl": {
                 "type": "string",
                 "title": "TTL",
                 "format": "date",
                 "default": "7 days from now",
-            },
-            "c_domain": {
-                "title": "C Domain",
-                "type": "string",
-            },
-            "c_service": {
-                "title": "C Service",
-                "type": "string",
+                "readOnly": True
             },
         },
         "required": [
@@ -776,8 +770,9 @@ FLASH_CREATION = {
                             "schedule_type": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["Daily", "Weekly", "Monthly"],
-                                "default": "Daily",
+                                 "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": ["Please Select", "Daily", "Weekly", "Monthly"],
+                                "default": "Please Select",
                             },
                             "schedule_start_time": {
                                 "type": "string",
@@ -798,7 +793,8 @@ FLASH_CREATION = {
                             "schedule_type": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["Please Select", "Daily", "Weekly", "Monthly"],
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": ["Please Select", "Daily", "Weekly", "Monthly"],
                                 "default": "Please Select",
                             },
                             "schedule_start_time": {
@@ -825,14 +821,41 @@ FLASH_CREATION = {
             "ttl",
             "schedule_type",
             "schedule_start_time",
-            "c_domain",
-            "c_service",
         ],
+        "target_db_name": {
+            "ui:help":"Database where the flash object is stored"
+        },
+         "domain_name": {
+            "ui:help":"Name of the owning team"
+        },
+         "service_name": {
+            "ui:help":"Careem Service for which the flash object is used"
+        },
+         "dataset_name": {
+            "ui:help":"Flash dataset name"
+        },
+         "target_table_name": {
+            "ui:help":"Name of the flash object created"
+        },
+         "flash_type": {
+            "ui:help":"Database where the flash object is stored"
+        },
         "team_slack_channel": {
             "ui:placeholder": "#slack_channel_name",
+            "ui:help":"Slack channel for notification"
         },
         "team_slack_handle": {
             "ui:placeholder": "@slack_handle_name",
+            "ui:help":"Slack handle for notification"
+        },
+         "ttl": {
+            "ui:help":"Flash object validity"
+        },
+         "schedule_type": {
+            "ui:help":"Schedule type for the Flash object"
+        },
+         "schedule_start_time": {
+            "ui:help":"Start time from which the flash object is to be scheduled"
         },
     },
     "VALIDATION": [],

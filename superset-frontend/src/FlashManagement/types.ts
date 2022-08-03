@@ -46,3 +46,8 @@ export interface FormErrors {
   schemaPath: string;
   stack: string;
 }
+
+export interface Dropdown {
+  enum : Array<string>
+  enumNames? : Array<string>
+}
