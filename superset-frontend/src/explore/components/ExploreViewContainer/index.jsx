@@ -57,6 +57,7 @@ import * as exploreActions from 'src/explore/actions/exploreActions';
 import * as sqlActions from 'src/SqlLab/actions/sqlLab';
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
 import { useTabId } from 'src/hooks/useTabId';
+import withToasts from 'src/components/MessageToasts/withToasts';
 import ExploreChartPanel from '../ExploreChartPanel';
 import ConnectedControlPanelsContainer from '../ControlPanelsContainer';
 import SaveModal from '../SaveModal';
@@ -587,6 +588,7 @@ function ExploreViewContainer(props) {
         />
         {showingModal && (
           <SaveModal
+            addDangerToast={props.addDangerToast}
             onHide={toggleModal}
             actions={props.actions}
             form_data={props.form_data}
@@ -766,4 +768,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(ExploreViewContainer);
+)(withToasts(ExploreViewContainer));
