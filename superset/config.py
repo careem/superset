@@ -729,7 +729,7 @@ FLASH_CREATION = {
             "flash_type": {
                 "title": "Flash Type",
                 "type": "string",
-                "enum": ["One Time", "Short Term", "Long Term"],
+                "enum": ["Please Select", "One Time", "Short Term", "Long Term"],
                 "default": "One Time",
             },
             "ttl": {
@@ -796,8 +796,8 @@ FLASH_CREATION = {
                             "schedule_type": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["Daily", "Weekly", "Monthly"],
-                                "default": "Daily",
+                                "enum": ["Please Select", "Daily", "Weekly", "Monthly"],
+                                "default": "Please Select",
                             },
                             "schedule_start_time": {
                                 "type": "string",
