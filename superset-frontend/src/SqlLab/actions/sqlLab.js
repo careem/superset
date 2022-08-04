@@ -170,7 +170,6 @@ export function scheduleQuery(query) {
 }
 
 export function createFlashObject(flash) {
-  console.log('create flash call', flash);
   return dispatch =>
     createFlash(flash)
       .then(() =>

@@ -191,7 +191,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
-      console.log(newError);
       if (error.name === 'pattern') {
         if (error.property === '.team_slack_channel') {
           newError.message = 'Slack Channel must start with #';
@@ -211,7 +210,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   }
 
   const onFieldChange = (formValues: any) => {
-    console.log('formValues==', formValues);
     const formData = { ...formValues };
     if (formData) {
       if (formData.flash_type === FlashTypes.LONG_TERM) {
@@ -247,7 +245,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           formData.dataset_name,
         ]
           .filter(val => val != null)
-          .join('_');
+          .join('__');
       }
       setFormData(formData);
     }
@@ -277,8 +275,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       sql_query: sql || sqlQuery?.query,
       ...payload,
     } as FlashObject;
-
-    console.log('flash===', flash);
     onCreate(flash);
     saveModal?.current?.close();
   };

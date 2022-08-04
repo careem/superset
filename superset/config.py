@@ -844,7 +844,6 @@ FLASH_CREATION = {
         },
         "dataset_name": {"ui:help": "Flash dataset name"},
         "target_table_name": {"ui:help": "Name of the flash object created"},
-        "flash_type": {"ui:help": "Database where the flash object is stored"},
         "team_slack_channel": {
             "ui:placeholder": "#slack_channel_name",
             "ui:help": "Slack channel for notification",
