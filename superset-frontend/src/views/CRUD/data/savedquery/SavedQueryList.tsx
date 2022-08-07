@@ -521,21 +521,22 @@ function SavedQueryList({
             });
           }
           return (
-            <ListView<SavedQueryObject>
-              className="saved_query-list-view"
-              columns={columns}
-              count={queryCount}
-              data={queries}
-              fetchData={fetchData}
-              filters={filters}
-              initialSort={initialSort}
-              loading={loading}
-              pageSize={PAGE_SIZE}
-              bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
-              highlightRowId={savedQueryCurrentlyPreviewing?.id}
-            />
+            // <ListView<SavedQueryObject>
+            //   className="saved_query-list-view"
+            //   columns={columns}
+            //   count={queryCount}
+            //   data={queries}
+            //   fetchData={fetchData}
+            //   filters={filters}
+            //   initialSort={initialSort}
+            //   loading={loading}
+            //   pageSize={PAGE_SIZE}
+            //   bulkActions={bulkActions}
+            //   bulkSelectEnabled={bulkSelectEnabled}
+            //   disableBulkSelect={toggleBulkSelect}
+            //   highlightRowId={savedQueryCurrentlyPreviewing?.id}
+            // />
+            <div>Samra</div>
           );
         }}
       </ConfirmStatusChange>
