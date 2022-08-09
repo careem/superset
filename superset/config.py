@@ -274,18 +274,16 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
             'schedule_interval': {
                 'type': 'string',
                 'title': 'Schedule interval',
+                'enum': ['@hourly', '@daily', '@weekly', '@monthly', '@quaterly'],
+                'enumNames': ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quaterly'],
             },
             'slack_handle': {
                 'type': 'string',
                 'title': 'Slack Handle',
+                'pattern': '^(@)[A-Za-z0-9_-\\s&!]+$',
             },
         },
         "required": ["output_table", "start_date", "end_date", "schedule_interval", "slack_handle"],
-    },
-    'UISCHEMA': {
-        'schedule_interval': {
-            'ui:placeholder': '@daily, @weekly, etc.',
-        }
     },
     'VALIDATION': [
         # ensure that start_date <= end_date
