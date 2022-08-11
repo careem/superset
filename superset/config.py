@@ -297,6 +297,8 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
     ]
 }
 
+FLASH_CREATION: Dict[str, Any] = {}
+
 # ------------------------------
 # GLOBALS FOR APP Builder
 # ------------------------------
@@ -686,6 +688,163 @@ ALLOWED_EXTENSIONS = {*EXCEL_EXTENSIONS, *CSV_EXTENSIONS, *COLUMNAR_EXTENSIONS}
 # note: index option should not be overridden
 CSV_EXPORT = {"encoding": "utf-8"}
 
+FLASH_CREATION = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "target_db_name": {
+                "title": "Target DB Name",
+                "type": "string",
+            },
+            "domain_name": {"type": "string", "title": "Domain"},
+            "service_name": {"type": "string", "title": "Service"},
+            "dataset_name": {"type": "string", "title": "Dataset"},
+            "target_table_name": {
+                "type": "string",
+                "title": "Table Name",
+                "readOnly": True,
+            },
+            "flash_type": {
+                "title": "Flash Type",
+                "type": "string",
+                "enum": ["", "One Time", "Short Term", "Long Term"],
+                "enumNames": [
+                    "Please Select",
+                    "One Time (Valid upto 7 days)",
+                    "Short Term (Valid upto 7 days)",
+                    "Long Term (Valid upto 90 days)",
+                ],
+                "default": "Please Select",
+            },
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "7 days from now",
+                "readOnly": True,
+            },
+        },
+        "required": [
+            "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "flash_type",
+            "ttl",
+        ],
+        "dependencies": {
+            "flash_type": {
+                "oneOf": [
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Long Term"]},
+                            "team_slack_channel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern": "^(#)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "team_slack_handle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": [
+                            "team_slack_channel",
+                            "team_slack_handle",
+                            "schedule_type",
+                            "schedule_start_time",
+                        ],
+                    },
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Short Term"]},
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": ["schedule_type", "schedule_start_time"],
+                    },
+                ]
+            }
+        },
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "target_table_name",
+            "flash_type",
+            "*",
+            "ttl",
+            "schedule_type",
+            "schedule_start_time",
+        ],
+        "target_db_name": {"ui:help": "Database where the flash object is stored"},
+        "domain_name": {"ui:help": "Name of the owning team"},
+        "service_name": {
+            "ui:help": "Careem Service for which the flash object is used"
+        },
+        "dataset_name": {"ui:help": "Flash dataset name"},
+        "target_table_name": {"ui:help": "Name of the flash object created"},
+        "team_slack_channel": {
+            "ui:placeholder": "#slack_channel_name",
+            "ui:help": "Slack channel for notification",
+        },
+        "team_slack_handle": {
+            "ui:placeholder": "@slack_handle_name",
+            "ui:help": "Slack handle for notification",
+        },
+        "ttl": {"ui:help": "Flash object validity"},
+        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
+        "schedule_start_time": {
+            "ui:help": "Start time from which the flash object is to be scheduled"
+        },
+    },
+    "VALIDATION": [],
+    # link to the scheduler; this example links to an Airflow pipeline
+    # that uses the query id and the output table as its name
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
+    ),
+}
 # ---------------------------------------------------
 # Time grain configurations
 # ---------------------------------------------------
