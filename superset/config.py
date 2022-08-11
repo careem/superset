@@ -55,7 +55,7 @@ from superset.advanced_data_type.plugins.internet_port import internet_port
 from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
-from superset.stats_logger import DummyStatsLogger
+from superset.stats_logger import StatsdStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.utils.core import is_test, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from superset.models.core import Database
 
 # Realtime stats logger, a StatsD implementation exists
-STATS_LOGGER = DummyStatsLogger()
+STATS_LOGGER = StatsdStatsLogger()
 EVENT_LOGGER = DBEventLogger()
 
 SUPERSET_LOG_VIEW = True
@@ -238,7 +238,66 @@ ENABLE_PROXY_FIX = False
 PROXY_FIX_CONFIG = {"x_for": 1, "x_proto": 1, "x_host": 1, "x_port": 1, "x_prefix": 1}
 
 # Configuration for scheduling queries from SQL Lab.
-SCHEDULED_QUERIES: Dict[str, Any] = {}
+SCHEDULED_QUERIES: Dict[str, Any] = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    'JSONSCHEMA': {
+        'title': 'Schedule',
+        'description': (
+            'In order to schedule a query, you need to specify when it '
+            'should start running, when it should stop running, and how '
+            'often it should run.'
+        ),
+        'type': 'object',
+        'properties': {
+            'output_table': {
+                'type': 'string',
+                'title': 'Output table name',
+            },
+            'start_date': {
+                'type': 'string',
+                'title': 'Start date',
+                # date-time is parsed using the chrono library, see
+                # https://www.npmjs.com/package/chrono-node#usage
+                'format': 'date-time',
+                'default': 'tomorrow at 9am',
+            },
+            'end_date': {
+                'type': 'string',
+                'title': 'End date',
+                # date-time is parsed using the chrono library, see
+                # https://www.npmjs.com/package/chrono-node#usage
+                'format': 'date-time',
+                'default': '9am in 30 days',
+            },
+            'schedule_interval': {
+                'type': 'string',
+                'title': 'Schedule interval',
+                'enum': ['@hourly', '@daily', '@weekly', '@monthly', '@quaterly'],
+                'enumNames': ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quaterly'],
+            },
+            'slack_handle': {
+                'type': 'string',
+                'title': 'Slack Handle',
+                'pattern': '^(@)[A-Za-z0-9_-\\s&!]+$',
+            },
+        },
+        "required": ["output_table", "start_date", "end_date", "schedule_interval", "slack_handle"],
+    },
+    'VALIDATION': [
+        # ensure that start_date <= end_date
+        {
+            'name': 'less_equal',
+            'arguments': ['start_date', 'end_date'],
+            'message': 'End date cannot be before start date',
+            # this is where the error message is shown
+            'container': 'end_date',
+        },
+    ]
+}
+
+FLASH_CREATION: Dict[str, Any] = {}
 
 # ------------------------------
 # GLOBALS FOR APP Builder
@@ -608,7 +667,7 @@ EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
 STORE_CACHE_KEYS_IN_METADATA_DB = False
 
 # CORS Options
-ENABLE_CORS = False
+ENABLE_CORS = True
 CORS_OPTIONS: Dict[Any, Any] = {}
 
 # Chrome allows up to 6 open connections per domain at a time. When there are more
@@ -629,6 +688,163 @@ ALLOWED_EXTENSIONS = {*EXCEL_EXTENSIONS, *CSV_EXTENSIONS, *COLUMNAR_EXTENSIONS}
 # note: index option should not be overridden
 CSV_EXPORT = {"encoding": "utf-8"}
 
+FLASH_CREATION = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "target_db_name": {
+                "title": "Target DB Name",
+                "type": "string",
+            },
+            "domain_name": {"type": "string", "title": "Domain"},
+            "service_name": {"type": "string", "title": "Service"},
+            "dataset_name": {"type": "string", "title": "Dataset"},
+            "target_table_name": {
+                "type": "string",
+                "title": "Table Name",
+                "readOnly": True,
+            },
+            "flash_type": {
+                "title": "Flash Type",
+                "type": "string",
+                "enum": ["", "One Time", "Short Term", "Long Term"],
+                "enumNames": [
+                    "Please Select",
+                    "One Time (Valid upto 7 days)",
+                    "Short Term (Valid upto 7 days)",
+                    "Long Term (Valid upto 90 days)",
+                ],
+                "default": "Please Select",
+            },
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "7 days from now",
+                "readOnly": True,
+            },
+        },
+        "required": [
+            "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "flash_type",
+            "ttl",
+        ],
+        "dependencies": {
+            "flash_type": {
+                "oneOf": [
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Long Term"]},
+                            "team_slack_channel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern": "^(#)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "team_slack_handle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
+                            },
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": [
+                            "team_slack_channel",
+                            "team_slack_handle",
+                            "schedule_type",
+                            "schedule_start_time",
+                        ],
+                    },
+                    {
+                        "properties": {
+                            "flash_type": {"enum": ["Short Term"]},
+                            "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": ["schedule_type", "schedule_start_time"],
+                    },
+                ]
+            }
+        },
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "target_db_name",
+            "domain_name",
+            "service_name",
+            "dataset_name",
+            "target_table_name",
+            "flash_type",
+            "*",
+            "ttl",
+            "schedule_type",
+            "schedule_start_time",
+        ],
+        "target_db_name": {"ui:help": "Database where the flash object is stored"},
+        "domain_name": {"ui:help": "Name of the owning team"},
+        "service_name": {
+            "ui:help": "Careem Service for which the flash object is used"
+        },
+        "dataset_name": {"ui:help": "Flash dataset name"},
+        "target_table_name": {"ui:help": "Name of the flash object created"},
+        "team_slack_channel": {
+            "ui:placeholder": "#slack_channel_name",
+            "ui:help": "Slack channel for notification",
+        },
+        "team_slack_handle": {
+            "ui:placeholder": "@slack_handle_name",
+            "ui:help": "Slack handle for notification",
+        },
+        "ttl": {"ui:help": "Flash object validity"},
+        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
+        "schedule_start_time": {
+            "ui:help": "Start time from which the flash object is to be scheduled"
+        },
+    },
+    "VALIDATION": [],
+    # link to the scheduler; this example links to an Airflow pipeline
+    # that uses the query id and the output table as its name
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
+    ),
+}
 # ---------------------------------------------------
 # Time grain configurations
 # ---------------------------------------------------
@@ -794,7 +1010,7 @@ HTTP_HEADERS: Dict[str, Any] = {}
 DEFAULT_DB_ID = None
 
 # Timeout duration for SQL Lab synchronous queries
-SQLLAB_TIMEOUT = int(timedelta(seconds=30).total_seconds())
+SQLLAB_TIMEOUT = int(timedelta(seconds=600).total_seconds())
 
 # Timeout duration for SQL Lab query validation
 SQLLAB_VALIDATION_TIMEOUT = int(timedelta(seconds=10).total_seconds())

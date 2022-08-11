@@ -51,6 +51,7 @@ import {
   saveQuery,
   addSavedQueryToTabState,
   scheduleQuery,
+  createFlashObject,
   setActiveSouthPaneTab,
   updateSavedQuery,
   validateQuery,
@@ -69,6 +70,7 @@ import {
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import { EmptyStateBig } from 'src/components/EmptyState';
 import { isEmpty } from 'lodash';
+import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';
@@ -92,9 +94,11 @@ const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
   appContainer.getAttribute('data-bootstrap') || '{}',
 );
+
 const validatorMap =
   bootstrapData?.common?.conf?.SQL_VALIDATORS_BY_ENGINE || {};
 const scheduledQueriesConf = bootstrapData?.common?.conf?.SCHEDULED_QUERIES;
+const flashCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
 
 const LimitSelectStyled = styled.span`
   ${({ theme }) => `
@@ -719,6 +723,15 @@ class SqlEditor extends React.PureComponent {
           )}
         </div>
         <div className="rightItems">
+          {flashCreationConf && (
+            <span>
+              <FlashCreationButton
+                sql={this.props.queryEditor.sql}
+                onCreate={this.props.actions.createFlashObject}
+              />
+            </span>
+          )}
+
           <span>
             <SaveQuery
               query={qe}
@@ -852,6 +865,7 @@ function mapDispatchToProps(dispatch) {
       saveQuery,
       addSavedQueryToTabState,
       scheduleQuery,
+      createFlashObject,
       setActiveSouthPaneTab,
       updateSavedQuery,
       validateQuery,

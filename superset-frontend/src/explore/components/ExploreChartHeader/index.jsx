@@ -35,6 +35,7 @@ import Icons from 'src/components/Icons';
 import PropertiesModal from 'src/explore/components/PropertiesModal';
 import { sliceUpdated } from 'src/explore/actions/exploreActions';
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
+import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 
 const propTypes = {
@@ -53,11 +54,20 @@ const propTypes = {
   saveDisabled: PropTypes.bool,
 };
 
+const appContainer = document.getElementById('app');
+
+const bootstrapData = JSON.parse(
+  appContainer.getAttribute('data-bootstrap') || '{}',
+);
+
+const flashCreationConf = bootstrapData?.common?.conf?.FLASH_CREATION;
+
 const saveButtonStyles = theme => css`
   color: ${theme.colors.primary.dark2};
   & > span[role='img'] {
     margin-right: 0;
   }
+  margin-left: 10px;
 `;
 
 export const ExploreChartHeader = ({
@@ -78,6 +88,7 @@ export const ExploreChartHeader = ({
 }) => {
   const { latestQueryFormData, sliceFormData } = chart;
   const [isPropertiesModalOpen, setIsPropertiesModalOpen] = useState(false);
+  console.log('actions in chart header==', actions);
 
   const fetchChartDashboardData = async () => {
     await SupersetClient.get({
@@ -182,27 +193,38 @@ export const ExploreChartHeader = ({
           ) : null
         }
         rightPanelAdditionalItems={
-          <Tooltip
-            title={
-              saveDisabled
-                ? t('Add required control values to save chart')
-                : null
-            }
-          >
-            {/* needed to wrap button in a div - antd tooltip doesn't work with disabled button */}
-            <div>
-              <Button
-                buttonStyle="secondary"
-                onClick={onSaveChart}
-                disabled={saveDisabled}
-                data-test="query-save-button"
-                css={saveButtonStyles}
-              >
-                <Icons.SaveOutlined iconSize="l" />
-                {t('Save')}
-              </Button>
-            </div>
-          </Tooltip>
+          <>
+            {flashCreationConf && (
+              <div>
+                <FlashCreationButton
+                  latestQueryFormData={latestQueryFormData}
+                  onCreate={actions.createFlashObject}
+                />
+              </div>
+            )}
+
+            <Tooltip
+              title={
+                saveDisabled
+                  ? t('Add required control values to save chart')
+                  : null
+              }
+            >
+              {/* needed to wrap button in a div - antd tooltip doesn't work with disabled button */}
+              <div>
+                <Button
+                  buttonStyle="secondary"
+                  onClick={onSaveChart}
+                  disabled={saveDisabled}
+                  data-test="query-save-button"
+                  css={saveButtonStyles}
+                >
+                  <Icons.SaveOutlined iconSize="l" />
+                  {t('Save')}
+                </Button>
+              </div>
+            </Tooltip>
+          </>
         }
         additionalActionsMenu={menu}
         menuDropdownProps={{
