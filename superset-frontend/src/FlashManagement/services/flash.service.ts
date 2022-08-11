@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,10 +17,17 @@
  * under the License.
  */
 
-export { default as callApi } from './callApi';
-export { default as SupersetClient } from './SupersetClient';
-export { default as SupersetClientClass } from './SupersetClientClass';
-export { default as FlashClient } from './FlashClient';
+import { FlashClient } from '@superset-ui/core';
+import { FlashObject } from '../types';
 
-export * from './types';
-export { default as __hack_reexport_connection } from './types';
+// export const fetchUsers = async (): Promise<any> =>
+//   await FlashClient.get<FlashObject[]>('/users');
+
+export const createFlash = (payload: FlashObject): Promise<any> =>
+  FlashClient.post<FlashObject>('v1/flash/', payload);
+
+// export const updateUser = async (user: FlashObject): Promise<any> =>
+//   await FlashClient.put<FlashObject>(`/users/${user.id}`, user);
+
+// export const deleteUser = async (user: FlashObject): Promise<any> =>
+//   await FlashClient.delete<FlashObject>(`/users/${user.id}`);
