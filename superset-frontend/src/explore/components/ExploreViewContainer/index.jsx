@@ -54,6 +54,7 @@ import { datasourcesActions } from 'src/explore/actions/datasourcesActions';
 import { mountExploreUrl } from 'src/explore/exploreUtils';
 import { getFormDataFromControls } from 'src/explore/controlUtils';
 import * as exploreActions from 'src/explore/actions/exploreActions';
+import * as sqlActions from 'src/SqlLab/actions/sqlLab';
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
 import { useTabId } from 'src/hooks/useTabId';
 import withToasts from 'src/components/MessageToasts/withToasts';
@@ -245,10 +246,7 @@ function ExploreViewContainer(props) {
 
   const theme = useTheme();
 
-  const defaultSidebarsWidth = {
-    controls_width: 320,
-    datasource_width: 300,
-  };
+  const defaultSidebarsWidth = { controls_width: 320, datasource_width: 300 };
 
   const addHistory = useCallback(
     async ({ isReplace = false, title } = {}) => {
@@ -771,6 +769,7 @@ function mapDispatchToProps(dispatch) {
     ...saveModalActions,
     ...chartActions,
     ...logActions,
+    ...sqlActions,
   };
   return {
     actions: bindActionCreators(actions, dispatch),
