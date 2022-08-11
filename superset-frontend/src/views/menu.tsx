@@ -36,11 +36,13 @@ const store = setupStore(true);
 const container = document.getElementById('app');
 const bootstrapJson = container?.getAttribute('data-bootstrap') ?? '{}';
 const bootstrap = JSON.parse(bootstrapJson);
-const menu = { ...bootstrap.common.menu_data };
+
+let menu = { ...bootstrap.common.menu_data };
 
 const emotionCache = createCache({
   key: 'menu',
 });
+
 
 const app = (
   // @ts-ignore: emotion types defs are incompatible between core and cache

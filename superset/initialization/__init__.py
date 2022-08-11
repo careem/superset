@@ -249,6 +249,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category="",
             category_icon="",
         )
+
         appbuilder.add_view(
             DynamicPluginsView,
             "Plugins",
@@ -365,6 +366,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("Data"),
             category_icon="fa-table",
         )
+
         appbuilder.add_separator("Data")
 
         appbuilder.add_api(LogRestApi)
