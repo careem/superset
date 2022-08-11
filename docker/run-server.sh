@@ -22,7 +22,7 @@ apt update
 apt install -y awscli
 apt install -y jq
 aws secretsmanager get-secret-value --region eu-west-1 --secret-id bdp/careem-insights --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > /tmp/secrets.env
-eval $(cat /tmp/secrets.env | sed 's/^/export /')
+export $(grep -v '^#' secrets.env | xargs)
 rm -f /tmp/secrets.env
 
 HYPHEN_SYMBOL='-'
