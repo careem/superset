@@ -51,7 +51,6 @@ let menuItem = {
   url: '/flashManagement/list/'
 }
 menu['menu'].push(menuItem)
-console.log('menu after modification==', menu)
 
 let lastLocationPathname: string;
 

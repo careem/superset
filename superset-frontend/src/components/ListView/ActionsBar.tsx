@@ -27,6 +27,7 @@ export type ActionProps = {
   tooltip?: string | React.ReactElement;
   placement?: TooltipPlacement;
   icon: string;
+  // viewBox?: string;
   onClick: () => void;
 };
 
@@ -57,6 +58,7 @@ export default function ActionsBar({ actions }: ActionsBarProps) {
   return (
     <StyledActions className="actions">
       {actions.map((action, index) => {
+        console.log('action==', action)
         const ActionIcon = Icons[action.icon];
         if (action.tooltip) {
           return (

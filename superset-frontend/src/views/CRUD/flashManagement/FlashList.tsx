@@ -28,7 +28,7 @@
  } from 'src/views/CRUD/utils';
  import Popover from 'src/components/Popover';
  import withToasts from 'src/components/MessageToasts/withToasts';
- import { useListViewResource } from 'src/views/CRUD/hooks';
+ import { useFlashListViewResource } from 'src/views/CRUD/hooks';
  import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
  import handleResourceExport from 'src/utils/export';
  import SubMenu, {
@@ -94,15 +94,15 @@
    const {
      state: {
        loading,
-       resourceCount: queryCount,
-       resourceCollection: queries,
+       resourceCount: flashCount,
+       resourceCollection: flashes,
        bulkSelectEnabled,
      },
      hasPerm,
      fetchData,
      toggleBulkSelect,
      refreshData,
-   } = useListViewResource<SavedQueryObject>(
+   } = useFlashListViewResource<SavedQueryObject>(
      'saved_query',
      t('Saved queries'),
      addDangerToast,
@@ -158,7 +158,7 @@
    );
 
    const menuData: SubMenuProps = {
-     ...commonMenuData,
+    //  ...commonMenuData,
      name: t('Flash')
    };
 
@@ -277,7 +277,7 @@
          size:'l',
        },
        {
-         accessor: 'flash_Type',
+         accessor: 'flash_type',
          Header: t('Flash Type'),
          size:'l',
 
@@ -401,17 +401,18 @@
             //    onClick: handleEdit,
             //  },
              {
-               label: 'copy-action',
+               label: 'ownership-action',
                tooltip: t('Change Ownership'),
                placement: 'bottom',
-               icon: 'Copy',
+               icon: 'SwitchUser',
+              //  viewBox: '0 0 1024 1024',
                onClick: handleCopy,
              },
              {
               label: 'copy-action',
               tooltip: t('Change Costing Attributes'),
               placement: 'bottom',
-              icon: 'Copy',
+              icon: 'Edit',
               onClick: handleCopy,
             },
              canExport && {
@@ -444,7 +445,7 @@
      () => [
        {
          Header: t('Flash Name'),
-         id: 'database',
+         id: 'target_table_name',
          input: 'select',
          operator: FilterOperator.relationOneMany,
          unfilteredLabel: 'All',
@@ -454,7 +455,7 @@
            createErrorHandler(errMsg =>
              addDangerToast(
                t(
-                 'An error occurred while fetching dataset datasource values: %s',
+                 'An error occurred while fetching flash names: %s',
                  errMsg,
                ),
              ),
@@ -464,46 +465,38 @@
        },
        {
          Header: t('Flash Type'),
-         id: 'schema',
+         id: 'flash_type',
          input: 'select',
          operator: FilterOperator.equals,
          unfilteredLabel: 'All',
-         fetchSelects: createFetchDistinct(
-           'saved_query',
-           'schema',
-           createErrorHandler(errMsg =>
-             addDangerToast(
-               t('An error occurred while fetching schema values: %s', errMsg),
-             ),
-           ),
-         ),
+         selects: [
+          { label: 'One Time', value: 'One Time' },
+          { label: 'Short Term', value: 'Short Term' },
+          { label: 'Long Term', value: 'Long Term' },
+        ],
          paginate: true,
        },
        {
         Header: t('TTL'),
-        id: 'schema',
+        id: 'ttl',
         input: 'datetime_range',
       },
        {
         Header: t('Schedule Type'),
-        id: 'schema',
+        id: 'schedule_type',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
-        fetchSelects: createFetchDistinct(
-          'saved_query',
-          'schema',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t('An error occurred while fetching schema values: %s', errMsg),
-            ),
-          ),
-        ),
+        selects: [
+          { label: 'Daily', value: '@daily' },
+          { label: 'Weekly', value: '@weekly' },
+          { label: 'Monthly', value: '@monthly' },
+        ],
         paginate: true,
       },
       {
         Header: t('Status'),
-        id: 'schema',
+        id: 'status',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -512,7 +505,7 @@
           'schema',
           createErrorHandler(errMsg =>
             addDangerToast(
-              t('An error occurred while fetching schema values: %s', errMsg),
+              t('An error occurred while fetching status: %s', errMsg),
             ),
           ),
         ),
@@ -520,7 +513,7 @@
       },
        {
          Header: t('Search'),
-         id: 'label',
+         id: 'target_table_name',
          input: 'search',
          operator: FilterOperator.allText,
        },
@@ -551,7 +544,7 @@
            fetchData={handleSavedQueryPreview}
            onHide={() => setSavedQueryCurrentlyPreviewing(null)}
            savedQuery={savedQueryCurrentlyPreviewing}
-           queries={queries}
+           queries={flashes}
            openInSqlLab={openInSqlLab}
            show
          />
@@ -583,8 +576,8 @@
              <ListView<SavedQueryObject>
                className="saved_query-list-view"
                columns={columns}
-               count={queryCount}
-               data={queries}
+               count={flashCount}
+               data={flashes}
                fetchData={fetchData}
                filters={filters}
                initialSort={initialSort}

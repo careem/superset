@@ -44,6 +44,17 @@ interface ListViewResourceState<D extends object = any> {
   lastFetched?: string;
 }
 
+let flashResults = [
+  {
+    target_table_name:'food_orders_groceries',
+    slack_handle: '@Samra Hanif',
+  },
+  {
+    target_table_name:'food_orders_groceries',
+    slack_handle: '@Samra Hanif',
+  },
+]
+
 const parsedErrorMessage = (
   errorMessage: Record<string, string[] | string> | string,
 ) => {
@@ -162,6 +173,169 @@ export function useListViewResource<D extends object = any>(
           ({ json = {} }) => {
             updateState({
               collection: json.result,
+              // collection: flashResults as D[],
+              count: json.count,
+              lastFetched: new Date().toISOString(),
+            });
+          },
+          createErrorHandler(errMsg =>
+            handleErrorMsg(
+              t(
+                'An error occurred while fetching %ss: %s',
+                resourceLabel,
+                errMsg,
+              ),
+            ),
+          ),
+        )
+        .finally(() => {
+          updateState({ loading: false });
+        });
+    },
+    [baseFilters],
+  );
+
+  return {
+    state: {
+      loading: state.loading,
+      resourceCount: state.count,
+      resourceCollection: state.collection,
+      bulkSelectEnabled: state.bulkSelectEnabled,
+      lastFetched: state.lastFetched,
+    },
+    setResourceCollection: (update: D[]) =>
+      updateState({
+        collection: update,
+      }),
+    hasPerm,
+    fetchData,
+    toggleBulkSelect,
+    refreshData: (provideConfig?: FetchDataConfig) => {
+      if (state.lastFetchDataConfig) {
+        return fetchData(state.lastFetchDataConfig);
+      }
+      if (provideConfig) {
+        return fetchData(provideConfig);
+      }
+      return null;
+    },
+  };
+}
+
+interface FlashListViewResourceState<D extends object = any> {
+  loading: boolean;
+  collection: D[];
+  count: number;
+  permissions: string[];
+  lastFetchDataConfig: FetchDataConfig | null;
+  bulkSelectEnabled: boolean;
+  lastFetched?: string;
+}
+
+
+export function useFlashListViewResource<D extends object = any>(
+  resource: string,
+  resourceLabel: string, // resourceLabel for translations
+  handleErrorMsg: (errorMsg: string) => void,
+  infoEnable = true,
+  defaultCollectionValue: D[] = [],
+  baseFilters?: FilterValue[], // must be memoized
+  initialLoadingState = true,
+) {
+  const [state, setState] = useState<FlashListViewResourceState<D>>({
+    count: 0,
+    collection: defaultCollectionValue,
+    loading: initialLoadingState,
+    lastFetchDataConfig: null,
+    permissions: [],
+    bulkSelectEnabled: false,
+  });
+
+  function updateState(update: Partial<FlashListViewResourceState<D>>) {
+    setState(currentState => ({ ...currentState, ...update }));
+  }
+
+  function toggleBulkSelect() {
+    updateState({ bulkSelectEnabled: !state.bulkSelectEnabled });
+  }
+
+  useEffect(() => {
+    if (!infoEnable) return;
+    SupersetClient.get({
+      endpoint: `/api/v1/${resource}/_info?q=${rison.encode({
+        keys: ['permissions'],
+      })}`,
+    }).then(
+      ({ json: infoJson = {} }) => {
+        updateState({
+          permissions: infoJson.permissions,
+        });
+      },
+      createErrorHandler(errMsg =>
+        handleErrorMsg(
+          t(
+            'An error occurred while fetching %s info: %s',
+            resourceLabel,
+            errMsg,
+          ),
+        ),
+      ),
+    );
+  }, []);
+
+  function hasPerm(perm: string) {
+    if (!state.permissions.length) {
+      return false;
+    }
+
+    return Boolean(state.permissions.find(p => p === perm));
+  }
+
+  const fetchData = useCallback(
+    ({
+      pageIndex,
+      pageSize,
+      sortBy,
+      filters: filterValues,
+    }: FetchDataConfig) => {
+      // set loading state, cache the last config for refreshing data.
+      updateState({
+        lastFetchDataConfig: {
+          filters: filterValues,
+          pageIndex,
+          pageSize,
+          sortBy,
+        },
+        loading: true,
+      });
+
+      const filterExps = (baseFilters || [])
+        .concat(filterValues)
+        .map(({ id, operator: opr, value }) => ({
+          col: id,
+          opr,
+          value:
+            value && typeof value === 'object' && 'value' in value
+              ? value.value
+              : value,
+        }));
+
+      const queryParams = rison.encode_uri({
+        order_column: sortBy[0].id,
+        order_direction: sortBy[0].desc ? 'desc' : 'asc',
+        page: pageIndex,
+        page_size: pageSize,
+        ...(filterExps.length ? { filters: filterExps } : {}),
+      });
+
+      return SupersetClient.get({
+        endpoint: `/api/v1/${resource}/?q=${queryParams}`,
+      })
+        .then(
+          ({ json = {} }) => {
+            updateState({
+              // collection: json.result,
+              collection: flashResults as D[],
               count: json.count,
               lastFetched: new Date().toISOString(),
             });
