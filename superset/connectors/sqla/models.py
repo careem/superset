@@ -137,8 +137,17 @@ from superset.utils.core import (
 config = app.config
 metadata = Model.metadata  # pylint: disable=no-member
 logger = logging.getLogger(__name__)
+
+TUPLE_QUERY_INDEX = 2
+PRESTO_DATABASE_NAME = "presto"
+
 ADVANCED_DATA_TYPES = config["ADVANCED_DATA_TYPES"]
 VIRTUAL_TABLE_ALIAS = "virtual_table"
+
+SQL_CLAUSES = {
+    "order_by": "ORDER BY",
+    "group_by": "GROUP BY"
+}
 
 # a non-exhaustive set of additive metrics
 ADDITIVE_METRIC_TYPES = {
@@ -146,6 +155,7 @@ ADDITIVE_METRIC_TYPES = {
     "sum",
     "doubleSum",
 }
+
 ADDITIVE_METRIC_TYPES_LOWER = {op.lower() for op in ADDITIVE_METRIC_TYPES}
 
 
@@ -983,12 +993,49 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
     def get_template_processor(self, **kwargs: Any) -> BaseTemplateProcessor:
         return get_template_processor(table=self, database=self.database, **kwargs)
 
+    def get_multi_dataset_query(self, sql: str) -> str:
+        changed_sql = sql
+        filtered_list = []
+        colum_expressions = {}
+        sql_filters = sql.partition(VIRTUAL_TABLE_ALIAS)[TUPLE_QUERY_INDEX]
+        sql_filters_list = sql_filters.split("\n")
+        for filter_value in sql_filters_list[1::]:
+            if(not(filter_value.startswith(SQL_CLAUSES["group_by"])
+                or filter_value.startswith(SQL_CLAUSES["order_by"])
+            )):
+                filtered_list.append(filter_value)
+                changed_sql = changed_sql.replace("{}".format(filter_value), "")
+                changed_sql = changed_sql.replace("{}{}".format(filter_value, "\n"), "")
+
+        final_filters_string = "\n".join(filtered_list)
+        start_of_query = changed_sql.partition("FROM\n  (SELECT")[TUPLE_QUERY_INDEX]
+        index_of_end = start_of_query.index('FROM')
+        table_expressions_list = start_of_query[:index_of_end].split(',\n')
+
+        for expression in table_expressions_list:
+            format_exp = expression.strip()
+            column = format_exp.split(' ')
+            colum_expressions[column[1]] = column[0]
+
+        for column_name in colum_expressions.keys():
+            expr = colum_expressions[column_name]
+            final_filters_string = final_filters_string.replace('"{}"'.format(column_name), expr)
+
+        index = changed_sql.find(') AS "virtual_table"')
+        final_sql = changed_sql[:index]  + ' {} '.format(final_filters_string) + changed_sql[index:]
+        return sqlparse.format(final_sql, reindent=True)
+
+
     def get_query_str_extended(self, query_obj: QueryObjectDict) -> QueryStringExtended:
         sqlaq = self.get_sqla_query(**query_obj)
         sql = self.database.compile_sqla_query(sqlaq.sqla_query)
         sql = self._apply_cte(sql, sqlaq.cte)
         sql = sqlparse.format(sql, reindent=True)
         sql = self.mutate_query_from_config(sql)
+
+        if self.table_name.startswith("tmp__"):
+            sql = self.get_multi_dataset_query(sql)
+
         return QueryStringExtended(
             applied_template_filters=sqlaq.applied_template_filters,
             labels_expected=sqlaq.labels_expected,
@@ -1457,7 +1504,13 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                         to_dttm,
                     )
                 )
-            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+
+            if self.database.backend == PRESTO_DATABASE_NAME and (dttm_col.column_name == "day"):
+                dttm_col.expression = "cast({} as VARCHAR(10))".format(dttm_col.column_name)
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+                dttm_col.expression = ""
+            else:
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
 
         # Always remove duplicates by column name, as sometimes `metrics_exprs`
         # can have the same name as a groupby column (e.g. when users use
