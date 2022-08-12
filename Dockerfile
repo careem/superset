@@ -91,8 +91,7 @@ RUN mkdir -p ${PYTHONPATH} \
             libsasl2-modules-gssapi-mit \
             libpq-dev \
             libecpg-dev \
-            awscli \
-            jq \
+            firefox-esr \
         && rm -rf /var/lib/apt/lists/*
 
 COPY --from=superset-py /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
@@ -114,11 +113,6 @@ COPY ./docker/run-server.sh /usr/bin/
 RUN chmod a+x /usr/bin/run-server.sh
 
 WORKDIR /app
-
-RUN aws secretsmanager get-secret-value --region eu-west-1 --secret-id bdp/careem-insights \
-    --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > ./secrets.env
-
-RUN export $(grep -v '^#' secrets.env | xargs)
 
 USER superset
 
