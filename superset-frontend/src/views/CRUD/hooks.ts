@@ -33,6 +33,7 @@ import copyTextToClipboard from 'src/utils/copy';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import SupersetText from 'src/utils/textUtils';
 import { FavoriteStatus, ImportResourceName, DatabaseObject } from './types';
+import { fetchUsers } from './FlashManagement/services/flash.service';
 
 interface ListViewResourceState<D extends object = any> {
   loading: boolean;
@@ -328,9 +329,7 @@ export function useFlashListViewResource<D extends object = any>(
         ...(filterExps.length ? { filters: filterExps } : {}),
       });
 
-      return SupersetClient.get({
-        endpoint: `/api/v1/${resource}/?q=${queryParams}`,
-      })
+      return fetchUsers(queryParams)
         .then(
           ({ json = {} }) => {
             updateState({
@@ -351,7 +350,14 @@ export function useFlashListViewResource<D extends object = any>(
           ),
         )
         .finally(() => {
-          updateState({ loading: false });
+          // updateState({ loading: false });
+          updateState({
+            // collection: json.result,
+            loading:false,
+            collection: flashResults as D[],
+            count: flashResults.length,
+            lastFetched: new Date().toISOString(),
+          });
         });
     },
     [baseFilters],

@@ -20,8 +20,8 @@
 import { FlashClient } from '@superset-ui/core';
 import { FlashObject } from '../types';
 
-// export const fetchUsers = async (): Promise<any> =>
-//   await FlashClient.get<FlashObject[]>('/users');
+export const fetchUsers = async (queryParams : any): Promise<any> =>
+  await FlashClient.get<FlashObject[]>('v1/flash/'+ '?q=' + queryParams);
 
 export const createFlash = (payload: FlashObject): Promise<any> =>
   FlashClient.post<FlashObject>('v1/flash/', payload);

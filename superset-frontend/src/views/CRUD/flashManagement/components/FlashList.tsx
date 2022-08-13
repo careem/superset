@@ -50,7 +50,8 @@
  import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
  import ImportModelsModal from 'src/components/ImportModal/index';
  import Icons from 'src/components/Icons';
- import SavedQueryPreviewModal from './SavedQueryPreviewModal';
+import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
+//  import SavedQueryPreviewModal from './SavedQueryPreviewModal';
 
  const PAGE_SIZE = 25;
  const PASSWORDS_NEEDED_MESSAGE = t(
@@ -66,7 +67,7 @@
      'sure you want to overwrite?',
  );
 
- interface SavedQueryListProps {
+ interface FlashListProps {
    addDangerToast: (msg: string) => void;
    addSuccessToast: (msg: string) => void;
    user: {
@@ -90,7 +91,7 @@
  function FlashList({
    addDangerToast,
    addSuccessToast,
- }: SavedQueryListProps) {
+ }: FlashListProps) {
    const {
      state: {
        loading,
@@ -103,8 +104,8 @@
      toggleBulkSelect,
      refreshData,
    } = useFlashListViewResource<SavedQueryObject>(
-     'saved_query',
-     t('Saved queries'),
+     'flash',
+     t('Flashes'),
      addDangerToast,
    );
    const [queryCurrentlyDeleting, setQueryCurrentlyDeleting] =
@@ -268,9 +269,14 @@
      );
    };
 
-   const initialSort = [{ id: 'changed_on_delta_humanized', desc: true }];
+   const initialSort = [{ id: 'status', desc: true }];
    const columns = useMemo(
      () => [
+      {
+        accessor: 'target_db_name',
+        Header: t('Database Name'),
+        size:'l',
+      },
        {
          accessor: 'target_table_name',
          Header: t('Flash Name'),
@@ -443,6 +449,26 @@
 
    const filters: Filters = useMemo(
      () => [
+      {
+        Header: t('Database Name'),
+        id: 'target_db_name',
+        input: 'select',
+        operator: FilterOperator.relationOneMany,
+        unfilteredLabel: 'All',
+        fetchSelects: createFetchRelated(
+          'saved_query',
+          'database',
+          createErrorHandler(errMsg =>
+            addDangerToast(
+              t(
+                'An error occurred while fetching flash names: %s',
+                errMsg,
+              ),
+            ),
+          ),
+        ),
+        paginate: true,
+      },
        {
          Header: t('Flash Name'),
          id: 'target_table_name',
@@ -469,11 +495,7 @@
          input: 'select',
          operator: FilterOperator.equals,
          unfilteredLabel: 'All',
-         selects: [
-          { label: 'One Time', value: 'One Time' },
-          { label: 'Short Term', value: 'Short Term' },
-          { label: 'Long Term', value: 'Long Term' },
-        ],
+         selects: FLASH_TYPES,
          paginate: true,
        },
        {
@@ -487,11 +509,7 @@
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
-        selects: [
-          { label: 'Daily', value: '@daily' },
-          { label: 'Weekly', value: '@weekly' },
-          { label: 'Monthly', value: '@monthly' },
-        ],
+        selects:SCHEDULE_TYPE,
         paginate: true,
       },
       {
@@ -539,7 +557,7 @@
            title={t('Delete Query?')}
          />
        )}
-       {savedQueryCurrentlyPreviewing && (
+       {/* {savedQueryCurrentlyPreviewing && (
          <SavedQueryPreviewModal
            fetchData={handleSavedQueryPreview}
            onHide={() => setSavedQueryCurrentlyPreviewing(null)}
@@ -548,10 +566,10 @@
            openInSqlLab={openInSqlLab}
            show
          />
-       )}
+       )} */}
        <ConfirmStatusChange
          title={t('Please confirm')}
-         description={t('Are you sure you want to delete the selected queries?')}
+         description={t('Are you sure you want to delete the selected flash?')}
          onConfirm={handleBulkQueryDelete}
        >
          {confirmDelete => {
@@ -564,17 +582,17 @@
                type: 'danger',
              });
            }
-           if (canExport) {
-             bulkActions.push({
-               key: 'export',
-               name: t('Export'),
-               type: 'primary',
-               onSelect: handleBulkSavedQueryExport,
-             });
-           }
+          //  if (canExport) {
+          //    bulkActions.push({
+          //      key: 'export',
+          //      name: t('Export'),
+          //      type: 'primary',
+          //      onSelect: handleBulkSavedQueryExport,
+          //    });
+          //  }
            return (
              <ListView<SavedQueryObject>
-               className="saved_query-list-view"
+               className="flash-list-view"
                columns={columns}
                count={flashCount}
                data={flashes}

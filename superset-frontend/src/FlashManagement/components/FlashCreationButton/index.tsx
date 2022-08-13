@@ -32,8 +32,8 @@ import {
 import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
-import { FlashTypes } from 'src/FlashManagement/enums';
-import { FlashObject, FormErrors, Dropdown } from 'src/FlashManagement/types';
+import { FlashTypes } from 'src/views/CRUD/FlashManagement/enums';
+import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/FlashManagement/types';
 import moment from 'moment';
 
 const appContainer = document.getElementById('app');

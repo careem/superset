@@ -33,7 +33,7 @@ import {
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import COMMON_ERR_MESSAGES from 'src/utils/errorMessages';
 
-import { createFlash } from 'src/FlashManagement/services/flash.service';
+import { createFlash } from 'src/views/CRUD/FlashManagement/services/flash.service';
 
 export const RESET_STATE = 'RESET_STATE';
 export const ADD_QUERY_EDITOR = 'ADD_QUERY_EDITOR';

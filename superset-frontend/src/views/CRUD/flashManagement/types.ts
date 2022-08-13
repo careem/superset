@@ -16,13 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-export type ChartObject = {
-  slice_name?: string;
-  description?: string;
-  viz_type?: string;
-  params?: string;
-  cache_timeout?: number;
-  datasource_id?: number;
-  datasource_type?: number;
-  is_managed_externally: boolean;
-};
+
+export interface FlashObject {
+  id?: number;
+  created_by: string;
+  dataset_name: string;
+  domain_name: string;
+  flash_type: string;
+  schedule_start_time?: string;
+  schedule_type?: string;
+  service_name: string;
+  sql_query: string;
+  target_db_name: string;
+  target_table_name: string;
+  team_slack_channel?: string;
+  team_slack_handle?: string;
+  ttl: string;
+  cdomain?: string;
+  cservice?: string;
+}
+
+export interface FormErrors {
+  message: string;
+  name: string;
+  params: {
+    pattern: string;
+  };
+  property: string;
+  schemaPath: string;
+  stack: string;
+}
+
+export interface Dropdown {
+  enum: Array<string>;
+  enumNames?: Array<string>;
+}
+
+export interface FilterDropdown {
+  label: string;
+  value: string;
+}

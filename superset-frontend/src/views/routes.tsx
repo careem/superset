@@ -24,7 +24,7 @@ import Welcome from 'src/views/CRUD/welcome/Welcome';
 const ExtentedSliceContainer = lazy(
   () =>
     import(
-      /* webpackChunkName: "ExtendedSliceContainer.tsx" */ 'src/addSlice/ExtendedSliceContainer.tsx'
+      /* webpackChunkName: "ExtendedSliceContainer.tsx" */ 'src/addSlice/ExtendedSliceContainer'
     ),
 );
 const AnnotationLayersList = lazy(
@@ -54,7 +54,7 @@ const ChartList = lazy(
 const FlashList = lazy(
   () =>
     import(
-      /* webpackChunkName: "ChartList" */ 'src/views/CRUD/flashManagement/FlashList'
+      /* webpackChunkName: "ChartList" */ 'src/views/CRUD/FlashManagement/components/FlashList'
     ),
 );
 const CssTemplatesList = lazy(
