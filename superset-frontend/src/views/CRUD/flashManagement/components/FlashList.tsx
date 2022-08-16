@@ -44,13 +44,13 @@
  import DeleteModal from 'src/components/DeleteModal';
  import ActionsBar, { ActionProps } from 'src/components/ListView/ActionsBar';
  import { Tooltip } from 'src/components/Tooltip';
- import { commonMenuData } from 'src/views/CRUD/data/common';
  import { SavedQueryObject } from 'src/views/CRUD/types';
  import copyTextToClipboard from 'src/utils/copy';
  import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
  import ImportModelsModal from 'src/components/ImportModal/index';
  import Icons from 'src/components/Icons';
-import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
+import { DATABASES, FLASH_STATUS, FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
+import { FlashServiceObject } from '../types';
 //  import SavedQueryPreviewModal from './SavedQueryPreviewModal';
 
  const PAGE_SIZE = 25;
@@ -103,7 +103,7 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
      fetchData,
      toggleBulkSelect,
      refreshData,
-   } = useFlashListViewResource<SavedQueryObject>(
+   } = useFlashListViewResource<FlashServiceObject>(
      'flash',
      t('Flashes'),
      addDangerToast,
@@ -159,7 +159,6 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
    );
 
    const menuData: SubMenuProps = {
-    //  ...commonMenuData,
      name: t('Flash')
    };
 
@@ -172,35 +171,6 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
        buttonStyle: 'secondary',
      });
    }
-
-  //  subMenuButtons.push({
-  //    name: (
-  //      <>
-  //        <i className="fa fa-plus" /> {t('Create Flash Object')}
-  //      </>
-  //    ),
-  //    onClick: openNewQuery,
-  //    buttonStyle: 'primary',
-  //  });
-
-  //  if (canCreate && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
-  //    subMenuButtons.push({
-  //      name: (
-  //        <Tooltip
-  //          id="import-tooltip"
-  //          title={t('Import queries')}
-  //          placement="bottomRight"
-  //          data-test="import-tooltip-test"
-  //        >
-  //          <Icons.Import data-test="import-icon" />
-  //        </Tooltip>
-  //      ),
-  //      buttonStyle: 'link',
-  //      onClick: openSavedQueryImportModal,
-  //      'data-test': 'import-button',
-  //    });
-  //  }
-
    menuData.buttons = subMenuButtons;
 
 
@@ -298,85 +268,17 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
          Header: t('Schedule Type'),
          size: 'l',
        },
-      //  {
-      //    Cell: ({
-      //      row: {
-      //        original: { sql_tables: tables = [] },
-      //      },
-      //    }: any) => {
-      //      const names = tables.map((table: any) => table.table);
-      //      const main = names?.shift() || '';
-
-      //      if (names.length) {
-      //        return (
-      //          <StyledTableLabel>
-      //            <span>{main}</span>
-      //            <Popover
-      //              placement="right"
-      //              title={t('TABLES')}
-      //              trigger="click"
-      //              content={
-      //                <>
-      //                  {names.map((name: string) => (
-      //                    <StyledPopoverItem key={name}>{name}</StyledPopoverItem>
-      //                  ))}
-      //                </>
-      //              }
-      //            >
-      //              <span className="count">(+{names.length})</span>
-      //            </Popover>
-      //          </StyledTableLabel>
-      //        );
-      //      }
-
-      //      return main;
-      //    },
-      //    accessor: 'sql_tables',
-      //    Header: t('Tables'),
-      //    size: 'xl',
-      //    disableSortBy: true,
-      //  },
        {
-        //  Cell: ({
-        //    row: {
-        //      original: { created_on: createdOn },
-        //    },
-        //  }: any) => {
-        //    const date = new Date(createdOn);
-        //    const utc = new Date(
-        //      Date.UTC(
-        //        date.getFullYear(),
-        //        date.getMonth(),
-        //        date.getDate(),
-        //        date.getHours(),
-        //        date.getMinutes(),
-        //        date.getSeconds(),
-        //        date.getMilliseconds(),
-        //      ),
-        //    );
-
-        //    return moment(utc).fromNow();
-        //  },
          Header: t('Slack Channel'),
-         accessor: 'slack_channel',
+         accessor: 'team_slack_channel',
          size:'xl'
        },
        {
-        //  Cell: ({
-        //    row: {
-        //      original: { changed_on_delta_humanized: changedOn },
-        //    },
-        //  }: any) => changedOn,
          Header: t('Slack Handle'),
-         accessor: 'slack_handle',
+         accessor: 'team_slack_handle',
          size:'xl'
        },
        {
-        //  Cell: ({
-        //    row: {
-        //      original: { changed_on_delta_humanized: changedOn },
-        //    },
-        //  }: any) => changedOn,
          Header: t('Status'),
          accessor: 'status',
          size:'l'
@@ -392,20 +294,6 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
            const handleDelete = () => setQueryCurrentlyDeleting(original);
 
            const actions = [
-            //  {
-            //    label: 'preview-action',
-            //    tooltip: t('Query preview'),
-            //    placement: 'bottom',
-            //    icon: 'Binoculars',
-            //    onClick: handlePreview,
-            //  },
-            //  canEdit && {
-            //    label: 'edit-action',
-            //    tooltip: t('Edit query'),
-            //    placement: 'bottom',
-            //    icon: 'Edit',
-            //    onClick: handleEdit,
-            //  },
              {
                label: 'ownership-action',
                tooltip: t('Change Ownership'),
@@ -421,20 +309,20 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
               icon: 'Edit',
               onClick: handleCopy,
             },
-             canExport && {
-               label: 'export-action',
-               tooltip: t('Extend TTL'),
-               placement: 'bottom',
-               icon: 'Share',
-               onClick: handleExport,
-             },
-             canDelete && {
-               label: 'delete-action',
-               tooltip: t('Delete Flash'),
-               placement: 'bottom',
-               icon: 'Trash',
-               onClick: handleDelete,
-             },
+            {
+              label: 'export-action',
+              tooltip: t('Extend TTL'),
+              placement: 'bottom',
+              icon: 'Share',
+              onClick: handleExport,
+            },
+            {
+              label: 'delete-action',
+              tooltip: t('Delete Flash'),
+              placement: 'bottom',
+              icon: 'Trash',
+              onClick: handleDelete,
+            },
            ].filter(item => !!item);
 
            return <ActionsBar actions={actions as ActionProps[]} />;
@@ -453,42 +341,17 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
         Header: t('Database Name'),
         id: 'target_db_name',
         input: 'select',
-        operator: FilterOperator.relationOneMany,
+        operator: FilterOperator.equals,
         unfilteredLabel: 'All',
-        fetchSelects: createFetchRelated(
-          'saved_query',
-          'database',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching flash names: %s',
-                errMsg,
-              ),
-            ),
-          ),
-        ),
-        paginate: true,
+       selects: DATABASES,
       },
-       {
-         Header: t('Flash Name'),
-         id: 'target_table_name',
-         input: 'select',
-         operator: FilterOperator.relationOneMany,
-         unfilteredLabel: 'All',
-         fetchSelects: createFetchRelated(
-           'saved_query',
-           'database',
-           createErrorHandler(errMsg =>
-             addDangerToast(
-               t(
-                 'An error occurred while fetching flash names: %s',
-                 errMsg,
-               ),
-             ),
-           ),
-         ),
-         paginate: true,
-       },
+      {
+        Header: t('Flash Name'),
+        id: 'target_table_name',
+        input: 'search',
+        operator: FilterOperator.allText,
+      },
+
        {
          Header: t('Flash Type'),
          id: 'flash_type',
@@ -496,12 +359,11 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
          operator: FilterOperator.equals,
          unfilteredLabel: 'All',
          selects: FLASH_TYPES,
-         paginate: true,
        },
        {
         Header: t('TTL'),
         id: 'ttl',
-        input: 'datetime_range',
+        input: 'date',
       },
        {
         Header: t('Schedule Type'),
@@ -510,7 +372,6 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
         selects:SCHEDULE_TYPE,
-        paginate: true,
       },
       {
         Header: t('Status'),
@@ -518,23 +379,9 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
-        fetchSelects: createFetchDistinct(
-          'saved_query',
-          'schema',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t('An error occurred while fetching status: %s', errMsg),
-            ),
-          ),
-        ),
-        paginate: true,
+        selects:FLASH_STATUS,
       },
-       {
-         Header: t('Search'),
-         id: 'target_table_name',
-         input: 'search',
-         operator: FilterOperator.allText,
-       },
+
      ],
      [addDangerToast],
    );
@@ -557,16 +404,7 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
            title={t('Delete Query?')}
          />
        )}
-       {/* {savedQueryCurrentlyPreviewing && (
-         <SavedQueryPreviewModal
-           fetchData={handleSavedQueryPreview}
-           onHide={() => setSavedQueryCurrentlyPreviewing(null)}
-           savedQuery={savedQueryCurrentlyPreviewing}
-           queries={flashes}
-           openInSqlLab={openInSqlLab}
-           show
-         />
-       )} */}
+
        <ConfirmStatusChange
          title={t('Please confirm')}
          description={t('Are you sure you want to delete the selected flash?')}
@@ -582,16 +420,8 @@ import { FLASH_TYPES, SCHEDULE_TYPE } from '../constants';
                type: 'danger',
              });
            }
-          //  if (canExport) {
-          //    bulkActions.push({
-          //      key: 'export',
-          //      name: t('Export'),
-          //      type: 'primary',
-          //      onSelect: handleBulkSavedQueryExport,
-          //    });
-          //  }
            return (
-             <ListView<SavedQueryObject>
+             <ListView<FlashServiceObject>
                className="flash-list-view"
                columns={columns}
                count={flashCount}

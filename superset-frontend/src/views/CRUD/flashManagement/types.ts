@@ -36,6 +36,28 @@ export interface FlashObject {
   cservice?: string;
 }
 
+export type FlashServiceObject = {
+  c_domain?: string;
+  c_service?: string;
+  created_by: string;
+  dataset_name: string;
+  domain_name: string;
+  flash_type: string;
+  id?: number;
+  last_refresh_time?: string;
+  retry_count?: number;
+  schedule_start_time?: string;
+  schedule_type?: string;
+  service_name: string;
+  sql_query: string;
+  status?: string;
+  target_db_name: string;
+  target_table_name: string;
+  team_slack_channel?: string;
+  team_slack_handle?: string;
+  ttl: string;
+};
+
 export interface FormErrors {
   message: string;
   name: string;

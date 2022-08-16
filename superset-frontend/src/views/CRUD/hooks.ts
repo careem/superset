@@ -48,11 +48,11 @@ interface ListViewResourceState<D extends object = any> {
 let flashResults = [
   {
     target_table_name:'food_orders_groceries',
-    slack_handle: '@Samra Hanif',
+    team_slack_handle: '@Samra Hanif',
   },
   {
     target_table_name:'food_orders_groceries',
-    slack_handle: '@Samra Hanif',
+    team_slack_handle: '@Samra Hanif',
   },
 ]
 
@@ -260,29 +260,29 @@ export function useFlashListViewResource<D extends object = any>(
     updateState({ bulkSelectEnabled: !state.bulkSelectEnabled });
   }
 
-  useEffect(() => {
-    if (!infoEnable) return;
-    SupersetClient.get({
-      endpoint: `/api/v1/${resource}/_info?q=${rison.encode({
-        keys: ['permissions'],
-      })}`,
-    }).then(
-      ({ json: infoJson = {} }) => {
-        updateState({
-          permissions: infoJson.permissions,
-        });
-      },
-      createErrorHandler(errMsg =>
-        handleErrorMsg(
-          t(
-            'An error occurred while fetching %s info: %s',
-            resourceLabel,
-            errMsg,
-          ),
-        ),
-      ),
-    );
-  }, []);
+  // useEffect(() => {
+  //   if (!infoEnable) return;
+  //   SupersetClient.get({
+  //     endpoint: `/api/v1/${resource}/_info?q=${rison.encode({
+  //       keys: ['permissions'],
+  //     })}`,
+  //   }).then(
+  //     ({ json: infoJson = {} }) => {
+  //       updateState({
+  //         permissions: infoJson.permissions,
+  //       });
+  //     },
+  //     createErrorHandler(errMsg =>
+  //       handleErrorMsg(
+  //         t(
+  //           'An error occurred while fetching %s info: %s',
+  //           resourceLabel,
+  //           errMsg,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }, []);
 
   function hasPerm(perm: string) {
     if (!state.permissions.length) {
@@ -310,32 +310,39 @@ export function useFlashListViewResource<D extends object = any>(
         loading: true,
       });
 
+      console.log('filterValues===', filterValues)
       const filterExps = (baseFilters || [])
         .concat(filterValues)
         .map(({ id, operator: opr, value }) => ({
           col: id,
-          opr,
+          // opr,
           value:
             value && typeof value === 'object' && 'value' in value
               ? value.value
-              : value,
+              : value
         }));
 
-      const queryParams = rison.encode_uri({
-        order_column: sortBy[0].id,
-        order_direction: sortBy[0].desc ? 'desc' : 'asc',
-        page: pageIndex,
-        page_size: pageSize,
-        ...(filterExps.length ? { filters: filterExps } : {}),
-      });
+
+        let filtersConcatenated = filterExps.length && (filterExps.map((eachFilter) => ( '&' + eachFilter.col + '=' + eachFilter.value)).reduce((acc,val)=> acc+val))
+        let offset = Number(pageIndex) + 1
+        console.log('filters Concatenated ====', filtersConcatenated)
+        let queryParams = 'limit=' + pageSize + '&offset=' + offset + (!!filtersConcatenated ? filtersConcatenated : '')
+
+      // const queryParams = rison.encode_uri({
+      //   order_column: sortBy[0].id,
+      //   order_direction: sortBy[0].desc ? 'desc' : 'asc',
+      //   offset: pageIndex,
+      //   limit: pageSize,
+      //   ...(filterExps.length ? { filters: filterExps } : {}),
+      // });
 
       return fetchUsers(queryParams)
         .then(
-          ({ json = {} }) => {
+          (json = {}) => {
+            console.log('results', json)
             updateState({
-              // collection: json.result,
-              collection: flashResults as D[],
-              count: json.count,
+              collection: json?.data as D[],
+              count: json?.data?.length,
               lastFetched: new Date().toISOString(),
             });
           },
@@ -350,14 +357,13 @@ export function useFlashListViewResource<D extends object = any>(
           ),
         )
         .finally(() => {
-          // updateState({ loading: false });
-          updateState({
-            // collection: json.result,
-            loading:false,
-            collection: flashResults as D[],
-            count: flashResults.length,
-            lastFetched: new Date().toISOString(),
-          });
+          updateState({ loading: false });
+          // updateState({
+          //   loading:false,
+          //   collection: flashResults as D[],
+          //   count: flashResults.length,
+          //   lastFetched: new Date().toISOString(),
+          // });
         });
     },
     [baseFilters],

@@ -100,8 +100,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 
   useEffect(() => {
     const newDbDropdown = {
-      enum: ['', 'Pinot-flashes', 'Trino', 'Presto'],
-      enumNames: ['Please Select', 'Pinot-flashes', 'Trino', 'Presto'],
+      enum: ['', 'Pinot Flashes'],
+      enumNames: ['Please Select', 'Pinot Flashes'],
     };
     setDbDropdown(newDbDropdown);
   }, []);
