@@ -260,30 +260,6 @@ export function useFlashListViewResource<D extends object = any>(
     updateState({ bulkSelectEnabled: !state.bulkSelectEnabled });
   }
 
-  // useEffect(() => {
-  //   if (!infoEnable) return;
-  //   SupersetClient.get({
-  //     endpoint: `/api/v1/${resource}/_info?q=${rison.encode({
-  //       keys: ['permissions'],
-  //     })}`,
-  //   }).then(
-  //     ({ json: infoJson = {} }) => {
-  //       updateState({
-  //         permissions: infoJson.permissions,
-  //       });
-  //     },
-  //     createErrorHandler(errMsg =>
-  //       handleErrorMsg(
-  //         t(
-  //           'An error occurred while fetching %s info: %s',
-  //           resourceLabel,
-  //           errMsg,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }, []);
-
   function hasPerm(perm: string) {
     if (!state.permissions.length) {
       return false;
@@ -322,11 +298,14 @@ export function useFlashListViewResource<D extends object = any>(
               : value
         }));
 
-
-        let filtersConcatenated = filterExps.length && (filterExps.map((eachFilter) => ( '&' + eachFilter.col + '=' + eachFilter.value)).reduce((acc,val)=> acc+val))
+        let filtersConcatenated = filterExps.reduce( (acc,val) => {
+          if(val.value){
+            acc += '&' + val.col + '=' + val.value
+          }
+          return acc
+        },'')
         let offset = Number(pageIndex) + 1
-        console.log('filters Concatenated ====', filtersConcatenated)
-        let queryParams = 'limit=' + pageSize + '&offset=' + offset + (!!filtersConcatenated ? filtersConcatenated : '')
+        let queryParams = 'limit=' + pageSize + '&offset=' + offset + filtersConcatenated
 
       // const queryParams = rison.encode_uri({
       //   order_column: sortBy[0].id,

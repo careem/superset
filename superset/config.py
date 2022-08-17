@@ -746,12 +746,12 @@ FLASH_CREATION = {
                             "team_slack_channel": {
                                 "type": "string",
                                 "title": "Slack Channel",
-                                "pattern": "^(#)[A-Za-z0-9_-\\s&!]+$",
+                                "pattern": "^(#)[A-Za-z0-9_-]+$",
                             },
                             "team_slack_handle": {
                                 "type": "string",
                                 "title": "Slack Handle",
-                                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
                             },
                             "schedule_type": {
                                 "title": "Schedule Type",
@@ -838,6 +838,71 @@ FLASH_CREATION = {
         "schedule_start_time": {
             "ui:help": "Start time from which the flash object is to be scheduled"
         },
+    },
+    "VALIDATION": [],
+    # link to the scheduler; this example links to an Airflow pipeline
+    # that uses the query id and the output table as its name
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
+    ),
+}
+
+
+FLASH_OWNERSHIP = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+           "team_slack_channel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern": "^(#)[A-Za-z0-9_-]+$",
+                            },
+                            "team_slack_handle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
+                            },
+                            "ownership_type" : {
+                                "type":"boolean",
+                                "title": "Assign to me",
+                                "enum" : [True,False],
+                                "default" : False
+                            },
+                            "owner_name" : {
+                                "type":"string",
+                                "title": "Owner Email",
+                                "format":"email"
+                            }
+
+        },
+        "required": [
+            "team_slack_channel",
+            "team_slack_handle",
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "team_slack_channel",
+            "team_slack_handle",
+            "ownership_type",
+            "owner_name"
+        ],
+        "team_slack_channel": {
+            "ui:placeholder": "#slack_channel_name",
+            "ui:help": "Slack channel for notification",
+        },
+        "team_slack_handle": {
+            "ui:placeholder": "@slack_handle_name",
+            "ui:help": "Slack handle for notification",
+        },
+        "owner_name": {
+            "ui:placeholder": "abc@abc.com",
+            "ui:help": "The email to whom the ownership should be transferred",
+        }
     },
     "VALIDATION": [],
     # link to the scheduler; this example links to an Airflow pipeline

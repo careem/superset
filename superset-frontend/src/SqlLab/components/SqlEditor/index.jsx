@@ -70,7 +70,7 @@ import {
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import { EmptyStateBig } from 'src/components/EmptyState';
 import { isEmpty } from 'lodash';
-import FlashCreationButton from 'src/FlashManagement/components/FlashCreationButton';
+import FlashCreationButton from 'src/views/CRUD/FlashManagement/components/FlashCreationButton/FlashCreationButton';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import ConnectedSouthPane from '../SouthPane/state';
 import SaveQuery from '../SaveQuery';

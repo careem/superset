@@ -58,7 +58,6 @@ export default function ActionsBar({ actions }: ActionsBarProps) {
   return (
     <StyledActions className="actions">
       {actions.map((action, index) => {
-        console.log('action==', action)
         const ActionIcon = Icons[action.icon];
         if (action.tooltip) {
           return (

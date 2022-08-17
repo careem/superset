@@ -54,7 +54,7 @@ const ChartList = lazy(
 const FlashList = lazy(
   () =>
     import(
-      /* webpackChunkName: "ChartList" */ 'src/views/CRUD/FlashManagement/components/FlashList'
+      /* webpackChunkName: "ChartList" */ 'src/views/CRUD/FlashManagement/components/FlashGrid/FlashList'
     ),
 );
 const CssTemplatesList = lazy(

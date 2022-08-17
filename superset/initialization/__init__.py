@@ -340,6 +340,11 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category="SQL Lab",
         )
         appbuilder.add_link(
+            __("Flash Management"),
+            href="/flashManagement/list/",
+            icon="fa-save",
+        )
+        appbuilder.add_link(
             "Query Search",
             label=_("Query History"),
             href="/superset/sqllab/history/",
