@@ -286,7 +286,6 @@ export function useFlashListViewResource<D extends object = any>(
         loading: true,
       });
 
-      console.log('filterValues===', filterValues)
       const filterExps = (baseFilters || [])
         .concat(filterValues)
         .map(({ id, operator: opr, value }) => ({
@@ -306,15 +305,6 @@ export function useFlashListViewResource<D extends object = any>(
         },'')
         let offset = Number(pageIndex) + 1
         let queryParams = 'limit=' + pageSize + '&offset=' + offset + filtersConcatenated
-
-      // const queryParams = rison.encode_uri({
-      //   order_column: sortBy[0].id,
-      //   order_direction: sortBy[0].desc ? 'desc' : 'asc',
-      //   offset: pageIndex,
-      //   limit: pageSize,
-      //   ...(filterExps.length ? { filters: filterExps } : {}),
-      // });
-
       return fetchUsers(queryParams)
         .then(
           (json = {}) => {

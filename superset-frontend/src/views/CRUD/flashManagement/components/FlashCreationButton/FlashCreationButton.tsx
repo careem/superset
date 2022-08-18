@@ -33,7 +33,11 @@ import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/views/CRUD/FlashManagement/enums';
-import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/FlashManagement/types';
+import {
+  FlashObject,
+  FormErrors,
+  Dropdown,
+} from 'src/views/CRUD/FlashManagement/types';
 import moment from 'moment';
 
 const appContainer = document.getElementById('app');
@@ -78,6 +82,9 @@ const StyledJsonSchema = styled.div`
   }
   .array-item-remove::after {
     content: '-';
+  }
+  .help-block {
+    font-size: 12px;
   }
 `;
 

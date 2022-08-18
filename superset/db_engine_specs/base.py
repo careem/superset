@@ -989,8 +989,8 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
         return sorted(inspector.get_catalog_names())
 
     @classmethod
-    def get_all_catalog_schema_names(cls, inspector: Inspector,
-        catalog_name: str
+    def get_all_catalog_schema_names(
+        cls, inspector: Inspector, catalog_name: str
     ) -> List[str]:
         """
         Get all schemas under a catalog from database

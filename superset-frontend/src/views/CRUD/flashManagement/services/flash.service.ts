@@ -26,8 +26,8 @@ export const fetchUsers = async (queryParams : any): Promise<any> =>
 export const createFlash = (payload: FlashObject): Promise<any> =>
   FlashClient.post<FlashObject>('v1/flash/', payload);
 
-// export const updateUser = async (user: FlashObject): Promise<any> =>
-//   await FlashClient.put<FlashObject>(`/users/${user.id}`, user);
+export const updateUser = async (payload: any): Promise<any> =>
+  await FlashClient.put<any>(`v1/flash/${payload.id}`, payload);
 
 // export const deleteUser = async (user: FlashObject): Promise<any> =>
 //   await FlashClient.delete<FlashObject>(`/users/${user.id}`);

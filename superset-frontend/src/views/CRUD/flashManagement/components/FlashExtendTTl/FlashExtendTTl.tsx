@@ -56,7 +56,7 @@ const getJSONSchema = () => {
 
 const getUISchema = () => flashOwnershipConf?.UISCHEMA;
 
-interface FlashOwnershipButtonProps {
+interface FlashExtendTTLButtonProps {
   latestQueryFormData?: object;
   sql?: string;
   onCreate?: Function;
@@ -107,7 +107,7 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
+const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   sql,
   latestQueryFormData,
   showFlashOwnership,
@@ -260,7 +260,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
       <StyledModal
         onHide={onHide}
         show={show}
-        title={t('Update Ownership')}
+        title={t('Update TTL')}
         footer={<></>}
       >
         {renderModalBody()}
@@ -269,4 +269,4 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   );
 };
 
-export default FlashOwnership;
+export default FlashExtendTTL;

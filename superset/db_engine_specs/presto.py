@@ -235,8 +235,8 @@ class PrestoEngineSpec(BaseEngineSpec):  # pylint: disable=too-many-public-metho
         return catalogs
 
     @classmethod
-    def get_all_catalog_schema_names(cls, inspector: Inspector,
-        catalog_name: str
+    def get_all_catalog_schema_names(
+        cls, inspector: Inspector, catalog_name: str
     ) -> List[str]:
         schemas = [
             row[0]
@@ -244,7 +244,6 @@ class PrestoEngineSpec(BaseEngineSpec):  # pylint: disable=too-many-public-metho
             if not row[0].startswith("_")
         ]
         return schemas
-
 
     @classmethod
     def get_allow_cost_estimate(cls, extra: Dict[str, Any]) -> bool:

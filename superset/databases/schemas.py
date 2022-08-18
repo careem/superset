@@ -546,8 +546,10 @@ class SelectStarResponseSchema(Schema):
 class SchemasResponseSchema(Schema):
     result = fields.List(fields.String(description="A database schema name"))
 
+
 class CatalogsResponseSchema(Schema):
     result = fields.List(fields.String(description="A database catalog name"))
+
 
 class ValidateSQLRequest(Schema):
     sql = fields.String(required=True, description="SQL statement to validate")

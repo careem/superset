@@ -55,6 +55,7 @@ from superset.advanced_data_type.plugins.internet_port import internet_port
 from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
+
 # from superset.stats_logger import StatsdStatsLogger
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
@@ -244,59 +245,65 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
     # See: https://github.com/mozilla-services/react-jsonschema-form
-    'JSONSCHEMA': {
-        'title': 'Schedule',
-        'description': (
-            'In order to schedule a query, you need to specify when it '
-            'should start running, when it should stop running, and how '
-            'often it should run.'
+    "JSONSCHEMA": {
+        "title": "Schedule",
+        "description": (
+            "In order to schedule a query, you need to specify when it "
+            "should start running, when it should stop running, and how "
+            "often it should run."
         ),
-        'type': 'object',
-        'properties': {
-            'output_table': {
-                'type': 'string',
-                'title': 'Output table name',
+        "type": "object",
+        "properties": {
+            "output_table": {
+                "type": "string",
+                "title": "Output table name",
             },
-            'start_date': {
-                'type': 'string',
-                'title': 'Start date',
+            "start_date": {
+                "type": "string",
+                "title": "Start date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': 'tomorrow at 9am',
+                "format": "date-time",
+                "default": "tomorrow at 9am",
             },
-            'end_date': {
-                'type': 'string',
-                'title': 'End date',
+            "end_date": {
+                "type": "string",
+                "title": "End date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': '9am in 30 days',
+                "format": "date-time",
+                "default": "9am in 30 days",
             },
-            'schedule_interval': {
-                'type': 'string',
-                'title': 'Schedule interval',
-                'enum': ['@hourly', '@daily', '@weekly', '@monthly', '@quaterly'],
-                'enumNames': ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quaterly'],
+            "schedule_interval": {
+                "type": "string",
+                "title": "Schedule interval",
+                "enum": ["@hourly", "@daily", "@weekly", "@monthly", "@quaterly"],
+                "enumNames": ["Hourly", "Daily", "Weekly", "Monthly", "Quaterly"],
             },
-            'slack_handle': {
-                'type': 'string',
-                'title': 'Slack Handle',
-                'pattern': '^(@)[A-Za-z0-9_-\\s&!]+$',
+            "slack_handle": {
+                "type": "string",
+                "title": "Slack Handle",
+                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
             },
         },
-        "required": ["output_table", "start_date", "end_date", "schedule_interval", "slack_handle"],
+        "required": [
+            "output_table",
+            "start_date",
+            "end_date",
+            "schedule_interval",
+            "slack_handle",
+        ],
     },
-    'VALIDATION': [
+    "VALIDATION": [
         # ensure that start_date <= end_date
         {
-            'name': 'less_equal',
-            'arguments': ['start_date', 'end_date'],
-            'message': 'End date cannot be before start date',
+            "name": "less_equal",
+            "arguments": ["start_date", "end_date"],
+            "message": "End date cannot be before start date",
             # this is where the error message is shown
-            'container': 'end_date',
+            "container": "end_date",
         },
-    ]
+    ],
 }
 
 FLASH_CREATION: Dict[str, Any] = {}
@@ -856,28 +863,23 @@ FLASH_OWNERSHIP = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-           "team_slack_channel": {
-                                "type": "string",
-                                "title": "Slack Channel",
-                                "pattern": "^(#)[A-Za-z0-9_-]+$",
-                            },
-                            "team_slack_handle": {
-                                "type": "string",
-                                "title": "Slack Handle",
-                                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
-                            },
-                            "ownership_type" : {
-                                "type":"boolean",
-                                "title": "Assign to me",
-                                "enum" : [True,False],
-                                "default" : False
-                            },
-                            "owner_name" : {
-                                "type":"string",
-                                "title": "Owner Email",
-                                "format":"email"
-                            }
-
+            "team_slack_channel": {
+                "type": "string",
+                "title": "Slack Channel",
+                "pattern": "^(#)[A-Za-z0-9_-]+$",
+            },
+            "team_slack_handle": {
+                "type": "string",
+                "title": "Slack Handle",
+                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
+            },
+            "ownership_type": {
+                "type": "boolean",
+                "title": "Assign to me",
+                "enum": [True, False],
+                "default": False,
+            },
+            "owner_name": {"type": "string", "title": "Owner Email", "format": "email"},
         },
         "required": [
             "team_slack_channel",
@@ -889,7 +891,7 @@ FLASH_OWNERSHIP = {
             "team_slack_channel",
             "team_slack_handle",
             "ownership_type",
-            "owner_name"
+            "owner_name",
         ],
         "team_slack_channel": {
             "ui:placeholder": "#slack_channel_name",
@@ -902,15 +904,9 @@ FLASH_OWNERSHIP = {
         "owner_name": {
             "ui:placeholder": "abc@abc.com",
             "ui:help": "The email to whom the ownership should be transferred",
-        }
+        },
     },
     "VALIDATION": [],
-    # link to the scheduler; this example links to an Airflow pipeline
-    # that uses the query id and the output table as its name
-    "linkback": (
-        "https://airflow.example.com/admin/airflow/tree?"
-        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
-    ),
 }
 # ---------------------------------------------------
 # Time grain configurations

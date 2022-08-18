@@ -105,7 +105,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "validate_parameters",
         "validate_sql",
         "catalogs",
-        "catalog_schemas"
+        "catalog_schemas",
     }
     resource_name = "database"
     class_permission_name = "Database"
@@ -157,7 +157,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "force_ctas_schema",
         "id",
         "disable_data_preview",
-        "has_catalogs"
+        "has_catalogs",
     ]
     add_columns = [
         "database_name",
@@ -530,9 +530,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         if not database:
             return self.response_404()
         if not database.has_catalogs:
-          return self.response(
-                500, message="Database does not support catalogs"
-          )
+            return self.response(500, message="Database does not support catalogs")
         try:
             catalogs = database.get_all_catalog_names(
                 cache=database.schema_cache_enabled,
@@ -550,11 +548,13 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
     @rison(database_schemas_query_schema)
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args,
-        **kwargs: f"{self.__class__.__name__}" f".catalog.schemas",
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
+        f".catalog.schemas",
         log_to_statsd=False,
     )
-    def catalog_schemas(self, pk: int, catalog_name: str, **kwargs: Any) -> FlaskResponse:
+    def catalog_schemas(
+        self, pk: int, catalog_name: str, **kwargs: Any
+    ) -> FlaskResponse:
         """Get all catalog realted schemas from a database
         ---
         get:
@@ -596,15 +596,13 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         if not database:
             return self.response_404()
         if not database.has_catalogs:
-          return self.response(
-                500, message="Database does not support catalogs"
-          )
+            return self.response(500, message="Database does not support catalogs")
         try:
             schemas = database.get_all_catalog_schema_names(
-              catalog_name=catalog_name,
-              cache=database.schema_cache_enabled,
-              cache_timeout=database.schema_cache_timeout,
-              force=kwargs["rison"].get("force", False)
+                catalog_name=catalog_name,
+                cache=database.schema_cache_enabled,
+                cache_timeout=database.schema_cache_timeout,
+                force=kwargs["rison"].get("force", False),
             )
             schemas = security_manager.get_schemas_accessible_by_user(database, schemas)
             return self.response(200, result=schemas)
