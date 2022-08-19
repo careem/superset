@@ -148,8 +148,8 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   };
 
   const changeTtl = (flash: FlashServiceObject) => {
-    // setCurrentFlash(flash);
-    // setShowFlashTtl(true);
+    setCurrentFlash(flash);
+    setShowFlashTtl(true);
   };
 
   const handleQueryDelete = ({ id, label }: SavedQueryObject) => {
@@ -250,7 +250,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           };
           const handleEdit = () => openInSqlLab(original.id);
           const handleChangeOwnership = () => changeOwnership(original);
-          const handleChangeTtl = () => changeTtl(original.id);
+          const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setQueryCurrentlyDeleting(original);
 
           const actions = [
@@ -381,8 +381,10 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
 
       {showFlashTtl && (
         <FlashExtendTTL
+          flash={currentFlash as FlashServiceObject}
           show={showFlashTtl}
           onHide={() => setShowFlashTtl(false)}
+          refreshData={refreshData}
         />
       )}
 

@@ -42,6 +42,10 @@ export interface FlashUpdateOwnership {
   team_slack_handle: string;
 }
 
+export interface FlashExtendTtl {
+  ttl:string;
+}
+
 export type FlashServiceObject = {
   c_domain?: string;
   c_service?: string;

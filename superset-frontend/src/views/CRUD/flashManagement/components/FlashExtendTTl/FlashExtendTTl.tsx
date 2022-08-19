@@ -29,7 +29,12 @@ import * as chrono from 'chrono-node';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import { convertToLocalDateTime } from 'src/utils/commonHelper';
-import { FlashObject, FormErrors } from 'src/views/CRUD/FlashManagement/types';
+import {
+  FlashExtendTtl,
+  FlashObject,
+  FlashServiceObject,
+  FormErrors,
+} from 'src/views/CRUD/FlashManagement/types';
 import Modal from 'src/components/Modal';
 import { updateUser } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
@@ -57,8 +62,10 @@ const getJSONSchema = () => {
 const getUISchema = () => flashTTLConf?.UISCHEMA;
 
 interface FlashExtendTTLButtonProps {
+  flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
+  refreshData: () => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -104,68 +111,61 @@ const StyledModal = styled(Modal)`
 `;
 
 const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
+  flash,
   onHide,
   show,
+  refreshData,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
-  const [formData, setFormData] = useState<FlashObject | {}>({});
+  const [formData, setFormData] = useState<FlashExtendTtl>({
+    ttl: '',
+  });
 
-  const getSchemas = () => {
-    if (flashSchema) {
-      const jsonSchema = { ...flashSchema };
-      if (jsonSchema) {
-        Object.entries(jsonSchema.properties).forEach(
-          ([key, value]: [string, any]) => {
-            if (value)
-              if (value.default) {
-                if (value.format === 'date') {
-                  jsonSchema.properties[key] = {
-                    ...value,
-                    default: chrono
-                      .parseDate(value.default)
-                      .toISOString()
-                      .split('T')[0],
-                  };
-                }
-              }
-          },
-        );
-        setFlashSchema(jsonSchema);
-      }
+  useEffect(() => {
+    console.log('flash ===', flash);
+    if (flash) {
+      formData.ttl = flash?.ttl ? flash?.ttl : '';
     }
-  };
+  }, []);
 
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
-      if (error.name === 'pattern') {
-        if (error.property === '.team_slack_channel') {
-          newError.message = 'Slack Channel must start with #';
-        }
-        if (error.property === '.team_slack_handle') {
-          newError.message = 'Slack Handle must start with @';
-        }
-      }
       return newError;
     });
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    console.log('formData===', formData);
-    let jsonSchema = { ...flashSchema };
-
-    if (formData) {
-    }
+    setFormData(formData);
   };
 
-  const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
+  const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    console.log('payload ===', payload);
-    // flashOwnershipService(payload);
-
-    // saveModal?.current?.close();
+    flashTtlService(Number(flash?.id), payload);
+    onHide();
   };
+
+  const flashTtlService = useCallback(
+    (id, payload) => {
+      updateUser(id, payload).then(
+        ({ json = {} }) => {
+          addSuccessToast(
+            t(
+              'Your flash object ttl has been extended. To see details of your flash, navigate to Flash Management',
+            ),
+          );
+          refreshData();
+        },
+        createErrorHandler(errMsg =>
+          addDangerToast(
+            t('There was an issue extending the ttl of your Flash %s', errMsg),
+          ),
+        ),
+      );
+    },
+    [addSuccessToast, addDangerToast],
+  );
 
   const renderModalBody = () => (
     <Form layout="vertical">
@@ -177,7 +177,7 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
               showErrorList={false}
               formData={formData}
               uiSchema={getUISchema()}
-              onSubmit={onFlashCreationSubmit}
+              onSubmit={onFlashUpdation}
               transformErrors={transformErrors}
               onChange={e => onFieldChange(e.formData)}
             >
