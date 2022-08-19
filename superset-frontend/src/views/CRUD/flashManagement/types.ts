@@ -36,6 +36,12 @@ export interface FlashObject {
   cservice?: string;
 }
 
+export interface FlashUpdateOwnership {
+  owner_name: string;
+  team_slack_channel: string;
+  team_slack_handle: string;
+}
+
 export type FlashServiceObject = {
   c_domain?: string;
   c_service?: string;

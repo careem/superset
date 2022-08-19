@@ -908,6 +908,34 @@ FLASH_OWNERSHIP = {
     },
     "VALIDATION": [],
 }
+
+
+FLASH_TTL = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "7 days from now",
+            },
+        },
+        "required": [
+            "ttl"
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "ttl",
+        ],
+           "ttl": {"ui:help": "Flash object validity"},
+    },
+    "VALIDATION": [],
+}
 # ---------------------------------------------------
 # Time grain configurations
 # ---------------------------------------------------

@@ -19,17 +19,19 @@
 import React, {
   FunctionComponent,
   useState,
-  useEffect,
   useCallback,
+  useEffect,
 } from 'react';
 import SchemaForm from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
 import { t, styled } from '@superset-ui/core';
-import * as chrono from 'chrono-node';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
-import { convertToLocalDateTime } from 'src/utils/commonHelper';
-import { FlashObject, FormErrors } from 'src/views/CRUD/FlashManagement/types';
+import {
+  FlashServiceObject,
+  FlashUpdateOwnership,
+  FormErrors,
+} from 'src/views/CRUD/FlashManagement/types';
 import Modal from 'src/components/Modal';
 import { updateUser } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
@@ -57,12 +59,10 @@ const getJSONSchema = () => {
 const getUISchema = () => flashOwnershipConf?.UISCHEMA;
 
 interface FlashOwnershipButtonProps {
-  latestQueryFormData?: object;
-  sql?: string;
-  onCreate?: Function;
-  showFlashOwnership?: boolean;
+  flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
+  refreshData: () => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -85,7 +85,7 @@ const StyledJsonSchema = styled.div`
     font-size: 12px;
   }
   input::placeholder {
-    font-size: 14px
+    font-size: 13px
     opacity: 0.7;
   }
 `;
@@ -108,47 +108,29 @@ const StyledModal = styled(Modal)`
 `;
 
 const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
-  sql,
-  latestQueryFormData,
-  showFlashOwnership,
-  onCreate = () => {},
+  flash,
   onHide,
   show,
+  refreshData,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
-  const [formData, setFormData] = useState<FlashObject | {}>({});
+  const [formData, setFormData] = useState<FlashUpdateOwnership>({
+    team_slack_channel: '',
+    team_slack_handle: '',
+    owner_name: '',
+  });
 
-  const getSchemas = () => {
-    if (flashSchema) {
-      const jsonSchema = { ...flashSchema };
-      if (jsonSchema) {
-        Object.entries(jsonSchema.properties).forEach(
-          ([key, value]: [string, any]) => {
-            if (value)
-              if (value.default) {
-                if (value.format === 'date-time') {
-                  jsonSchema.properties[key] = {
-                    ...value,
-                    default: convertToLocalDateTime(),
-                  };
-                }
-                if (value.format === 'date') {
-                  jsonSchema.properties[key] = {
-                    ...value,
-                    default: chrono
-                      .parseDate(value.default)
-                      .toISOString()
-                      .split('T')[0],
-                  };
-                }
-              }
-          },
-        );
-        setFlashSchema(jsonSchema);
-      }
+  useEffect(() => {
+    if (flash) {
+      formData.team_slack_channel = flash?.team_slack_channel
+        ? flash?.team_slack_channel
+        : '';
+      formData.team_slack_handle = flash?.team_slack_handle
+        ? flash?.team_slack_handle
+        : '';
     }
-  };
+  }, []);
 
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
@@ -166,9 +148,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    console.log('formData===', formData);
     let jsonSchema = { ...flashSchema };
-
     if (formData) {
       if (formData.ownership_type) {
         formData.owner_name = user?.email;
@@ -190,30 +170,31 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
           },
         );
       }
-
       setFlashSchema(jsonSchema);
       setFormData(formData);
     }
   };
 
-  const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
+  const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    console.log('payload ===', payload);
-    flashOwnershipService(payload);
-
-    // saveModal?.current?.close();
+    if (payload.ownership_type === true || payload.ownership_type === false) {
+      delete payload.ownership_type;
+    }
+    flashOwnershipService(Number(flash?.id), payload);
+    onHide();
   };
 
   const flashOwnershipService = useCallback(
-    payload => {
-      updateUser(payload).then(
-        ({ json = {} }) =>
+    (id, payload) => {
+      updateUser(id, payload).then(
+        ({ json = {} }) => {
           addSuccessToast(
             t(
               'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
             ),
-          ),
-
+          );
+          refreshData();
+        },
         createErrorHandler(errMsg =>
           addDangerToast(
             t(
@@ -237,7 +218,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
               showErrorList={false}
               formData={formData}
               uiSchema={getUISchema()}
-              onSubmit={onFlashCreationSubmit}
+              onSubmit={onFlashUpdation}
               transformErrors={transformErrors}
               onChange={e => onFieldChange(e.formData)}
             >
@@ -258,6 +239,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   return (
     <div role="none">
       <StyledModal
+        draggable={true}
         onHide={onHide}
         show={show}
         title={t('Update Ownership')}

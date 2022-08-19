@@ -47,20 +47,16 @@ const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-const flashOwnershipConf = bootstrapData?.common?.conf?.FLASH_OWNERSHIP;
+const flashTTLConf = bootstrapData?.common?.conf?.FLASH_TTL;
 
 const getJSONSchema = () => {
-  const jsonSchema = flashOwnershipConf?.JSONSCHEMA;
+  const jsonSchema = flashTTLConf?.JSONSCHEMA;
   return jsonSchema;
 };
 
-const getUISchema = () => flashOwnershipConf?.UISCHEMA;
+const getUISchema = () => flashTTLConf?.UISCHEMA;
 
 interface FlashExtendTTLButtonProps {
-  latestQueryFormData?: object;
-  sql?: string;
-  onCreate?: Function;
-  showFlashOwnership?: boolean;
   show: boolean;
   onHide: () => void;
 }
@@ -85,7 +81,7 @@ const StyledJsonSchema = styled.div`
     font-size: 12px;
   }
   input::placeholder {
-    font-size: 14px
+    font-size: 13px
     opacity: 0.7;
   }
 `;
@@ -108,10 +104,6 @@ const StyledModal = styled(Modal)`
 `;
 
 const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
-  sql,
-  latestQueryFormData,
-  showFlashOwnership,
-  onCreate = () => {},
   onHide,
   show,
 }) => {
@@ -127,12 +119,6 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
           ([key, value]: [string, any]) => {
             if (value)
               if (value.default) {
-                if (value.format === 'date-time') {
-                  jsonSchema.properties[key] = {
-                    ...value,
-                    default: convertToLocalDateTime(),
-                  };
-                }
                 if (value.format === 'date') {
                   jsonSchema.properties[key] = {
                     ...value,
@@ -170,62 +156,16 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
     let jsonSchema = { ...flashSchema };
 
     if (formData) {
-      if (formData.ownership_type) {
-        formData.owner_name = user?.email;
-      } else {
-        if (formData.owner_name == user?.email) {
-          formData.owner_name = '';
-        }
-      }
-      if (jsonSchema) {
-        Object.entries(jsonSchema.properties).forEach(
-          ([key, value]: [string, any]) => {
-            if (value)
-              if (key === 'owner_name') {
-                jsonSchema.properties[key] = {
-                  ...value,
-                  readOnly: formData.ownership_type,
-                };
-              }
-          },
-        );
-      }
-
-      setFlashSchema(jsonSchema);
-      setFormData(formData);
     }
   };
 
   const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
     console.log('payload ===', payload);
-    flashOwnershipService(payload);
+    // flashOwnershipService(payload);
 
     // saveModal?.current?.close();
   };
-
-  const flashOwnershipService = useCallback(
-    payload => {
-      updateUser(payload).then(
-        ({ json = {} }) =>
-          addSuccessToast(
-            t(
-              'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
-            ),
-          ),
-
-        createErrorHandler(errMsg =>
-          addDangerToast(
-            t(
-              'There was an issue changing the ownership of the Flash %s',
-              errMsg,
-            ),
-          ),
-        ),
-      );
-    },
-    [addSuccessToast, addDangerToast],
-  );
 
   const renderModalBody = () => (
     <Form layout="vertical">

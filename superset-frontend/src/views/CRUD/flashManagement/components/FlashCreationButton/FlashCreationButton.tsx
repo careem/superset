@@ -86,6 +86,10 @@ const StyledJsonSchema = styled.div`
   .help-block {
     font-size: 12px;
   }
+  input::placeholder {
+    font-size: 13px
+    opacity: 0.7;
+  }
 `;
 
 const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({

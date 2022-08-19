@@ -46,6 +46,8 @@ import {
 } from '../../constants';
 import { FlashServiceObject } from '../../types';
 import FlashOwnership from '../FlashOwnership/FlashOwnership';
+import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
+import { FlashObject } from 'src/FlashManagement/types';
 
 const PAGE_SIZE = 25;
 
@@ -78,7 +80,9 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     useState<SavedQueryObject | null>(null);
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
+  const [currentFlash, setCurrentFlash] = useState<FlashServiceObject | {}>({});
   const [showFlashOwnership, setShowFlashOwnership] = useState<boolean>(false);
+  const [showFlashTtl, setShowFlashTtl] = useState<boolean>(false);
 
   const openSavedQueryImportModal = () => {
     // showImportModal(true);
@@ -138,8 +142,14 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     window.open(`${window.location.origin}/superset/sqllab?savedQueryId=${id}`);
   };
 
-  const changeOwnership = (id: number) => {
+  const changeOwnership = (flash: FlashServiceObject) => {
+    setCurrentFlash(flash);
     setShowFlashOwnership(true);
+  };
+
+  const changeTtl = (flash: FlashServiceObject) => {
+    // setCurrentFlash(flash);
+    // setShowFlashTtl(true);
   };
 
   const handleQueryDelete = ({ id, label }: SavedQueryObject) => {
@@ -239,8 +249,8 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
             handleSavedQueryPreview(original.id);
           };
           const handleEdit = () => openInSqlLab(original.id);
-          const handleChangeOwnership = () => changeOwnership(original.id);
-          const handleExport = () => handleBulkSavedQueryExport([original]);
+          const handleChangeOwnership = () => changeOwnership(original);
+          const handleChangeTtl = () => changeTtl(original.id);
           const handleDelete = () => setQueryCurrentlyDeleting(original);
 
           const actions = [
@@ -264,7 +274,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               tooltip: t('Extend TTL'),
               placement: 'bottom',
               icon: 'Share',
-              onClick: handleExport,
+              onClick: handleChangeTtl,
             },
             {
               label: 'delete-action',
@@ -362,8 +372,17 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
 
       {showFlashOwnership && (
         <FlashOwnership
+          flash={currentFlash as FlashServiceObject}
           show={showFlashOwnership}
           onHide={() => setShowFlashOwnership(false)}
+          refreshData={refreshData}
+        />
+      )}
+
+      {showFlashTtl && (
+        <FlashExtendTTL
+          show={showFlashTtl}
+          onHide={() => setShowFlashTtl(false)}
         />
       )}
 
