@@ -20,9 +20,9 @@
 import { FilterDropdown } from "./types";
 
 export const FLASH_TYPES: FilterDropdown[] = [
-  { label: 'One Time', value: 'One Time' },
-  { label: 'Short Term', value: 'Short Term' },
-  { label: 'Long Term', value: 'Long Term' },
+  { label: 'One Time', value: 'OneTime' },
+  { label: 'Short Term', value: 'ShortTerm' },
+  { label: 'Long Term', value: 'LongTerm' },
 ]
 
 export const SCHEDULE_TYPE : FilterDropdown[] =  [
@@ -36,10 +36,10 @@ export const DATABASES : FilterDropdown[] =  [
 ]
 
 export const FLASH_STATUS: FilterDropdown[] = [
-  { label: 'New', value: 'NEW' },
-  { label: 'In Progress', value: 'IN PROGRESS' },
-  { label: 'Materialized', value: 'MATERIALIZED' },
-  { label: 'Stale', value: 'STALE' },
-  { label: 'Deleted', value: 'DELETED' },
+  { label: 'New', value: 'New' },
+  { label: 'In Progress', value: 'InProgress' },
+  { label: 'Materialized', value: 'Materialized' },
+  { label: 'Stale', value: 'Stale' },
+  { label: 'Deleted', value: 'Deleted' },
 
 ]

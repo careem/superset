@@ -36,7 +36,7 @@ import {
   FormErrors,
 } from 'src/views/CRUD/FlashManagement/types';
 import Modal from 'src/components/Modal';
-import { updateUser } from '../../services/flash.service';
+import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
 import {
   addDangerToast,
@@ -148,7 +148,7 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
 
   const flashTtlService = useCallback(
     (id, payload) => {
-      updateUser(id, payload).then(
+      updateFlash(id, payload).then(
         ({ json = {} }) => {
           addSuccessToast(
             t(

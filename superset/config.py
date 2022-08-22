@@ -719,7 +719,7 @@ FLASH_CREATION = {
             "flash_type": {
                 "title": "Flash Type",
                 "type": "string",
-                "enum": ["", "One Time", "Short Term", "Long Term"],
+                "enum": ["", "OneTime", "ShortTerm", "LongTerm"],
                 "enumNames": [
                     "Please Select",
                     "One Time (Valid upto 7 days)",
@@ -749,7 +749,7 @@ FLASH_CREATION = {
                 "oneOf": [
                     {
                         "properties": {
-                            "flash_type": {"enum": ["Long Term"]},
+                            "flash_type": {"enum": ["LongTerm"]},
                             "team_slack_channel": {
                                 "type": "string",
                                 "title": "Slack Channel",
@@ -787,7 +787,7 @@ FLASH_CREATION = {
                     },
                     {
                         "properties": {
-                            "flash_type": {"enum": ["Short Term"]},
+                            "flash_type": {"enum": ["ShortTerm"]},
                             "schedule_type": {
                                 "title": "Schedule Type",
                                 "type": "string",
@@ -855,7 +855,6 @@ FLASH_CREATION = {
     ),
 }
 
-
 FLASH_OWNERSHIP = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
@@ -909,7 +908,6 @@ FLASH_OWNERSHIP = {
     "VALIDATION": [],
 }
 
-
 FLASH_TTL = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
@@ -936,6 +934,52 @@ FLASH_TTL = {
     },
     "VALIDATION": [],
 }
+
+FLASH_SCHEDULE = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+              "schedule_type": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "schedule_start_time": {
+                                "type": "string",
+                                "title": "Schedule Start Time",
+                                "format": "date-time",
+                            },
+        },
+        "required": [
+            "schedule_type",
+            "schedule_start_time",
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "schedule_type",
+            "schedule_start_time",
+        ],
+      "schedule_type": {"ui:help": "Schedule type for the Flash object"},
+        "schedule_start_time": {
+            "ui:help": "Start time from which the flash object is to be scheduled"
+        },
+    },
+    "VALIDATION": [],
+}
+
+
+
 # ---------------------------------------------------
 # Time grain configurations
 # ---------------------------------------------------

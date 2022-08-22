@@ -46,6 +46,11 @@ export interface FlashExtendTtl {
   ttl:string;
 }
 
+export interface FlashUpdateSchedule {
+  schedule_type: string;
+  schedule_start_time: string;
+}
+
 export type FlashServiceObject = {
   c_domain?: string;
   c_service?: string;

@@ -310,8 +310,8 @@ export function useFlashListViewResource<D extends object = any>(
           (json = {}) => {
             console.log('results', json)
             updateState({
-              collection: json?.data as D[],
-              count: json?.data?.length,
+              collection: json?.data.results as D[],
+              count: json?.data?.totalCount,
               lastFetched: new Date().toISOString(),
             });
           },

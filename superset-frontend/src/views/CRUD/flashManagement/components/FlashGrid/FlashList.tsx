@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import { SupersetClient, t, styled } from '@superset-ui/core';
+import { SupersetClient, t } from '@superset-ui/core';
 import React, { useState, useMemo, useCallback } from 'react';
 import rison from 'rison';
 import { createErrorHandler } from 'src/views/CRUD/utils';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { useFlashListViewResource } from 'src/views/CRUD/hooks';
 import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
-import handleResourceExport from 'src/utils/export';
 import SubMenu, {
   SubMenuProps,
   ButtonProps,
@@ -47,9 +46,10 @@ import {
 import { FlashServiceObject } from '../../types';
 import FlashOwnership from '../FlashOwnership/FlashOwnership';
 import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
-import { FlashObject } from 'src/FlashManagement/types';
+import FlashSchedule from '../FlashSchedule/FlashSchedule';
+import { removeFlash } from '../../services/flash.service';
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 1;
 
 interface FlashListProps {
   addDangerToast: (msg: string) => void;
@@ -76,27 +76,15 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     t('Flashes'),
     addDangerToast,
   );
-  const [queryCurrentlyDeleting, setQueryCurrentlyDeleting] =
-    useState<SavedQueryObject | null>(null);
+  const [deleteFlash, setDeleteFlash] = useState<FlashServiceObject | null>(
+    null,
+  );
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
   const [currentFlash, setCurrentFlash] = useState<FlashServiceObject | {}>({});
   const [showFlashOwnership, setShowFlashOwnership] = useState<boolean>(false);
   const [showFlashTtl, setShowFlashTtl] = useState<boolean>(false);
-
-  const openSavedQueryImportModal = () => {
-    // showImportModal(true);
-  };
-
-  const closeSavedQueryImportModal = () => {
-    // showImportModal(false);
-  };
-
-  const handleSavedQueryImport = () => {
-    // showImportModal(false);
-    refreshData();
-    addSuccessToast(t('Query imported'));
-  };
+  const [showFlashSchedule, setShowFlashSchedule] = useState<boolean>(false);
 
   const canCreate = hasPerm('can_write');
   const canEdit = hasPerm('can_write');
@@ -137,11 +125,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   //  }
   menuData.buttons = subMenuButtons;
 
-  // Action methods
-  const openInSqlLab = (id: number) => {
-    window.open(`${window.location.origin}/superset/sqllab?savedQueryId=${id}`);
-  };
-
   const changeOwnership = (flash: FlashServiceObject) => {
     setCurrentFlash(flash);
     setShowFlashOwnership(true);
@@ -152,30 +135,53 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     setShowFlashTtl(true);
   };
 
-  const handleQueryDelete = ({ id, label }: SavedQueryObject) => {
-    SupersetClient.delete({
-      endpoint: `/api/v1/saved_query/${id}`,
-    }).then(
-      () => {
-        refreshData();
-        setQueryCurrentlyDeleting(null);
-        addSuccessToast(t('Deleted: %s', label));
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(t('There was an issue deleting %s: %s', label, errMsg)),
-      ),
-    );
+  const changeSchedule = (flash: FlashServiceObject) => {
+    setCurrentFlash(flash);
+    setShowFlashSchedule(true);
   };
 
-  const handleBulkSavedQueryExport = (
-    savedQueriesToExport: SavedQueryObject[],
-  ) => {
-    const ids = savedQueriesToExport.map(({ id }) => id);
-    handleResourceExport('saved_query', ids, () => {
-      // setPreparingExport(false);
-    });
-    // setPreparingExport(true);
+  const handleDeleteFlash = (flash: FlashServiceObject) => {
+    // deleteFlash(flash?.id).then(
+    //   () => {
+    //     refreshData();
+    //     setDeleteFlash(null);
+    //     addSuccessToast(t('Deleted: %s', flash?.target_table_name));
+    //   },
+    //   createErrorHandler(errMsg =>
+    //     addDangerToast(
+    //       t(
+    //         'There was an issue deleting %s: %s',
+    //         flash?.target_table_name,
+    //         errMsg,
+    //       ),
+    //     ),
+    //   ),
+    // );
+
+    flashDeleteService(flash);
   };
+
+  const flashDeleteService = useCallback(
+    flash => {
+      removeFlash(flash?.id).then(
+        ({ json = {} }) => {
+          refreshData();
+          setDeleteFlash(null);
+          addSuccessToast(t('Deleted: %s', flash?.target_table_name));
+        },
+        createErrorHandler(errMsg =>
+          addDangerToast(
+            t(
+              'There was an issue deleting %s: %s',
+              flash?.target_table_name,
+              errMsg,
+            ),
+          ),
+        ),
+      );
+    },
+    [addSuccessToast, addDangerToast],
+  );
 
   const handleBulkQueryDelete = (queriesToDelete: SavedQueryObject[]) => {
     SupersetClient.delete({
@@ -248,18 +254,39 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           const handlePreview = () => {
             handleSavedQueryPreview(original.id);
           };
-          const handleEdit = () => openInSqlLab(original.id);
+          const handleChangeSchedule = () => changeSchedule(original);
           const handleChangeOwnership = () => changeOwnership(original);
           const handleChangeTtl = () => changeTtl(original);
-          const handleDelete = () => setQueryCurrentlyDeleting(original);
+          const handleDelete = () => setDeleteFlash(original);
 
           const actions = [
+            {
+              label: 'export-action',
+              tooltip: t('Extend TTL'),
+              placement: 'bottom',
+              icon: 'Share',
+              onClick: handleChangeTtl,
+            },
             {
               label: 'ownership-action',
               tooltip: t('Change Ownership'),
               placement: 'bottom',
               icon: 'SwitchUser',
-              //  viewBox: '0 0 1024 1024',
+              onClick: handleChangeOwnership,
+            },
+
+            {
+              label: 'copy-action',
+              tooltip: t('Change Schedule'),
+              placement: 'bottom',
+              icon: 'Calendar',
+              onClick: handleChangeSchedule,
+            },
+            {
+              label: 'copy-action',
+              tooltip: t('Update Sql Query'),
+              placement: 'bottom',
+              icon: 'Sql',
               onClick: handleChangeOwnership,
             },
             {
@@ -268,13 +295,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               placement: 'bottom',
               icon: 'Edit',
               onClick: handleChangeOwnership,
-            },
-            {
-              label: 'export-action',
-              tooltip: t('Extend TTL'),
-              placement: 'bottom',
-              icon: 'Share',
-              onClick: handleChangeTtl,
             },
             {
               label: 'delete-action',
@@ -354,21 +374,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   return (
     <>
       <SubMenu {...menuData} />
-      {queryCurrentlyDeleting && (
-        <DeleteModal
-          description={t(
-            'This action will permanently delete the selected flash object.',
-          )}
-          onConfirm={() => {
-            if (queryCurrentlyDeleting) {
-              handleQueryDelete(queryCurrentlyDeleting);
-            }
-          }}
-          onHide={() => setQueryCurrentlyDeleting(null)}
-          open
-          title={t('Delete Flash Object?')}
-        />
-      )}
 
       {showFlashOwnership && (
         <FlashOwnership
@@ -385,6 +390,31 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           show={showFlashTtl}
           onHide={() => setShowFlashTtl(false)}
           refreshData={refreshData}
+        />
+      )}
+
+      {showFlashSchedule && (
+        <FlashSchedule
+          flash={currentFlash as FlashServiceObject}
+          show={showFlashSchedule}
+          onHide={() => setShowFlashSchedule(false)}
+          refreshData={refreshData}
+        />
+      )}
+
+      {deleteFlash && (
+        <DeleteModal
+          description={t(
+            'This action will permanently delete the selected flash object.',
+          )}
+          onConfirm={() => {
+            if (deleteFlash) {
+              handleDeleteFlash(deleteFlash);
+            }
+          }}
+          onHide={() => setDeleteFlash(null)}
+          open
+          title={t('Delete Flash Object?')}
         />
       )}
 

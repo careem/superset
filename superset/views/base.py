@@ -103,6 +103,7 @@ FRONTEND_CONF_KEYS = (
     "FLASH_CREATION",
     "FLASH_TTL",
     "FLASH_OWNERSHIP",
+    "FLASH_SCHEDULE",
     "EXCEL_EXTENSIONS",
     "CSV_EXTENSIONS",
     "COLUMNAR_EXTENSIONS",
@@ -298,7 +299,6 @@ class BaseSupersetView(BaseView):
 
 def menu_data() -> Dict[str, Any]:
     menu = appbuilder.menu.get_data()
-
     languages = {}
     for lang in appbuilder.languages:
         languages[lang] = {

@@ -29,7 +29,7 @@ import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import {
   FlashServiceObject,
-  FlashUpdateOwnership,
+  FlashUpdateSchedule,
   FormErrors,
 } from 'src/views/CRUD/FlashManagement/types';
 import Modal from 'src/components/Modal';
@@ -39,6 +39,7 @@ import {
   addDangerToast,
   addSuccessToast,
 } from 'src/components/MessageToasts/actions';
+import moment from 'moment';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -49,16 +50,16 @@ const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-const flashOwnershipConf = bootstrapData?.common?.conf?.FLASH_OWNERSHIP;
+const flashScheduleConf = bootstrapData?.common?.conf?.FLASH_SCHEDULE;
 
 const getJSONSchema = () => {
-  const jsonSchema = flashOwnershipConf?.JSONSCHEMA;
+  const jsonSchema = flashScheduleConf?.JSONSCHEMA;
   return jsonSchema;
 };
 
-const getUISchema = () => flashOwnershipConf?.UISCHEMA;
+const getUISchema = () => flashScheduleConf?.UISCHEMA;
 
-interface FlashOwnershipButtonProps {
+interface FlashSchedulingButtonProps {
   flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
@@ -107,7 +108,7 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
+const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   flash,
   onHide,
   show,
@@ -115,19 +116,16 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
-  const [formData, setFormData] = useState<FlashUpdateOwnership>({
-    team_slack_channel: '',
-    team_slack_handle: '',
-    owner_name: '',
+  const [formData, setFormData] = useState<FlashUpdateSchedule>({
+    schedule_type: '',
+    schedule_start_time: '',
   });
 
   useEffect(() => {
     if (flash) {
-      formData.team_slack_channel = flash?.team_slack_channel
-        ? flash?.team_slack_channel
-        : '';
-      formData.team_slack_handle = flash?.team_slack_handle
-        ? flash?.team_slack_handle
+      formData.schedule_type = flash?.schedule_type ? flash?.schedule_type : '';
+      formData.schedule_start_time = flash?.schedule_start_time
+        ? flash?.schedule_start_time
         : '';
     }
   }, []);
@@ -135,14 +133,6 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
-      if (error.name === 'pattern') {
-        if (error.property === '.team_slack_channel') {
-          newError.message = 'Slack Channel must start with #';
-        }
-        if (error.property === '.team_slack_handle') {
-          newError.message = 'Slack Handle must start with @';
-        }
-      }
       return newError;
     });
 
@@ -150,26 +140,6 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     const formData = { ...formValues };
     let jsonSchema = { ...flashSchema };
     if (formData) {
-      if (formData.ownership_type) {
-        formData.owner_name = user?.email;
-      } else {
-        if (formData.owner_name == user?.email) {
-          formData.owner_name = '';
-        }
-      }
-      if (jsonSchema) {
-        Object.entries(jsonSchema.properties).forEach(
-          ([key, value]: [string, any]) => {
-            if (value)
-              if (key === 'owner_name') {
-                jsonSchema.properties[key] = {
-                  ...value,
-                  readOnly: formData.ownership_type,
-                };
-              }
-          },
-        );
-      }
       setFlashSchema(jsonSchema);
       setFormData(formData);
     }
@@ -177,20 +147,20 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    if (payload.ownership_type === true || payload.ownership_type === false) {
-      delete payload.ownership_type;
-    }
-    flashOwnershipService(Number(flash?.id), payload);
+    payload.schedule_start_time = moment(payload.schedule_start_time).format(
+      'YYYY-MM-DD hh:mm:ss',
+    );
+    flashScheduleService(Number(flash?.id), payload);
     onHide();
   };
 
-  const flashOwnershipService = useCallback(
+  const flashScheduleService = useCallback(
     (id, payload) => {
       updateFlash(id, payload).then(
         ({ json = {} }) => {
           addSuccessToast(
             t(
-              'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
+              'Your flash object schedule has been updated. To see details of your flash, navigate to Flash Management',
             ),
           );
           refreshData();
@@ -198,7 +168,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
         createErrorHandler(errMsg =>
           addDangerToast(
             t(
-              'There was an issue changing the ownership of the Flash %s',
+              'There was an issue changing the schedule of the Flash %s',
               errMsg,
             ),
           ),
@@ -242,7 +212,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
         draggable={true}
         onHide={onHide}
         show={show}
-        title={t('Update Ownership')}
+        title={t('Update Schedule')}
         footer={<></>}
       >
         {renderModalBody()}
@@ -251,4 +221,4 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   );
 };
 
-export default FlashOwnership;
+export default FlashSchedule;
