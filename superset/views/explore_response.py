@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 from typing import Any, Dict, List, Optional, cast
 
@@ -233,7 +234,7 @@ class ExploreResponse():
         except Exception as ex:
             raise SupersetGenericDBErrorException(message=ex.message)
 
-        changed_model = UpdateDatasetCommand(new_model.id, {"sql": sql_query}).run()
+        changed_model = UpdateDatasetCommand(new_model.id, {"sql": sql_query, 'extra': json.dumps({"multi_table_name": table_name})}).run()
 
         datasource = DatasourceDAO.get_datasource(
              db.session, cast(str, changed_model.type), changed_model.id
