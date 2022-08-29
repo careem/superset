@@ -17,7 +17,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+apt update
+apt install -y awscli
+apt install -y jq
+aws secretsmanager get-secret-value --region eu-west-1 --secret-id bdp/careem-insights --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > /tmp/secrets.env
+eval $(cat /tmp/secrets.env | sed 's/^/export /')
+rm -f /tmp/secrets.env
+
 HYPHEN_SYMBOL='-'
+STATSD_PREFIX='careem.insights'
 
 gunicorn \
     --bind "${SUPERSET_BIND_ADDRESS:-0.0.0.0}:${SUPERSET_PORT:-8088}" \
@@ -32,4 +41,6 @@ gunicorn \
     --max-requests-jitter ${WORKER_MAX_REQUESTS_JITTER:-0} \
     --limit-request-line ${SERVER_LIMIT_REQUEST_LINE:-0} \
     --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE:-0} \
+    --statsd-host=localhost:${STATSD_PORT:-9125} \
+    --statsd-prefix=${STATSD_PREFIX} \
     "${FLASK_APP}"
