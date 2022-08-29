@@ -101,7 +101,7 @@ PACKAGE_JSON_FILE = pkg_resources.resource_filename(
 #     "type": "image/png"
 #     "rel": "icon"
 # },
-FAVICONS = [{"href": "/static/assets/images/favicon.png"}]
+FAVICONS = [{"href": "/static/assets/images/insights v2 - 256.png"}]
 
 
 def _try_json_readversion(filepath: str) -> Optional[str]:
@@ -274,18 +274,16 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
             'schedule_interval': {
                 'type': 'string',
                 'title': 'Schedule interval',
+                'enum': ['@hourly', '@daily', '@weekly', '@monthly', '@quaterly'],
+                'enumNames': ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quaterly'],
             },
             'slack_handle': {
                 'type': 'string',
                 'title': 'Slack Handle',
+                'pattern': '^(@)[A-Za-z0-9_-\\s&!]+$',
             },
         },
         "required": ["output_table", "start_date", "end_date", "schedule_interval", "slack_handle"],
-    },
-    'UISCHEMA': {
-        'schedule_interval': {
-            'ui:placeholder': '@daily, @weekly, etc.',
-        }
     },
     'VALIDATION': [
         # ensure that start_date <= end_date
@@ -306,7 +304,7 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
 APP_NAME = "Superset"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+APP_ICON = "/static/assets/images/insights v2 -inline-a.png"
 
 # Specify where clicking the logo would take the user
 # e.g. setting it to '/' would take the user to '/superset/welcome/'
