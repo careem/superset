@@ -139,6 +139,7 @@ metadata = Model.metadata  # pylint: disable=no-member
 logger = logging.getLogger(__name__)
 
 TUPLE_QUERY_INDEX = 2
+PRESTO_DATABASE_NAME = "presto"
 
 ADVANCED_DATA_TYPES = config["ADVANCED_DATA_TYPES"]
 VIRTUAL_TABLE_ALIAS = "virtual_table"
@@ -1503,7 +1504,13 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                         to_dttm,
                     )
                 )
-            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+
+            if self.database.backend == PRESTO_DATABASE_NAME and (dttm_col.column_name == "day"):
+                dttm_col.expression = "cast({} as VARCHAR(10))".format(dttm_col.column_name)
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+                dttm_col.expression = ""
+            else:
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
 
         # Always remove duplicates by column name, as sometimes `metrics_exprs`
         # can have the same name as a groupby column (e.g. when users use
