@@ -21,10 +21,10 @@ import React, { lazy } from 'react';
 // not lazy loaded since this is the home page.
 import Welcome from 'src/views/CRUD/welcome/Welcome';
 
-const AddSliceContainer = lazy(
+const ExtentedSliceContainer = lazy(
   () =>
     import(
-      /* webpackChunkName: "AddSliceContainer" */ 'src/addSlice/AddSliceContainer'
+      /* webpackChunkName: "ExtendedSliceContainer.tsx" */ 'src/addSlice/ExtendedSliceContainer.tsx'
     ),
 );
 const AnnotationLayersList = lazy(
@@ -125,7 +125,7 @@ export const routes: Routes = [
   },
   {
     path: '/chart/add',
-    Component: AddSliceContainer,
+    Component: ExtentedSliceContainer,
   },
   {
     path: '/chart/list/',
