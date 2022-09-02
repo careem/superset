@@ -28,7 +28,7 @@ export interface FlashObject {
   service_name: string;
   sql_query: string;
   target_db_name: string;
-  target_table_name: string;
+  table_name: string;
   team_slack_channel?: string;
   team_slack_handle?: string;
   ttl: string;
@@ -37,13 +37,17 @@ export interface FlashObject {
 }
 
 export interface FlashUpdateOwnership {
-  owner_name: string;
+  owner: string;
   team_slack_channel: string;
   team_slack_handle: string;
 }
 
 export interface FlashExtendTtl {
   ttl:string;
+}
+
+export interface FlashUpdateQuery {
+  sql_query:string;
 }
 
 export interface FlashUpdateSchedule {
@@ -67,7 +71,7 @@ export type FlashServiceObject = {
   sql_query: string;
   status?: string;
   target_db_name: string;
-  target_table_name: string;
+  table_name: string;
   team_slack_channel?: string;
   team_slack_handle?: string;
   ttl: string;

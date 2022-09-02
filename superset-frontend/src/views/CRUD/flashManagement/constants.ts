@@ -26,9 +26,10 @@ export const FLASH_TYPES: FilterDropdown[] = [
 ]
 
 export const SCHEDULE_TYPE : FilterDropdown[] =  [
-  { label: 'Daily', value: '@daily' },
-  { label: 'Weekly', value: '@weekly' },
-  { label: 'Monthly', value: '@monthly' },
+  { label: 'Hourly', value: 'Hourly' },
+  { label: 'Daily', value: 'Daily' },
+  { label: 'Weekly', value: 'Weekly' },
+  { label: 'Monthly', value: 'Monthly' },
 ]
 
 export const DATABASES : FilterDropdown[] =  [
@@ -41,5 +42,13 @@ export const FLASH_STATUS: FilterDropdown[] = [
   { label: 'Materialized', value: 'Materialized' },
   { label: 'Stale', value: 'Stale' },
   { label: 'Deleted', value: 'Deleted' },
-
 ]
+
+export const UPDATE_TYPES  = {
+  SQL : 'sql',
+  TTL : 'ttl',
+  SCHEDULE : 'schedule',
+  OWNER : 'owner',
+  CTAGS : 'ctags',
+
+}

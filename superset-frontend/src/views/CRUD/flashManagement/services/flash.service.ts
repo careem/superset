@@ -18,7 +18,7 @@
  */
 
 import { FlashClient } from '@superset-ui/core';
-import { FlashObject, FlashServiceObject, FlashUpdateOwnership } from '../types';
+import { FlashExtendTtl, FlashObject, FlashServiceObject, FlashUpdateOwnership, FlashUpdateSchedule } from '../types';
 
 export const fetchUsers = async (queryParams : any): Promise<any> =>
   await FlashClient.get<FlashServiceObject[]>('v1/flash/'+ '?' + queryParams);
@@ -26,8 +26,8 @@ export const fetchUsers = async (queryParams : any): Promise<any> =>
 export const createFlash = (payload: FlashObject): Promise<any> =>
   FlashClient.post<FlashServiceObject>('v1/flash/', payload);
 
-export const updateFlash = async (id: number,payload: FlashUpdateOwnership ): Promise<any> =>
-  await FlashClient.patch<any>(`v1/flash/${id}`, payload);
+export const updateFlash = async (id: number, type: string, payload: FlashUpdateOwnership | FlashExtendTtl | FlashUpdateSchedule ): Promise<any> =>
+  await FlashClient.patch<any>(`v1/flash/${id}/${type}`, payload);
 
 export const removeFlash = async (id:number): Promise<any> =>
-  await FlashClient.delete<any>(`v1/flash/${id}`);
+  await FlashClient.delete<FlashServiceObject>(`v1/flash/${id}`);

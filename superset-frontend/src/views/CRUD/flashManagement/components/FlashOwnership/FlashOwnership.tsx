@@ -39,6 +39,7 @@ import {
   addDangerToast,
   addSuccessToast,
 } from 'src/components/MessageToasts/actions';
+import { UPDATE_TYPES } from '../../constants';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -48,6 +49,8 @@ const bootstrapData = JSON.parse(
 const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
+
+console.log('user==', user);
 
 const flashOwnershipConf = bootstrapData?.common?.conf?.FLASH_OWNERSHIP;
 
@@ -118,7 +121,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   const [formData, setFormData] = useState<FlashUpdateOwnership>({
     team_slack_channel: '',
     team_slack_handle: '',
-    owner_name: '',
+    owner: '',
   });
 
   useEffect(() => {
@@ -151,17 +154,17 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     let jsonSchema = { ...flashSchema };
     if (formData) {
       if (formData.ownership_type) {
-        formData.owner_name = user?.email;
+        formData.owner = user?.email;
       } else {
-        if (formData.owner_name == user?.email) {
-          formData.owner_name = '';
+        if (formData.owner == user?.email) {
+          formData.owner = '';
         }
       }
       if (jsonSchema) {
         Object.entries(jsonSchema.properties).forEach(
           ([key, value]: [string, any]) => {
             if (value)
-              if (key === 'owner_name') {
+              if (key === 'owner') {
                 jsonSchema.properties[key] = {
                   ...value,
                   readOnly: formData.ownership_type,
@@ -180,14 +183,14 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     if (payload.ownership_type === true || payload.ownership_type === false) {
       delete payload.ownership_type;
     }
-    flashOwnershipService(Number(flash?.id), payload);
+    flashOwnershipService(Number(flash?.id), UPDATE_TYPES.OWNER, payload);
     onHide();
   };
 
   const flashOwnershipService = useCallback(
-    (id, payload) => {
-      updateFlash(id, payload).then(
-        ({ json = {} }) => {
+    (id, type, payload) => {
+      updateFlash(id, type, payload).then(
+        () => {
           addSuccessToast(
             t(
               'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',

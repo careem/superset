@@ -25,13 +25,10 @@ import React, {
 import SchemaForm from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
 import { t, styled } from '@superset-ui/core';
-import * as chrono from 'chrono-node';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
-import { convertToLocalDateTime } from 'src/utils/commonHelper';
 import {
   FlashExtendTtl,
-  FlashObject,
   FlashServiceObject,
   FormErrors,
 } from 'src/views/CRUD/FlashManagement/types';
@@ -42,13 +39,10 @@ import {
   addDangerToast,
   addSuccessToast,
 } from 'src/components/MessageToasts/actions';
+import { UPDATE_TYPES } from '../../constants';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
-  appContainer?.getAttribute('data-bootstrap') || '{}',
-);
-
-const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
@@ -123,7 +117,6 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   });
 
   useEffect(() => {
-    console.log('flash ===', flash);
     if (flash) {
       formData.ttl = flash?.ttl ? flash?.ttl : '';
     }
@@ -142,14 +135,14 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    flashTtlService(Number(flash?.id), payload);
+    flashTtlService(Number(flash?.id), UPDATE_TYPES.TTL, payload);
     onHide();
   };
 
   const flashTtlService = useCallback(
-    (id, payload) => {
-      updateFlash(id, payload).then(
-        ({ json = {} }) => {
+    (id, type, payload) => {
+      updateFlash(id, type, payload).then(
+        () => {
           addSuccessToast(
             t(
               'Your flash object ttl has been extended. To see details of your flash, navigate to Flash Management',
