@@ -890,7 +890,7 @@ FLASH_OWNERSHIP = {
             "team_slack_channel",
             "team_slack_handle",
             "ownership_type",
-            "owner_name",
+            "owner",
         ],
         "team_slack_channel": {
             "ui:placeholder": "#slack_channel_name",
@@ -945,9 +945,10 @@ FLASH_SCHEDULE = {
               "schedule_type": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enum": ["","Hourly", "Daily", "Weekly", "Monthly"],
                                 "enumNames": [
                                     "Please Select",
+                                    "Hourly",
                                     "Daily",
                                     "Weekly",
                                     "Monthly",
