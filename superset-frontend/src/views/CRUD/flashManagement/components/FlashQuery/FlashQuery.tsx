@@ -64,12 +64,12 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
   refreshData,
 }) => {
   const [formData, setFormData] = useState<FlashUpdateQuery>({
-    sqlQuery: '',
+    sqlQuery: flash?.sqlQuery,
   });
 
   const handleEditorChange = (value: string) => {
     let formValues = { ...formData };
-    formValues.sqlQuery = value;
+    formValues.sqlQuery = value ? value : flash?.sqlQuery;
     setFormData(formValues);
   };
 

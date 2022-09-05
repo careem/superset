@@ -43,11 +43,12 @@ import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 import { TooltipPlacement } from 'antd/lib/tooltip';
+import { action } from '@storybook/addon-actions';
 
 const PAGE_SIZE = 25;
 
 const appContainer = document.getElementById('app');
-const { currentUser } = JSON.parse(
+const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
@@ -87,8 +88,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
 
-  console.log('ussser==', currentUser);
-  console.log('userafter==', currentUser);
+  console.log('current User==', user);
 
   useEffect(() => {
     fetchDatabaseDropdown();
@@ -216,16 +216,13 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           };
           const handleChangeSchedule = () => changeSchedule(original);
           const handleChangeOwnership = () => changeOwnership(original);
-          const handleChangeCost = () => console.log('cost==', original);
+          const handleChangeCost = () => console.log('costing==', original);
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
           let actions: ActionProps[] | [] = [];
 
-          if (
-            original?.owner === currentUser?.email ||
-            currentUser?.roles?.Admin
-          ) {
+          if (original?.owner === user?.email || user?.roles?.Admin) {
             actions = [
               {
                 label: 'export-action',
@@ -271,6 +268,8 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
                 onClick: handleDelete,
               },
             ].filter(item => !!item);
+          } else {
+            actions = [];
           }
 
           return <ActionsBar actions={actions as ActionProps[]} />;
