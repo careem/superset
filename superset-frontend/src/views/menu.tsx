@@ -39,13 +39,13 @@ const bootstrap = JSON.parse(bootstrapJson);
 
 let menu = { ...bootstrap.common.menu_data };
 
-let menuItem = {
-  name: 'Flash Management',
-  label: 'Flash Management',
-  url: '/flashmanagement/list/',
-};
+// let menuItem = {
+//   name: 'Flash Management',
+//   label: 'Flash Management',
+//   url: '/flashmanagement/list/',
+// };
 
-menu['menu'].push(menuItem);
+// menu['menu'].push(menuItem);
 
 const emotionCache = createCache({
   key: 'menu',
