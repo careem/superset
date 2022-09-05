@@ -88,7 +88,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     useState<SavedQueryObject | null>(null);
 
   console.log('ussser==', currentUser);
-  delete currentUser.roles.Admin;
   console.log('userafter==', currentUser);
 
   useEffect(() => {
@@ -167,7 +166,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     () => [
       {
         accessor: 'datastoreId',
-        Header: t('Database Name'),
+        Header: t('Database name'),
         size: 'l',
       },
       {
