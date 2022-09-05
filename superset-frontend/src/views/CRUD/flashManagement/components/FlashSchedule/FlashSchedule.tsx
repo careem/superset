@@ -47,10 +47,6 @@ const bootstrapData = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-const { user } = JSON.parse(
-  appContainer?.getAttribute('data-bootstrap') || '{}',
-);
-
 const flashScheduleConf = bootstrapData?.common?.conf?.FLASH_SCHEDULE;
 
 const getJSONSchema = () => {
@@ -117,15 +113,15 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [formData, setFormData] = useState<FlashUpdateSchedule>({
-    schedule_type: '',
-    schedule_start_time: '',
+    scheduleType: '',
+    scheduleStartTime: '',
   });
 
   useEffect(() => {
     if (flash) {
-      formData.schedule_type = flash?.schedule_type ? flash?.schedule_type : '';
-      formData.schedule_start_time = flash?.schedule_start_time
-        ? flash?.schedule_start_time
+      formData.scheduleType = flash?.scheduleType ? flash?.scheduleType : '';
+      formData.scheduleStartTime = flash?.scheduleStartTime
+        ? flash?.scheduleStartTime
         : '';
     }
   }, []);
@@ -145,7 +141,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    payload.schedule_start_time = moment(payload.schedule_start_time).format(
+    payload.scheduleStartTime = moment(payload.scheduleStartTime).format(
       'YYYY-MM-DD hh:mm:ss',
     );
     flashScheduleService(Number(flash?.id), UPDATE_TYPES.SCHEDULE, payload);

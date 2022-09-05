@@ -18,8 +18,7 @@
  */
 
 import { SupersetClient, t } from '@superset-ui/core';
-import React, { useState, useMemo, useCallback } from 'react';
-import rison from 'rison';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { createErrorHandler } from 'src/views/CRUD/utils';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { useFlashListViewResource } from 'src/views/CRUD/hooks';
@@ -36,21 +35,15 @@ import ListView, {
 import DeleteModal from 'src/components/DeleteModal';
 import ActionsBar, { ActionProps } from 'src/components/ListView/ActionsBar';
 import { SavedQueryObject } from 'src/views/CRUD/types';
-import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
-import {
-  DATABASES,
-  FLASH_STATUS,
-  FLASH_TYPES,
-  SCHEDULE_TYPE,
-} from '../../constants';
+import { FLASH_STATUS, FLASH_TYPES, SCHEDULE_TYPE } from '../../constants';
 import { FlashServiceObject } from '../../types';
 import FlashOwnership from '../FlashOwnership/FlashOwnership';
 import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
 import FlashSchedule from '../FlashSchedule/FlashSchedule';
-import { removeFlash } from '../../services/flash.service';
+import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 25;
 
 interface FlashListProps {
   addDangerToast: (msg: string) => void;
@@ -76,6 +69,8 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   );
 
   const [currentFlash, setCurrentFlash] = useState<FlashServiceObject | {}>({});
+  const [databaseDropdown, setDatabaseDropdown] = useState<Array<any>>([]);
+
   const [deleteFlash, setDeleteFlash] = useState<FlashServiceObject | null>(
     null,
   );
@@ -86,37 +81,33 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
 
-  const handleSavedQueryPreview = useCallback(
-    (id: number) => {
-      SupersetClient.get({
-        endpoint: `/api/v1/saved_query/${id}`,
-      }).then(
-        ({ json = {} }) => {
-          setSavedQueryCurrentlyPreviewing({ ...json.result });
-        },
-        createErrorHandler(errMsg =>
-          addDangerToast(
-            t('There was an issue previewing the selected query %s', errMsg),
-          ),
-        ),
-      );
-    },
-    [addDangerToast],
-  );
+  useEffect(() => {
+    fetchDatabaseDropdown();
+  }, []);
 
   const menuData: SubMenuProps = {
     name: t('Flash'),
   };
 
   const subMenuButtons: Array<ButtonProps> = [];
-  //  if (canDelete) {
-  // subMenuButtons.push({
-  //   name: t('Bulk select'),
-  //   onClick: toggleBulkSelect,
-  //   buttonStyle: 'secondary',
-  // });
-  //  }
   menuData.buttons = subMenuButtons;
+
+  const fetchDatabaseDropdown = (): Promise<any> => {
+    return fetchDatabases().then(
+      ({ data }) => {
+        let dropdown = data.map((item: any) => {
+          return {
+            label: item.datastore_name,
+            value: item.id,
+          };
+        });
+        setDatabaseDropdown(dropdown);
+      },
+      createErrorHandler(errMsg =>
+        addDangerToast(t('There was an issue deleting %s', errMsg)),
+      ),
+    );
+  };
 
   const changeOwnership = (flash: FlashServiceObject) => {
     setCurrentFlash(flash);
@@ -147,12 +138,12 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       removeFlash(flash?.id).then(
         () => {
           setDeleteFlash(null);
-          addSuccessToast(t('Deleted: %s', flash?.table_name));
+          addSuccessToast(t('Deleted: %s', flash?.tableName));
           refreshData();
         },
         createErrorHandler(errMsg =>
           addDangerToast(
-            t('There was an issue deleting %s: %s', flash?.table_name, errMsg),
+            t('There was an issue deleting %s: %s', flash?.tableName, errMsg),
           ),
         ),
       );
@@ -161,39 +152,21 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     }
   };
 
-  const handleBulkQueryDelete = (queriesToDelete: SavedQueryObject[]) => {
-    SupersetClient.delete({
-      endpoint: `/api/v1/saved_query/?q=${rison.encode(
-        queriesToDelete.map(({ id }) => id),
-      )}`,
-    }).then(
-      ({ json = {} }) => {
-        refreshData();
-        addSuccessToast(json.message);
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('There was an issue deleting the selected queries: %s', errMsg),
-        ),
-      ),
-    );
-  };
-
   const initialSort = [{ id: 'status', desc: true }];
   const columns = useMemo(
     () => [
       {
-        accessor: 'target_db_name',
+        accessor: 'datastoreId',
         Header: t('Database Name'),
         size: 'l',
       },
       {
-        accessor: 'table_name',
+        accessor: 'tableName',
         Header: t('Flash Name'),
         size: 'l',
       },
       {
-        accessor: 'flash_type',
+        accessor: 'flashType',
         Header: t('Flash Type'),
         size: 'l',
       },
@@ -203,18 +176,18 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         disableSortBy: true,
       },
       {
-        accessor: 'schedule_type',
+        accessor: 'scheduleType',
         Header: t('Schedule Type'),
         size: 'l',
       },
       {
         Header: t('Slack Channel'),
-        accessor: 'team_slack_channel',
+        accessor: 'teamSlackChannel',
         size: 'xl',
       },
       {
         Header: t('Slack Handle'),
-        accessor: 'team_slack_handle',
+        accessor: 'teamSlackHandle',
         size: 'xl',
       },
       {
@@ -234,6 +207,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           };
           const handleChangeSchedule = () => changeSchedule(original);
           const handleChangeOwnership = () => changeOwnership(original);
+          const handleChangeCost = () => console.log('cost==', original);
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
@@ -272,7 +246,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               tooltip: t('Change Costing Attributes'),
               placement: 'bottom',
               icon: 'Edit',
-              onClick: handleChangeOwnership,
+              onClick: handleChangeCost,
             },
             {
               label: 'delete-action',
@@ -290,29 +264,29 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         disableSortBy: true,
       },
     ],
-    [handleSavedQueryPreview],
+    [],
   );
 
   const filters: Filters = useMemo(
     () => [
       {
         Header: t('Database Name'),
-        id: 'target_db_name',
+        id: 'datastoreId',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
-        selects: DATABASES,
+        selects: databaseDropdown,
       },
       {
         Header: t('Flash Name'),
-        id: 'table_name',
+        id: 'tableName',
         input: 'search',
         operator: FilterOperator.contains,
       },
 
       {
         Header: t('Flash Type'),
-        id: 'flash_type',
+        id: 'flashType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -325,7 +299,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       },
       {
         Header: t('Schedule Type'),
-        id: 'schedule_type',
+        id: 'scheduleType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -341,12 +315,12 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         Header: t('Status'),
         id: 'status',
         input: 'select',
-        operator: FilterOperator.equals,
+        operator: FilterOperator.relationOneMany,
         unfilteredLabel: 'All',
         selects: FLASH_STATUS,
       },
     ],
-    [addDangerToast],
+    [databaseDropdown, addDangerToast],
   );
 
   return (
@@ -408,7 +382,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       <ConfirmStatusChange
         title={t('Please confirm')}
         description={t('Are you sure you want to delete the selected flash?')}
-        onConfirm={handleBulkQueryDelete}
+        onConfirm={() => console.log('query deleted')}
       >
         {confirmDelete => {
           const bulkActions: ListViewProps['bulkActions'] = [];

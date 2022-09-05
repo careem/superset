@@ -48,11 +48,11 @@ interface ListViewResourceState<D extends object = any> {
 let flashResults = [
   {
     target_table_name:'food_orders_groceries',
-    team_slack_handle: '@Samra Hanif',
+    teamSlackHandle: '@Samra Hanif',
   },
   {
     target_table_name:'food_orders_groceries',
-    team_slack_handle: '@Samra Hanif',
+    teamSlackHandle: '@Samra Hanif',
   },
 ]
 

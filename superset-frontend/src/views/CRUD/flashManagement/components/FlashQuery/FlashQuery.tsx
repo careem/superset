@@ -64,12 +64,12 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
   refreshData,
 }) => {
   const [formData, setFormData] = useState<FlashUpdateQuery>({
-    sql_query: '',
+    sqlQuery: '',
   });
 
   const handleEditorChange = (value: string) => {
     let formValues = { ...formData };
-    formValues.sql_query = value;
+    formValues.sqlQuery = value;
     setFormData(formValues);
   };
 
@@ -113,8 +113,8 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
       <Editor
         height="40vh"
         defaultLanguage="sql"
-        defaultValue={flash?.sql_query}
-        value={formData?.sql_query}
+        defaultValue={flash?.sqlQuery}
+        value={formData?.sqlQuery}
         onChange={handleEditorChange}
         onValidate={handleEditorValidation}
         saveViewState

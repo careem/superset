@@ -39,6 +39,7 @@ import {
   Dropdown,
 } from 'src/views/CRUD/FlashManagement/types';
 import moment from 'moment';
+import { fetchDatabases } from '../../services/flash.service';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -99,8 +100,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Dropdown>({
-    enum: [],
-    enumNames: [],
+    enum: [''],
+    enumNames: ['Please Select'],
   });
   const [formData, setFormData] = useState<FlashObject | {}>({});
   const [sqlQuery, setSqlQuery] = useState<Query>({});
@@ -110,11 +111,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const saveModal: ModalTriggerRef | null = useRef() as ModalTriggerRef;
 
   useEffect(() => {
-    const newDbDropdown = {
-      enum: ['', 'Pinot Flashes'],
-      enumNames: ['Please Select', 'Pinot Flashes'],
-    };
-    setDbDropdown(newDbDropdown);
+    fetchDatabaseDropdown();
   }, []);
 
   const getSchemas = () => {
@@ -123,19 +120,17 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       if (jsonSchema) {
         Object.entries(jsonSchema.properties).forEach(
           ([key, value]: [string, any]) => {
-            if (key === 'target_db_name') {
+            if (key === 'datastoreId') {
               if (dbDropdown) {
                 jsonSchema.properties[key] = {
                   ...value,
-                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [],
+                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [''],
                   enumNames:
                     dbDropdown && dbDropdown.enumNames
                       ? dbDropdown.enumNames
-                      : [],
+                      : ['Please Select'],
                   default:
-                    dbDropdown && dbDropdown.enumNames
-                      ? dbDropdown.enumNames[0]
-                      : '',
+                    dbDropdown && dbDropdown.enum ? dbDropdown.enum[0] : '',
                 };
               }
             }
@@ -203,15 +198,29 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     errors.map((error: FormErrors) => {
       const newError = { ...error };
       if (error.name === 'pattern') {
-        if (error.property === '.team_slack_channel') {
+        if (error.property === '.teamSlackChannel') {
           newError.message = 'Slack Channel must start with #';
         }
-        if (error.property === '.team_slack_handle') {
+        if (error.property === '.teamSlackHandle') {
           newError.message = 'Slack Handle must start with @';
         }
       }
       return newError;
     });
+
+  const fetchDatabaseDropdown = (): Promise<any> => {
+    return fetchDatabases().then(({ data }) => {
+      let dropdown = { ...dbDropdown };
+      if (dropdown) {
+        data.forEach((item: any) => {
+          dropdown['enum'].push(item.id);
+          dropdown['enumNames'] = dropdown['enumNames'] || ['Please Select'];
+          dropdown['enumNames'].push(item.datastore_name);
+        });
+      }
+      setDbDropdown(dropdown);
+    });
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -223,21 +232,21 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
     if (formData) {
-      if (formData.flash_type === FlashTypes.LONG_TERM) {
+      if (formData.flashType === FlashTypes.LONG_TERM) {
         formData.ttl = chrono
           .parseDate('90 days from now')
           .toISOString()
           .split('T')[0];
-        formData.schedule_start_time = convertToLocalDateTime(
-          formData.schedule_start_time,
+        formData.scheduleStartTime = convertToLocalDateTime(
+          formData.scheduleStartTime,
         );
-      } else if (formData.flash_type === FlashTypes.SHORT_TERM) {
+      } else if (formData.flashType === FlashTypes.SHORT_TERM) {
         formData.ttl = chrono
           .parseDate('7 days from now')
           .toISOString()
           .split('T')[0];
-        formData.schedule_start_time = convertToLocalDateTime(
-          formData.schedule_start_time,
+        formData.scheduleStartTime = convertToLocalDateTime(
+          formData.scheduleStartTime,
         );
       } else {
         formData.ttl = chrono
@@ -245,15 +254,11 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           .toISOString()
           .split('T')[0];
       }
-      if (
-        formData.domain_name ||
-        formData.service_name ||
-        formData.dataset_name
-      ) {
-        formData.target_table_name = [
-          formData.domain_name,
-          formData.service_name,
-          formData.dataset_name,
+      if (formData.domainName || formData.serviceName || formData.datasetName) {
+        formData.tableName = [
+          formData.domainName,
+          formData.serviceName,
+          formData.datasetName,
         ]
           .filter(val => val != null)
           .join('__');
@@ -264,26 +269,26 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 
   const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    payload.schedule_start_time = moment(payload.schedule_start_time).format(
+    payload.scheduleStartTime = moment(payload.scheduleStartTime).format(
       'YYYY-MM-DD hh:mm:ss',
     );
-    if (payload.flash_type === FlashTypes.SHORT_TERM) {
+    if (payload.flashType === FlashTypes.SHORT_TERM) {
       removeUnnecessaryProperties(payload, [
-        'team_slack_channel',
-        'team_slack_handle',
+        'teamSlackChannel',
+        'teamSlackHandle',
       ]);
     }
-    if (payload.flash_type === FlashTypes.ONE_TIME) {
+    if (payload.flashType === FlashTypes.ONE_TIME) {
       removeUnnecessaryProperties(payload, [
-        'team_slack_channel',
-        'team_slack_handle',
-        'schedule_type',
-        'schedule_start_time',
+        'teamSlackChannel',
+        'teamSlackHandle',
+        'scheduleType',
+        'scheduleStartTime',
       ]);
     }
     const flash = {
-      created_by: user?.email,
-      sql_query: sql || sqlQuery?.query,
+      owner: user?.email,
+      sqlQuery: sql || sqlQuery?.query,
       ...payload,
     } as FlashObject;
     onCreate(flash);
