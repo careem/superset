@@ -30,9 +30,9 @@ stats_logger = config["STATS_LOGGER"]
 class Flashmanagement(BaseSupersetView):  # pylint: disable=too-many-ancestors
     class_permission_name = "SavedQuery"
     method_permission_name = MODEL_VIEW_RW_METHOD_PERMISSION_MAP
+
     @has_access
     @expose("/list/")
     @has_access
     def list(self) -> FlaskResponse:
         return super().render_app_template()
-

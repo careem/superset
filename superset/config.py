@@ -104,7 +104,7 @@ PACKAGE_JSON_FILE = pkg_resources.resource_filename(
 #     "type": "image/png"
 #     "rel": "icon"
 # },
-FAVICONS = [{"href": "/static/assets/images/favicon.png"}]
+FAVICONS = [{"href": "/static/assets/images/insights v2 - 256.png"}]
 
 
 def _try_json_readversion(filepath: str) -> Optional[str]:
@@ -315,7 +315,7 @@ FLASH_CREATION: Dict[str, Any] = {}
 APP_NAME = "Superset"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+APP_ICON = "/static/assets/images/insights v2 -inline-a.png"
 
 # Specify where clicking the logo would take the user
 # e.g. setting it to '/' would take the user to '/superset/welcome/'
@@ -829,9 +829,7 @@ FLASH_CREATION = {
         ],
         "datastoreId": {"ui:help": "Database where the flash object is stored"},
         "domainName": {"ui:help": "Name of the owning team"},
-        "serviceName": {
-            "ui:help": "Careem Service for which the flash object is used"
-        },
+        "serviceName": {"ui:help": "Careem Service for which the flash object is used"},
         "datasetName": {"ui:help": "Flash dataset name"},
         "tableName": {"ui:help": "Name of the flash object created"},
         "teamSlackChannel": {
