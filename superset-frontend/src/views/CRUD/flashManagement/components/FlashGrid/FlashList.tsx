@@ -147,12 +147,12 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       removeFlash(flash?.id).then(
         () => {
           setDeleteFlash(null);
-          addSuccessToast(t('Deleted: %s', flash?.table_name));
+          addSuccessToast(t('Deleted: %s', flash?.tableName));
           refreshData();
         },
         createErrorHandler(errMsg =>
           addDangerToast(
-            t('There was an issue deleting %s: %s', flash?.table_name, errMsg),
+            t('There was an issue deleting %s: %s', flash?.tableName, errMsg),
           ),
         ),
       );
@@ -183,17 +183,17 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const columns = useMemo(
     () => [
       {
-        accessor: 'target_db_name',
+        accessor: 'datastoreId',
         Header: t('Database Name'),
         size: 'l',
       },
       {
-        accessor: 'table_name',
+        accessor: 'tableName',
         Header: t('Flash Name'),
         size: 'l',
       },
       {
-        accessor: 'flash_type',
+        accessor: 'flashType',
         Header: t('Flash Type'),
         size: 'l',
       },
@@ -203,18 +203,18 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         disableSortBy: true,
       },
       {
-        accessor: 'schedule_type',
+        accessor: 'scheduleType',
         Header: t('Schedule Type'),
         size: 'l',
       },
       {
         Header: t('Slack Channel'),
-        accessor: 'team_slack_channel',
+        accessor: 'teamSlackChannel',
         size: 'xl',
       },
       {
         Header: t('Slack Handle'),
-        accessor: 'team_slack_handle',
+        accessor: 'teamSlackHandle',
         size: 'xl',
       },
       {
@@ -297,7 +297,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     () => [
       {
         Header: t('Database Name'),
-        id: 'target_db_name',
+        id: 'datastoreId',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -305,14 +305,14 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       },
       {
         Header: t('Flash Name'),
-        id: 'table_name',
+        id: 'tableName',
         input: 'search',
         operator: FilterOperator.contains,
       },
 
       {
         Header: t('Flash Type'),
-        id: 'flash_type',
+        id: 'flashType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -325,7 +325,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       },
       {
         Header: t('Schedule Type'),
-        id: 'schedule_type',
+        id: 'scheduleType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',

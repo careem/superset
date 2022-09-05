@@ -704,19 +704,19 @@ FLASH_CREATION = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-            "target_db_name": {
+            "datastoreId": {
                 "title": "Target DB Name",
                 "type": "string",
             },
-            "domain_name": {"type": "string", "title": "Domain"},
-            "service_name": {"type": "string", "title": "Service"},
-            "dataset_name": {"type": "string", "title": "Dataset"},
-            "target_table_name": {
+            "domainName": {"type": "string", "title": "Domain"},
+            "serviceName": {"type": "string", "title": "Service"},
+            "datasetName": {"type": "string", "title": "Dataset"},
+            "tableName": {
                 "type": "string",
                 "title": "Table Name",
                 "readOnly": True,
             },
-            "flash_type": {
+            "flashType": {
                 "title": "Flash Type",
                 "type": "string",
                 "enum": ["", "OneTime", "ShortTerm", "LongTerm"],
@@ -737,30 +737,30 @@ FLASH_CREATION = {
             },
         },
         "required": [
-            "target_db_name",
-            "domain_name",
-            "service_name",
-            "dataset_name",
-            "flash_type",
+            "datastoreId",
+            "domainName",
+            "serviceName",
+            "datasetName",
+            "flashType",
             "ttl",
         ],
         "dependencies": {
-            "flash_type": {
+            "flashType": {
                 "oneOf": [
                     {
                         "properties": {
-                            "flash_type": {"enum": ["LongTerm"]},
-                            "team_slack_channel": {
+                            "flashType": {"enum": ["LongTerm"]},
+                            "teamSlackChannel": {
                                 "type": "string",
                                 "title": "Slack Channel",
                                 "pattern": "^(#)[A-Za-z0-9_-]+$",
                             },
-                            "team_slack_handle": {
+                            "teamSlackHandle": {
                                 "type": "string",
                                 "title": "Slack Handle",
                                 "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
                             },
-                            "schedule_type": {
+                            "scheduleType": {
                                 "title": "Schedule Type",
                                 "type": "string",
                                 "enum": ["", "@daily", "@weekly", "@monthly"],
@@ -772,23 +772,23 @@ FLASH_CREATION = {
                                 ],
                                 "default": "Please Select",
                             },
-                            "schedule_start_time": {
+                            "scheduleStartTime": {
                                 "type": "string",
                                 "title": "Schedule Start Time (In UTC)",
                                 "format": "date-time",
                             },
                         },
                         "required": [
-                            "team_slack_channel",
-                            "team_slack_handle",
-                            "schedule_type",
-                            "schedule_start_time",
+                            "teamSlackChannel",
+                            "teamSlackHandle",
+                            "scheduleType",
+                            "scheduleStartTime",
                         ],
                     },
                     {
                         "properties": {
-                            "flash_type": {"enum": ["ShortTerm"]},
-                            "schedule_type": {
+                            "flashType": {"enum": ["ShortTerm"]},
+                            "scheduleType": {
                                 "title": "Schedule Type",
                                 "type": "string",
                                 "enum": ["", "@daily", "@weekly", "@monthly"],
@@ -800,13 +800,13 @@ FLASH_CREATION = {
                                 ],
                                 "default": "Please Select",
                             },
-                            "schedule_start_time": {
+                            "scheduleStartTime": {
                                 "type": "string",
                                 "title": "Schedule Start Time (In UTC)",
                                 "format": "date-time",
                             },
                         },
-                        "required": ["schedule_type", "schedule_start_time"],
+                        "required": ["scheduleType", "scheduleStartTime"],
                     },
                 ]
             }
@@ -814,35 +814,35 @@ FLASH_CREATION = {
     },
     "UISCHEMA": {
         "ui:order": [
-            "target_db_name",
-            "domain_name",
-            "service_name",
-            "dataset_name",
-            "target_table_name",
-            "flash_type",
+            "datastoreId",
+            "domainName",
+            "serviceName",
+            "datasetName",
+            "tableName",
+            "flashType",
             "*",
             "ttl",
-            "schedule_type",
-            "schedule_start_time",
+            "scheduleType",
+            "scheduleStartTime",
         ],
-        "target_db_name": {"ui:help": "Database where the flash object is stored"},
-        "domain_name": {"ui:help": "Name of the owning team"},
-        "service_name": {
+        "datastoreId": {"ui:help": "Database where the flash object is stored"},
+        "domainName": {"ui:help": "Name of the owning team"},
+        "serviceName": {
             "ui:help": "Careem Service for which the flash object is used"
         },
-        "dataset_name": {"ui:help": "Flash dataset name"},
-        "target_table_name": {"ui:help": "Name of the flash object created"},
-        "team_slack_channel": {
+        "datasetName": {"ui:help": "Flash dataset name"},
+        "tableName": {"ui:help": "Name of the flash object created"},
+        "teamSlackChannel": {
             "ui:placeholder": "#slack_channel_name",
             "ui:help": "Slack channel for notification",
         },
-        "team_slack_handle": {
+        "teamSlackHandle": {
             "ui:placeholder": "@slack_handle_name",
             "ui:help": "Slack handle for notification",
         },
         "ttl": {"ui:help": "Flash object validity"},
-        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
-        "schedule_start_time": {
+        "scheduleType": {"ui:help": "Schedule type for the Flash object"},
+        "scheduleStartTime": {
             "ui:help": "Start time from which the flash object is to be scheduled."
         },
     },
@@ -862,17 +862,17 @@ FLASH_OWNERSHIP = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-            "team_slack_channel": {
+            "teamSlackChannel": {
                 "type": "string",
                 "title": "Slack Channel",
                 "pattern": "^(#)[A-Za-z0-9_-]+$",
             },
-            "team_slack_handle": {
+            "teamSlackHandle": {
                 "type": "string",
                 "title": "Slack Handle",
                 "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
             },
-            "ownership_type": {
+            "ownershipType": {
                 "type": "boolean",
                 "title": "Assign to me",
                 "enum": [True, False],
@@ -881,22 +881,22 @@ FLASH_OWNERSHIP = {
             "owner": {"type": "string", "title": "Owner Email", "format": "email"},
         },
         "required": [
-            "team_slack_channel",
-            "team_slack_handle",
+            "teamSlackChannel",
+            "teamSlackHandle",
         ],
     },
     "UISCHEMA": {
         "ui:order": [
-            "team_slack_channel",
-            "team_slack_handle",
-            "ownership_type",
+            "teamSlackChannel",
+            "teamSlackHandle",
+            "ownershipType",
             "owner",
         ],
-        "team_slack_channel": {
+        "teamSlackChannel": {
             "ui:placeholder": "#slack_channel_name",
             "ui:help": "Slack channel for notification",
         },
-        "team_slack_handle": {
+        "teamSlackHandle": {
             "ui:placeholder": "@slack_handle_name",
             "ui:help": "Slack handle for notification",
         },
@@ -940,7 +940,7 @@ FLASH_SCHEDULE = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-            "schedule_type": {
+            "scheduleType": {
                 "title": "Schedule Type",
                 "type": "string",
                 "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
@@ -953,24 +953,24 @@ FLASH_SCHEDULE = {
                 ],
                 "default": "Please Select",
             },
-            "schedule_start_time": {
+            "scheduleStartTime": {
                 "type": "string",
                 "title": "Schedule Start Time (In UTC)",
                 "format": "date-time",
             },
         },
         "required": [
-            "schedule_type",
-            "schedule_start_time",
+            "scheduleType",
+            "scheduleStartTime",
         ],
     },
     "UISCHEMA": {
         "ui:order": [
-            "schedule_type",
-            "schedule_start_time",
+            "scheduleType",
+            "scheduleStartTime",
         ],
-        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
-        "schedule_start_time": {
+        "scheduleType": {"ui:help": "Schedule type for the Flash object"},
+        "scheduleStartTime": {
             "ui:help": "Start time from which the flash object is to be scheduled"
         },
     },

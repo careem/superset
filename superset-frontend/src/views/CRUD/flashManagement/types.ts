@@ -19,18 +19,18 @@
 
 export interface FlashObject {
   id?: number;
-  created_by: string;
-  dataset_name: string;
-  domain_name: string;
-  flash_type: string;
-  schedule_start_time?: string;
-  schedule_type?: string;
-  service_name: string;
-  sql_query: string;
-  target_db_name: string;
-  table_name: string;
-  team_slack_channel?: string;
-  team_slack_handle?: string;
+  owner: string;
+  datasetName: string;
+  domainName: string;
+  flashType: string;
+  scheduleStartTime?: string;
+  scheduleType?: string;
+  serviceName: string;
+  sqlQuery: string;
+  datastoreId: string;
+  tableName: string;
+  teamSlackChannel?: string;
+  teamSlackHandle?: string;
   ttl: string;
   cdomain?: string;
   cservice?: string;
@@ -38,8 +38,8 @@ export interface FlashObject {
 
 export interface FlashUpdateOwnership {
   owner: string;
-  team_slack_channel: string;
-  team_slack_handle: string;
+  teamSlackChannel: string;
+  teamSlackHandle: string;
 }
 
 export interface FlashExtendTtl {
@@ -47,33 +47,33 @@ export interface FlashExtendTtl {
 }
 
 export interface FlashUpdateQuery {
-  sql_query:string;
+  sqlQuery:string;
 }
 
 export interface FlashUpdateSchedule {
-  schedule_type: string;
-  schedule_start_time: string;
+  scheduleType: string;
+  scheduleStartTime: string;
 }
 
 export type FlashServiceObject = {
-  c_domain?: string;
-  c_service?: string;
-  created_by: string;
-  dataset_name: string;
-  domain_name: string;
-  flash_type: string;
+  cdomain?: string;
+  cservice?: string;
+  owner: string;
+  datasetName: string;
+  domainName: string;
+  flashType: string;
   id?: number;
-  last_refresh_time?: string;
-  retry_count?: number;
-  schedule_start_time?: string;
-  schedule_type?: string;
-  service_name: string;
-  sql_query: string;
+  lastRefreshTime?: string;
+  retryCount?: number;
+  scheduleStartTime?: string;
+  scheduleType?: string;
+  serviceName: string;
+  sqlQuery: string;
   status?: string;
-  target_db_name: string;
-  table_name: string;
-  team_slack_channel?: string;
-  team_slack_handle?: string;
+  datastoreId: string;
+  tableName: string;
+  teamSlackChannel?: string;
+  teamSlackHandle?: string;
   ttl: string;
 };
 

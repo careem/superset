@@ -119,18 +119,18 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
   const [formData, setFormData] = useState<FlashUpdateOwnership>({
-    team_slack_channel: '',
-    team_slack_handle: '',
+    teamSlackChannel: '',
+    teamSlackHandle: '',
     owner: '',
   });
 
   useEffect(() => {
     if (flash) {
-      formData.team_slack_channel = flash?.team_slack_channel
-        ? flash?.team_slack_channel
+      formData.teamSlackChannel = flash?.teamSlackChannel
+        ? flash?.teamSlackChannel
         : '';
-      formData.team_slack_handle = flash?.team_slack_handle
-        ? flash?.team_slack_handle
+      formData.teamSlackHandle = flash?.teamSlackHandle
+        ? flash?.teamSlackHandle
         : '';
     }
   }, []);
@@ -139,10 +139,10 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     errors.map((error: FormErrors) => {
       const newError = { ...error };
       if (error.name === 'pattern') {
-        if (error.property === '.team_slack_channel') {
+        if (error.property === '.teamSlackChannel') {
           newError.message = 'Slack Channel must start with #';
         }
-        if (error.property === '.team_slack_handle') {
+        if (error.property === '.teamSlackHandle') {
           newError.message = 'Slack Handle must start with @';
         }
       }
@@ -153,7 +153,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     const formData = { ...formValues };
     let jsonSchema = { ...flashSchema };
     if (formData) {
-      if (formData.ownership_type) {
+      if (formData.ownershipType) {
         formData.owner = user?.email;
       } else {
         if (formData.owner == user?.email) {
@@ -167,7 +167,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
               if (key === 'owner') {
                 jsonSchema.properties[key] = {
                   ...value,
-                  readOnly: formData.ownership_type,
+                  readOnly: formData.ownershipType,
                 };
               }
           },
@@ -180,8 +180,8 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    if (payload.ownership_type === true || payload.ownership_type === false) {
-      delete payload.ownership_type;
+    if (payload.ownershipType === true || payload.ownershipType === false) {
+      delete payload.ownershipType;
     }
     flashOwnershipService(Number(flash?.id), UPDATE_TYPES.OWNER, payload);
     onHide();
