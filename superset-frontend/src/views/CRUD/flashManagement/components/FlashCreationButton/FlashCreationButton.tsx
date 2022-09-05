@@ -120,7 +120,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       if (jsonSchema) {
         Object.entries(jsonSchema.properties).forEach(
           ([key, value]: [string, any]) => {
-            if (key === 'datastoreId') {
+            if (key === 'datastore_id') {
               if (dbDropdown) {
                 jsonSchema.properties[key] = {
                   ...value,
@@ -198,10 +198,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     errors.map((error: FormErrors) => {
       const newError = { ...error };
       if (error.name === 'pattern') {
-        if (error.property === '.teamSlackChannel') {
+        if (error.property === '.team_slack_channel') {
           newError.message = 'Slack Channel must start with #';
         }
-        if (error.property === '.teamSlackHandle') {
+        if (error.property === '.team_slack_handle') {
           newError.message = 'Slack Handle must start with @';
         }
       }
@@ -232,21 +232,21 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
     if (formData) {
-      if (formData.flashType === FlashTypes.LONG_TERM) {
+      if (formData.flash_type === FlashTypes.LONG_TERM) {
         formData.ttl = chrono
           .parseDate('90 days from now')
           .toISOString()
           .split('T')[0];
-        formData.scheduleStartTime = convertToLocalDateTime(
-          formData.scheduleStartTime,
+        formData.schedule_start_time = convertToLocalDateTime(
+          formData.schedule_start_time,
         );
-      } else if (formData.flashType === FlashTypes.SHORT_TERM) {
+      } else if (formData.flash_type === FlashTypes.SHORT_TERM) {
         formData.ttl = chrono
           .parseDate('7 days from now')
           .toISOString()
           .split('T')[0];
-        formData.scheduleStartTime = convertToLocalDateTime(
-          formData.scheduleStartTime,
+        formData.schedule_start_time = convertToLocalDateTime(
+          formData.schedule_start_time,
         );
       } else {
         formData.ttl = chrono
@@ -254,11 +254,15 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           .toISOString()
           .split('T')[0];
       }
-      if (formData.domainName || formData.serviceName || formData.datasetName) {
-        formData.tableName = [
-          formData.domainName,
-          formData.serviceName,
-          formData.datasetName,
+      if (
+        formData.domain_name ||
+        formData.service_name ||
+        formData.dataset_name
+      ) {
+        formData.table_name = [
+          formData.domain_name,
+          formData.service_name,
+          formData.dataset_name,
         ]
           .filter(val => val != null)
           .join('__');
@@ -269,26 +273,26 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 
   const onFlashCreationSubmit = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    payload.scheduleStartTime = moment(payload.scheduleStartTime).format(
+    payload.schedule_start_time = moment(payload.schedule_start_time).format(
       'YYYY-MM-DD hh:mm:ss',
     );
-    if (payload.flashType === FlashTypes.SHORT_TERM) {
+    if (payload.flash_type === FlashTypes.SHORT_TERM) {
       removeUnnecessaryProperties(payload, [
-        'teamSlackChannel',
-        'teamSlackHandle',
+        'team_slack_channel',
+        'team_slack_handle',
       ]);
     }
-    if (payload.flashType === FlashTypes.ONE_TIME) {
+    if (payload.flash_type === FlashTypes.ONE_TIME) {
       removeUnnecessaryProperties(payload, [
-        'teamSlackChannel',
-        'teamSlackHandle',
-        'scheduleType',
-        'scheduleStartTime',
+        'team_slack_channel',
+        'team_slack_handle',
+        'schedule_type',
+        'schedule_start_time',
       ]);
     }
     const flash = {
       owner: user?.email,
-      sqlQuery: sql || sqlQuery?.query,
+      sql_query: sql || sqlQuery?.query,
       ...payload,
     } as FlashObject;
     onCreate(flash);

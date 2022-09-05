@@ -17,23 +17,23 @@
  * under the License.
  */
 
-export interface FlashObject {
+ export interface FlashObject {
   id?: number;
   owner: string;
-  datasetName: string;
-  domainName: string;
-  flashType: string;
-  scheduleStartTime?: string;
-  scheduleType?: string;
-  serviceName: string;
-  sqlQuery: string;
-  datastoreId: string;
-  tableName: string;
-  teamSlackChannel?: string;
-  teamSlackHandle?: string;
+  dataset_name: string;
+  domain_name: string;
+  flash_type: string;
+  schedule_start_time?: string;
+  schedule_type?: string;
+  service_name: string;
+  sql_query: string;
+  datastore_id: string;
+  table_name: string;
+  team_slack_channel?: string;
+  team_slack_handle?: string;
   ttl: string;
-  cdomain?: string;
-  cservice?: string;
+  c_domain?: string;
+  c_service?: string;
 }
 
 export interface FlashUpdateOwnership {
