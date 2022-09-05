@@ -719,7 +719,7 @@ FLASH_CREATION = {
             "flashType": {
                 "title": "Flash Type",
                 "type": "string",
-                "enum": ["", "OneTime", "ShortTerm", "LongTerm"],
+                "enum": ["", "One Time", "Short Term", "Long Term"],
                 "enumNames": [
                     "Please Select",
                     "One Time (Valid upto 7 days)",
@@ -749,7 +749,7 @@ FLASH_CREATION = {
                 "oneOf": [
                     {
                         "properties": {
-                            "flashType": {"enum": ["LongTerm"]},
+                            "flashType": {"enum": ["Long Term"]},
                             "teamSlackChannel": {
                                 "type": "string",
                                 "title": "Slack Channel",
@@ -788,7 +788,7 @@ FLASH_CREATION = {
                     },
                     {
                         "properties": {
-                            "flashType": {"enum": ["ShortTerm"]},
+                            "flashType": {"enum": ["Short Term"]},
                             "scheduleType": {
                                 "title": "Schedule Type",
                                 "type": "string",

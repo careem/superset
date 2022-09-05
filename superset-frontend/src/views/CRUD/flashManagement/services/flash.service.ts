@@ -21,7 +21,7 @@ import { FlashClient } from '@superset-ui/core';
 import { FlashExtendTtl, FlashObject, FlashServiceObject, FlashUpdateOwnership, FlashUpdateQuery, FlashUpdateSchedule } from '../types';
 
 export const fetchDatabases = async (): Promise<any> =>
-  await FlashClient.get<FlashServiceObject[]>('v1/datastore');
+  await FlashClient.get<any>('v1/datastore');
 
 export const fetchUsers = async (queryParams : any): Promise<any> =>
   await FlashClient.get<FlashServiceObject[]>('v1/flash/'+ '?' + queryParams);

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-export interface FlashObject {
+ export interface FlashObject {
   id?: number;
   owner: string;
   datasetName: string;
@@ -32,8 +32,8 @@ export interface FlashObject {
   teamSlackChannel?: string;
   teamSlackHandle?: string;
   ttl: string;
-  cdomain?: string;
-  cservice?: string;
+  cDomain?: string;
+  cService?: string;
 }
 
 export interface FlashUpdateOwnership {
