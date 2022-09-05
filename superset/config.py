@@ -706,7 +706,7 @@ FLASH_CREATION = {
         "properties": {
             "datastoreId": {
                 "title": "Target DB Name",
-                "type": "string",
+                "type": "number",
             },
             "domainName": {"type": "string", "title": "Domain"},
             "serviceName": {"type": "string", "title": "Service"},
@@ -763,9 +763,10 @@ FLASH_CREATION = {
                             "scheduleType": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
                                 "enumNames": [
                                     "Please Select",
+                                    "Hourly",
                                     "Daily",
                                     "Weekly",
                                     "Monthly",
@@ -791,9 +792,10 @@ FLASH_CREATION = {
                             "scheduleType": {
                                 "title": "Schedule Type",
                                 "type": "string",
-                                "enum": ["", "@daily", "@weekly", "@monthly"],
+                                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
                                 "enumNames": [
                                     "Please Select",
+                                    "Hourly",
                                     "Daily",
                                     "Weekly",
                                     "Monthly",

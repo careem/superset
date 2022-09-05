@@ -85,24 +85,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
     fetchDatabaseDropdown();
   }, []);
 
-  const handleSavedQueryPreview = useCallback(
-    (id: number) => {
-      SupersetClient.get({
-        endpoint: `/api/v1/saved_query/${id}`,
-      }).then(
-        ({ json = {} }) => {
-          setSavedQueryCurrentlyPreviewing({ ...json.result });
-        },
-        createErrorHandler(errMsg =>
-          addDangerToast(
-            t('There was an issue previewing the selected query %s', errMsg),
-          ),
-        ),
-      );
-    },
-    [addDangerToast],
-  );
-
   const menuData: SubMenuProps = {
     name: t('Flash'),
   };
@@ -225,6 +207,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           };
           const handleChangeSchedule = () => changeSchedule(original);
           const handleChangeOwnership = () => changeOwnership(original);
+          const handleChangeCost = () => console.log('cost==', original);
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
@@ -263,7 +246,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               tooltip: t('Change Costing Attributes'),
               placement: 'bottom',
               icon: 'Edit',
-              onClick: handleChangeOwnership,
+              onClick: handleChangeCost,
             },
             {
               label: 'delete-action',
@@ -281,7 +264,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         disableSortBy: true,
       },
     ],
-    [handleSavedQueryPreview],
+    [],
   );
 
   const filters: Filters = useMemo(
@@ -332,7 +315,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         Header: t('Status'),
         id: 'status',
         input: 'select',
-        operator: FilterOperator.equals,
+        operator: FilterOperator.relationOneMany,
         unfilteredLabel: 'All',
         selects: FLASH_STATUS,
       },

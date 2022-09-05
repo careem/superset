@@ -20,9 +20,9 @@
 import { FilterDropdown } from "./types";
 
 export const FLASH_TYPES: FilterDropdown[] = [
-  { label: 'One Time', value: 'OneTime' },
-  { label: 'Short Term', value: 'ShortTerm' },
-  { label: 'Long Term', value: 'LongTerm' },
+  { label: 'One Time', value: 'One Time' },
+  { label: 'Short Term', value: 'Short Term' },
+  { label: 'Long Term', value: 'Long Term' },
 ]
 
 export const SCHEDULE_TYPE : FilterDropdown[] =  [

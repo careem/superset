@@ -39,6 +39,7 @@ import {
   Dropdown,
 } from 'src/views/CRUD/FlashManagement/types';
 import moment from 'moment';
+import { fetchDatabases } from '../../services/flash.service';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -99,8 +100,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Dropdown>({
-    enum: [],
-    enumNames: [],
+    enum: [''],
+    enumNames: ['Please Select'],
   });
   const [formData, setFormData] = useState<FlashObject | {}>({});
   const [sqlQuery, setSqlQuery] = useState<Query>({});
@@ -110,11 +111,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const saveModal: ModalTriggerRef | null = useRef() as ModalTriggerRef;
 
   useEffect(() => {
-    const newDbDropdown = {
-      enum: ['', 'Pinot Flashes'],
-      enumNames: ['Please Select', 'Pinot Flashes'],
-    };
-    setDbDropdown(newDbDropdown);
+    fetchDatabaseDropdown();
   }, []);
 
   const getSchemas = () => {
@@ -127,15 +124,13 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               if (dbDropdown) {
                 jsonSchema.properties[key] = {
                   ...value,
-                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [],
+                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [''],
                   enumNames:
                     dbDropdown && dbDropdown.enumNames
                       ? dbDropdown.enumNames
-                      : [],
+                      : ['Please Select'],
                   default:
-                    dbDropdown && dbDropdown.enumNames
-                      ? dbDropdown.enumNames[0]
-                      : '',
+                    dbDropdown && dbDropdown.enum ? dbDropdown.enum[0] : '',
                 };
               }
             }
@@ -212,6 +207,20 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       }
       return newError;
     });
+
+  const fetchDatabaseDropdown = (): Promise<any> => {
+    return fetchDatabases().then(({ data }) => {
+      let dropdown = { ...dbDropdown };
+      if (dropdown) {
+        data.forEach((item: any) => {
+          dropdown['enum'].push(item.id);
+          dropdown['enumNames'] = dropdown['enumNames'] || ['Please Select'];
+          dropdown['enumNames'].push(item.datastore_name);
+        });
+      }
+      setDbDropdown(dropdown);
+    });
+  };
 
   if (isLoading) {
     return <Loading />;
