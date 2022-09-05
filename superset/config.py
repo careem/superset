@@ -774,7 +774,7 @@ FLASH_CREATION = {
                             },
                             "schedule_start_time": {
                                 "type": "string",
-                                "title": "Schedule Start Time",
+                                "title": "Schedule Start Time (In UTC)",
                                 "format": "date-time",
                             },
                         },
@@ -802,7 +802,7 @@ FLASH_CREATION = {
                             },
                             "schedule_start_time": {
                                 "type": "string",
-                                "title": "Schedule Start Time",
+                                "title": "Schedule Start Time (In UTC)",
                                 "format": "date-time",
                             },
                         },
@@ -843,7 +843,7 @@ FLASH_CREATION = {
         "ttl": {"ui:help": "Flash object validity"},
         "schedule_type": {"ui:help": "Schedule type for the Flash object"},
         "schedule_start_time": {
-            "ui:help": "Start time from which the flash object is to be scheduled"
+            "ui:help": "Start time from which the flash object is to be scheduled."
         },
     },
     "VALIDATION": [],
@@ -878,7 +878,7 @@ FLASH_OWNERSHIP = {
                 "enum": [True, False],
                 "default": False,
             },
-            "owner_name": {"type": "string", "title": "Owner Email", "format": "email"},
+            "owner": {"type": "string", "title": "Owner Email", "format": "email"},
         },
         "required": [
             "team_slack_channel",
@@ -890,7 +890,7 @@ FLASH_OWNERSHIP = {
             "team_slack_channel",
             "team_slack_handle",
             "ownership_type",
-            "owner_name",
+            "owner",
         ],
         "team_slack_channel": {
             "ui:placeholder": "#slack_channel_name",
@@ -900,7 +900,7 @@ FLASH_OWNERSHIP = {
             "ui:placeholder": "@slack_handle_name",
             "ui:help": "Slack handle for notification",
         },
-        "owner_name": {
+        "owner": {
             "ui:placeholder": "abc@abc.com",
             "ui:help": "The email to whom the ownership should be transferred",
         },
@@ -922,15 +922,13 @@ FLASH_TTL = {
                 "default": "7 days from now",
             },
         },
-        "required": [
-            "ttl"
-        ],
+        "required": ["ttl"],
     },
     "UISCHEMA": {
         "ui:order": [
             "ttl",
         ],
-           "ttl": {"ui:help": "Flash object validity"},
+        "ttl": {"ui:help": "Flash object validity"},
     },
     "VALIDATION": [],
 }
@@ -942,23 +940,24 @@ FLASH_SCHEDULE = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-              "schedule_type": {
-                                "title": "Schedule Type",
-                                "type": "string",
-                                "enum": ["", "@daily", "@weekly", "@monthly"],
-                                "enumNames": [
-                                    "Please Select",
-                                    "Daily",
-                                    "Weekly",
-                                    "Monthly",
-                                ],
-                                "default": "Please Select",
-                            },
-                            "schedule_start_time": {
-                                "type": "string",
-                                "title": "Schedule Start Time",
-                                "format": "date-time",
-                            },
+            "schedule_type": {
+                "title": "Schedule Type",
+                "type": "string",
+                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
+                "enumNames": [
+                    "Please Select",
+                    "Hourly",
+                    "Daily",
+                    "Weekly",
+                    "Monthly",
+                ],
+                "default": "Please Select",
+            },
+            "schedule_start_time": {
+                "type": "string",
+                "title": "Schedule Start Time (In UTC)",
+                "format": "date-time",
+            },
         },
         "required": [
             "schedule_type",
@@ -970,14 +969,13 @@ FLASH_SCHEDULE = {
             "schedule_type",
             "schedule_start_time",
         ],
-      "schedule_type": {"ui:help": "Schedule type for the Flash object"},
+        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
         "schedule_start_time": {
             "ui:help": "Start time from which the flash object is to be scheduled"
         },
     },
     "VALIDATION": [],
 }
-
 
 
 # ---------------------------------------------------

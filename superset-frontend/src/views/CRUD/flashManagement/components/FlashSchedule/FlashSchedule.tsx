@@ -40,6 +40,7 @@ import {
   addSuccessToast,
 } from 'src/components/MessageToasts/actions';
 import moment from 'moment';
+import { UPDATE_TYPES } from '../../constants';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -115,7 +116,6 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   refreshData,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
-
   const [formData, setFormData] = useState<FlashUpdateSchedule>({
     schedule_type: '',
     schedule_start_time: '',
@@ -138,9 +138,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    let jsonSchema = { ...flashSchema };
     if (formData) {
-      setFlashSchema(jsonSchema);
       setFormData(formData);
     }
   };
@@ -150,14 +148,14 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
     payload.schedule_start_time = moment(payload.schedule_start_time).format(
       'YYYY-MM-DD hh:mm:ss',
     );
-    flashScheduleService(Number(flash?.id), payload);
+    flashScheduleService(Number(flash?.id), UPDATE_TYPES.SCHEDULE, payload);
     onHide();
   };
 
   const flashScheduleService = useCallback(
-    (id, payload) => {
-      updateFlash(id, payload).then(
-        ({ json = {} }) => {
+    (id, type, payload) => {
+      updateFlash(id, type, payload).then(
+        () => {
           addSuccessToast(
             t(
               'Your flash object schedule has been updated. To see details of your flash, navigate to Flash Management',
