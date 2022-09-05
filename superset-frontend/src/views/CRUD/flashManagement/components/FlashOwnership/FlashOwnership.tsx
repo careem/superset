@@ -50,8 +50,6 @@ const { user } = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-console.log('user==', user);
-
 const flashOwnershipConf = bootstrapData?.common?.conf?.FLASH_OWNERSHIP;
 
 const getJSONSchema = () => {

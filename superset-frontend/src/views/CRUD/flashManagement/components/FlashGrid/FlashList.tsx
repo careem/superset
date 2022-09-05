@@ -42,8 +42,14 @@ import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
 import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
+import { TooltipPlacement } from 'antd/lib/tooltip';
 
 const PAGE_SIZE = 25;
+
+const appContainer = document.getElementById('app');
+const { currentUser } = JSON.parse(
+  appContainer?.getAttribute('data-bootstrap') || '{}',
+);
 
 interface FlashListProps {
   addDangerToast: (msg: string) => void;
@@ -80,6 +86,10 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const [showFlashQuery, setShowFlashQuery] = useState<boolean>(false);
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
+
+  console.log('ussser==', currentUser);
+  delete currentUser.roles.Admin;
+  console.log('userafter==', currentUser);
 
   useEffect(() => {
     fetchDatabaseDropdown();
@@ -211,51 +221,58 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
-          const actions = [
-            {
-              label: 'export-action',
-              tooltip: t('Extend TTL'),
-              placement: 'bottom',
-              icon: 'Share',
-              onClick: handleChangeTtl,
-            },
-            {
-              label: 'ownership-action',
-              tooltip: t('Change Ownership'),
-              placement: 'bottom',
-              icon: 'SwitchUser',
-              onClick: handleChangeOwnership,
-            },
+          let actions: ActionProps[] | [] = [];
 
-            {
-              label: 'copy-action',
-              tooltip: t('Change Schedule'),
-              placement: 'bottom',
-              icon: 'Calendar',
-              onClick: handleChangeSchedule,
-            },
-            {
-              label: 'copy-action',
-              tooltip: t('Update Sql Query'),
-              placement: 'bottom',
-              icon: 'Sql',
-              onClick: handleSqlQuery,
-            },
-            {
-              label: 'copy-action',
-              tooltip: t('Change Costing Attributes'),
-              placement: 'bottom',
-              icon: 'Edit',
-              onClick: handleChangeCost,
-            },
-            {
-              label: 'delete-action',
-              tooltip: t('Delete Flash'),
-              placement: 'bottom',
-              icon: 'Trash',
-              onClick: handleDelete,
-            },
-          ].filter(item => !!item);
+          if (
+            original?.owner === currentUser?.email ||
+            currentUser?.roles?.Admin
+          ) {
+            actions = [
+              {
+                label: 'export-action',
+                tooltip: t('Extend TTL'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Share',
+                onClick: handleChangeTtl,
+              },
+              {
+                label: 'ownership-action',
+                tooltip: t('Change Ownership'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'SwitchUser',
+                onClick: handleChangeOwnership,
+              },
+
+              {
+                label: 'copy-action',
+                tooltip: t('Change Schedule'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Calendar',
+                onClick: handleChangeSchedule,
+              },
+              {
+                label: 'copy-action',
+                tooltip: t('Update Sql Query'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Sql',
+                onClick: handleSqlQuery,
+              },
+              {
+                label: 'copy-action',
+                tooltip: t('Change Costing Attributes'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Edit',
+                onClick: handleChangeCost,
+              },
+              {
+                label: 'delete-action',
+                tooltip: t('Delete Flash'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Trash',
+                onClick: handleDelete,
+              },
+            ].filter(item => !!item);
+          }
 
           return <ActionsBar actions={actions as ActionProps[]} />;
         },

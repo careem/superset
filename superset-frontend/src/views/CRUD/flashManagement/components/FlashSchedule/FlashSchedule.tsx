@@ -121,7 +121,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
     if (flash) {
       formData.scheduleType = flash?.scheduleType ? flash?.scheduleType : '';
       formData.scheduleStartTime = flash?.scheduleStartTime
-        ? flash?.scheduleStartTime
+        ? new Date(flash?.scheduleStartTime).toISOString()
         : '';
     }
   }, []);
@@ -134,6 +134,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
+    console.log(formData);
     if (formData) {
       setFormData(formData);
     }
