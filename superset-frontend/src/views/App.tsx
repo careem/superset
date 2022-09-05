@@ -44,13 +44,13 @@ let menu = {
   ...bootstrapData.common.menu_data,
 };
 
-console.log('menu===', menu)
 let menuItem = {
   name: 'Flash Management',
   label: 'Flash Management',
-  url: '/flashManagement/list/'
-}
-menu['menu'].push(menuItem)
+  url: '/flashmanagement/list/',
+};
+
+menu['menu'].push(menuItem);
 
 let lastLocationPathname: string;
 

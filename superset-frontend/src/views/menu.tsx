@@ -38,17 +38,18 @@ const bootstrapJson = container?.getAttribute('data-bootstrap') ?? '{}';
 const bootstrap = JSON.parse(bootstrapJson);
 
 let menu = { ...bootstrap.common.menu_data };
+
 let menuItem = {
   name: 'Flash Management',
   label: 'Flash Management',
-  url: '/flashManagement/list/'
-}
-menu['menu'].push(menuItem)
+  url: '/flashmanagement/list/',
+};
+
+menu['menu'].push(menuItem);
 
 const emotionCache = createCache({
   key: 'menu',
 });
-
 
 const app = (
   // @ts-ignore: emotion types defs are incompatible between core and cache
