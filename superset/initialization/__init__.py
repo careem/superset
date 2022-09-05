@@ -116,6 +116,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.annotation_layers.annotations.api import AnnotationRestApi
         from superset.annotation_layers.api import AnnotationLayerRestApi
         from superset.async_events.api import AsyncEventsRestApi
+        from superset.available_domains.api import AvailableDomainsRestApi
         from superset.cachekeys.api import CacheRestApi
         from superset.charts.api import ChartRestApi
         from superset.charts.data.api import ChartDataRestApi
@@ -169,14 +170,14 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             DatabaseView,
             ExcelToDatabaseView,
         )
-        from superset.views.datasource.views import Datasource
+        from superset.views.datasource.views import DatasetEditor, Datasource
         from superset.views.dynamic_plugins import DynamicPluginsView
         from superset.views.explore import ExplorePermalinkView, ExploreView
         from superset.views.key_value import KV
         from superset.views.log.api import LogRestApi
         from superset.views.log.views import LogModelView
         from superset.views.redirects import R
-        from superset.views.sql_lab import (
+        from superset.views.sql_lab.views import (
             SavedQueryView,
             SavedQueryViewApi,
             SqlLab,
@@ -193,6 +194,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(AnnotationLayerRestApi)
         appbuilder.add_api(AsyncEventsRestApi)
         appbuilder.add_api(AdvancedDataTypeRestApi)
+        appbuilder.add_api(AvailableDomainsRestApi)
         appbuilder.add_api(CacheRestApi)
         appbuilder.add_api(ChartRestApi)
         appbuilder.add_api(ChartDataRestApi)
@@ -289,6 +291,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(Dashboard)
         appbuilder.add_view_no_menu(DashboardModelViewAsync)
         appbuilder.add_view_no_menu(Datasource)
+        appbuilder.add_view_no_menu(DatasetEditor)
         appbuilder.add_view_no_menu(EmbeddedView)
         appbuilder.add_view_no_menu(ExploreView)
         appbuilder.add_view_no_menu(ExplorePermalinkView)

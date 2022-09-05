@@ -70,7 +70,7 @@ export type DatabaseObject = {
   force_ctas_schema?: string;
 
   // Security
-  encrypted_extra?: string;
+  masked_encrypted_extra?: string;
   server_cert?: string;
   allow_file_upload?: boolean;
   impersonate_user?: boolean;
@@ -160,4 +160,9 @@ export type DatabaseForm = {
 export enum CONFIGURATION_METHOD {
   SQLALCHEMY_URI = 'sqlalchemy_form',
   DYNAMIC_FORM = 'dynamic_form',
+}
+
+export enum Engines {
+  GSheet = 'gsheets',
+  Snowflake = 'snowflake',
 }

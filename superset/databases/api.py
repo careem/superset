@@ -127,7 +127,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "force_ctas_schema",
         "allow_multi_schema_metadata_fetch",
         "impersonate_user",
-        "encrypted_extra",
+        "masked_encrypted_extra",
         "extra",
         "parameters",
         "parameters_schema",
@@ -798,7 +798,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         self.incr_stats("success", self.select_star.__name__)
         return self.response(200, result=result)
 
-    @expose("/test_connection", methods=["POST"])
+    @expose("/test_connection/", methods=["POST"])
     @protect()
     @statsd_metrics
     @event_logger.log_this_with_context(
@@ -914,7 +914,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             },
         )
 
-    @expose("/<int:pk>/validate_sql", methods=["POST"])
+    @expose("/<int:pk>/validate_sql/", methods=["POST"])
     @protect()
     @statsd_metrics
     @event_logger.log_this_with_context(
@@ -1219,8 +1219,8 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 "preferred": engine_spec.engine_name in preferred_databases,
             }
 
-            if hasattr(engine_spec, "default_driver"):
-                payload["default_driver"] = engine_spec.default_driver  # type: ignore
+            if engine_spec.default_driver:
+                payload["default_driver"] = engine_spec.default_driver
 
             # show configuration parameters for DBs that support it
             if (
@@ -1257,7 +1257,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
 
         return self.response(200, databases=response)
 
-    @expose("/validate_parameters", methods=["POST"])
+    @expose("/validate_parameters/", methods=["POST"])
     @protect()
     @statsd_metrics
     @event_logger.log_this_with_context(

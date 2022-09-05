@@ -152,6 +152,7 @@ from superset.views.base import (
     json_success,
     validate_sqlatable,
 )
+from superset.views.sql_lab.schemas import SqlJsonPayloadSchema
 from superset.views.utils import (
     _deserialize_results_payload,
     bootstrap_user_data,
@@ -1570,6 +1571,11 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
         defined in config. This enables charts embedded in other apps to
         leverage domain sharding if appropriately configured.
         """
+        logger.warning(
+            "%s.available_domains "
+            "This API endpoint is deprecated and will be removed in version 3.0.0",
+            self.__class__.__name__,
+        )
         return Response(
             json.dumps(conf.get("SUPERSET_WEBSERVER_DOMAINS")), mimetype="text/json"
         )
@@ -2136,7 +2142,12 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
         table.columns = cols
         table.metrics = [SqlMetric(metric_name="count", expression="count(*)")]
         db.session.commit()
-        return json_success(json.dumps({"table_id": table.id}))
+
+        return json_success(
+            json.dumps(
+                {"table_id": table.id, "data": sanitize_datasource_data(table.data)}
+            )
+        )
 
     @has_access
     @expose("/extra_table_metadata/<int:database_id>/<table_name>/<schema>/")
@@ -2429,6 +2440,10 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
     @event_logger.log_this
     @expose("/sql_json/", methods=["POST"])
     def sql_json(self) -> FlaskResponse:
+        errors = SqlJsonPayloadSchema().validate(request.json)
+        if errors:
+            return json_error_response(status=400, payload=errors)
+
         try:
             log_params = {
                 "user_agent": cast(Optional[str], request.headers.get("USER_AGENT"))
@@ -2735,8 +2750,13 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
         user = (
             db.session.query(ab_models.User).filter_by(username=username).one_or_none()
         )
-        if not user:
-            abort(404, description=f"User: {username} does not exist.")
+        # Prevent returning 404 when user is not found to prevent username scanning
+        user_id = -1 if not user else user.id
+        # Prevent unauthorized access to other user's profiles,
+        # unless configured to do so on with ENABLE_BROAD_ACTIVITY_ACCESS
+        error_obj = self.get_user_activity_access_error(user_id)
+        if error_obj:
+            return error_obj
 
         payload = {
             "user": bootstrap_user_data(user, include_perms=True),
