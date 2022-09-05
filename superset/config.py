@@ -922,15 +922,13 @@ FLASH_TTL = {
                 "default": "7 days from now",
             },
         },
-        "required": [
-            "ttl"
-        ],
+        "required": ["ttl"],
     },
     "UISCHEMA": {
         "ui:order": [
             "ttl",
         ],
-           "ttl": {"ui:help": "Flash object validity"},
+        "ttl": {"ui:help": "Flash object validity"},
     },
     "VALIDATION": [],
 }
@@ -942,24 +940,24 @@ FLASH_SCHEDULE = {
     "JSONSCHEMA": {
         "type": "object",
         "properties": {
-              "schedule_type": {
-                                "title": "Schedule Type",
-                                "type": "string",
-                                "enum": ["","Hourly", "Daily", "Weekly", "Monthly"],
-                                "enumNames": [
-                                    "Please Select",
-                                    "Hourly",
-                                    "Daily",
-                                    "Weekly",
-                                    "Monthly",
-                                ],
-                                "default": "Please Select",
-                            },
-                            "schedule_start_time": {
-                                "type": "string",
-                                "title": "Schedule Start Time (In UTC)",
-                                "format": "date-time",
-                            },
+            "schedule_type": {
+                "title": "Schedule Type",
+                "type": "string",
+                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
+                "enumNames": [
+                    "Please Select",
+                    "Hourly",
+                    "Daily",
+                    "Weekly",
+                    "Monthly",
+                ],
+                "default": "Please Select",
+            },
+            "schedule_start_time": {
+                "type": "string",
+                "title": "Schedule Start Time (In UTC)",
+                "format": "date-time",
+            },
         },
         "required": [
             "schedule_type",
@@ -971,14 +969,13 @@ FLASH_SCHEDULE = {
             "schedule_type",
             "schedule_start_time",
         ],
-      "schedule_type": {"ui:help": "Schedule type for the Flash object"},
+        "schedule_type": {"ui:help": "Schedule type for the Flash object"},
         "schedule_start_time": {
             "ui:help": "Start time from which the flash object is to be scheduled"
         },
     },
     "VALIDATION": [],
 }
-
 
 
 # ---------------------------------------------------
