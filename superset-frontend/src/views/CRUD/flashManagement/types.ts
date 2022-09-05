@@ -20,20 +20,20 @@
  export interface FlashObject {
   id?: number;
   owner: string;
-  dataset_name: string;
-  domain_name: string;
-  flash_type: string;
-  schedule_start_time?: string;
-  schedule_type?: string;
-  service_name: string;
-  sql_query: string;
-  datastore_id: string;
-  table_name: string;
-  team_slack_channel?: string;
-  team_slack_handle?: string;
+  datasetName: string;
+  domainName: string;
+  flashType: string;
+  scheduleStartTime?: string;
+  scheduleType?: string;
+  serviceName: string;
+  sqlQuery: string;
+  datastoreId: string;
+  tableName: string;
+  teamSlackChannel?: string;
+  teamSlackHandle?: string;
   ttl: string;
-  c_domain?: string;
-  c_service?: string;
+  cDomain?: string;
+  cService?: string;
 }
 
 export interface FlashUpdateOwnership {

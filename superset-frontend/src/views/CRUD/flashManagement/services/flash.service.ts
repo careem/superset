@@ -27,7 +27,7 @@ export const fetchUsers = async (queryParams : any): Promise<any> =>
   await FlashClient.get<FlashServiceObject[]>('v1/flash/'+ '?' + queryParams);
 
 export const createFlash = (payload: FlashObject): Promise<any> =>
-  FlashClient.post<any>('v1/flash/', payload);
+  FlashClient.post<FlashServiceObject>('v1/flash/', payload);
 
 export const updateFlash = async (id: number, type: string, payload: FlashUpdateOwnership | FlashExtendTtl | FlashUpdateSchedule | FlashUpdateQuery ): Promise<any> =>
   await FlashClient.patch<any>(`v1/flash/${id}/${type}`, payload);
