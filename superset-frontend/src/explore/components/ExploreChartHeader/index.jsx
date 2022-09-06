@@ -88,7 +88,6 @@ export const ExploreChartHeader = ({
 }) => {
   const { latestQueryFormData, sliceFormData } = chart;
   const [isPropertiesModalOpen, setIsPropertiesModalOpen] = useState(false);
-  console.log('actions in chart header==', actions);
 
   const fetchChartDashboardData = async () => {
     await SupersetClient.get({

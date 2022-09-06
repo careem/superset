@@ -35,10 +35,6 @@ import {
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-// import {
-//   addDangerToast,
-//   addSuccessToast,
-// } from 'src/components/MessageToasts/actions';
 import moment from 'moment';
 import { UPDATE_TYPES } from '../../constants';
 import withToasts from 'src/components/MessageToasts/withToasts';
@@ -139,7 +135,6 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    console.log(formData);
     if (formData) {
       setFormData(formData);
     }
@@ -151,7 +146,6 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
       'YYYY-MM-DD hh:mm:ss',
     );
     flashScheduleService(Number(flash?.id), UPDATE_TYPES.SCHEDULE, payload);
-    onHide();
   };
 
   const flashScheduleService = useCallback(
@@ -163,6 +157,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
               'Your flash object schedule has been updated. To see details of your flash, navigate to Flash Management',
             ),
           );
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
