@@ -164,6 +164,7 @@ const IconFileNames = [
   'category',
   'undo',
   'redo',
+  'switch_user'
 ];
 
 const iconOverrides: Record<string, React.FC> = {};

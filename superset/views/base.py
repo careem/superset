@@ -100,6 +100,10 @@ FRONTEND_CONF_KEYS = (
     "GLOBAL_ASYNC_QUERIES_WEBSOCKET_URL",
     "DASHBOARD_AUTO_REFRESH_MODE",
     "SCHEDULED_QUERIES",
+    "FLASH_CREATION",
+    "FLASH_TTL",
+    "FLASH_OWNERSHIP",
+    "FLASH_SCHEDULE",
     "EXCEL_EXTENSIONS",
     "CSV_EXTENSIONS",
     "COLUMNAR_EXTENSIONS",
@@ -295,7 +299,6 @@ class BaseSupersetView(BaseView):
 
 def menu_data() -> Dict[str, Any]:
     menu = appbuilder.menu.get_data()
-
     languages = {}
     for lang in appbuilder.languages:
         languages[lang] = {

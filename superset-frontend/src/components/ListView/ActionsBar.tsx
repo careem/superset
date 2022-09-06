@@ -27,6 +27,7 @@ export type ActionProps = {
   tooltip?: string | React.ReactElement;
   placement?: TooltipPlacement;
   icon: string;
+  // viewBox?: string;
   onClick: () => void;
 };
 

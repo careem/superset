@@ -55,7 +55,9 @@ from superset.advanced_data_type.plugins.internet_port import internet_port
 from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
-from superset.stats_logger import StatsdStatsLogger
+
+# from superset.stats_logger import StatsdStatsLogger
+from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.utils.core import is_test, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
@@ -71,7 +73,8 @@ if TYPE_CHECKING:
     from superset.models.core import Database
 
 # Realtime stats logger, a StatsD implementation exists
-STATS_LOGGER = StatsdStatsLogger()
+# STATS_LOGGER = StatsdStatsLogger()
+STATS_LOGGER = DummyStatsLogger()
 EVENT_LOGGER = DBEventLogger()
 
 SUPERSET_LOG_VIEW = True
@@ -242,60 +245,68 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
     # This information is collected when the user clicks "Schedule query",
     # and saved into the `extra` field of saved queries.
     # See: https://github.com/mozilla-services/react-jsonschema-form
-    'JSONSCHEMA': {
-        'title': 'Schedule',
-        'description': (
-            'In order to schedule a query, you need to specify when it '
-            'should start running, when it should stop running, and how '
-            'often it should run.'
+    "JSONSCHEMA": {
+        "title": "Schedule",
+        "description": (
+            "In order to schedule a query, you need to specify when it "
+            "should start running, when it should stop running, and how "
+            "often it should run."
         ),
-        'type': 'object',
-        'properties': {
-            'output_table': {
-                'type': 'string',
-                'title': 'Output table name',
+        "type": "object",
+        "properties": {
+            "output_table": {
+                "type": "string",
+                "title": "Output table name",
             },
-            'start_date': {
-                'type': 'string',
-                'title': 'Start date',
+            "start_date": {
+                "type": "string",
+                "title": "Start date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': 'tomorrow at 9am',
+                "format": "date-time",
+                "default": "tomorrow at 9am",
             },
-            'end_date': {
-                'type': 'string',
-                'title': 'End date',
+            "end_date": {
+                "type": "string",
+                "title": "End date",
                 # date-time is parsed using the chrono library, see
                 # https://www.npmjs.com/package/chrono-node#usage
-                'format': 'date-time',
-                'default': '9am in 30 days',
+                "format": "date-time",
+                "default": "9am in 30 days",
             },
-            'schedule_interval': {
-                'type': 'string',
-                'title': 'Schedule interval',
-                'enum': ['@hourly', '@daily', '@weekly', '@monthly', '@quaterly'],
-                'enumNames': ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quaterly'],
+            "schedule_interval": {
+                "type": "string",
+                "title": "Schedule interval",
+                "enum": ["@hourly", "@daily", "@weekly", "@monthly", "@quaterly"],
+                "enumNames": ["Hourly", "Daily", "Weekly", "Monthly", "Quaterly"],
             },
-            'slack_handle': {
-                'type': 'string',
-                'title': 'Slack Handle',
-                'pattern': '^(@)[A-Za-z0-9_-\\s&!]+$',
+            "slack_handle": {
+                "type": "string",
+                "title": "Slack Handle",
+                "pattern": "^(@)[A-Za-z0-9_-\\s&!]+$",
             },
         },
-        "required": ["output_table", "start_date", "end_date", "schedule_interval", "slack_handle"],
+        "required": [
+            "output_table",
+            "start_date",
+            "end_date",
+            "schedule_interval",
+            "slack_handle",
+        ],
     },
-    'VALIDATION': [
+    "VALIDATION": [
         # ensure that start_date <= end_date
         {
-            'name': 'less_equal',
-            'arguments': ['start_date', 'end_date'],
-            'message': 'End date cannot be before start date',
+            "name": "less_equal",
+            "arguments": ["start_date", "end_date"],
+            "message": "End date cannot be before start date",
             # this is where the error message is shown
-            'container': 'end_date',
+            "container": "end_date",
         },
-    ]
+    ],
 }
+
+FLASH_CREATION: Dict[str, Any] = {}
 
 # ------------------------------
 # GLOBALS FOR APP Builder
@@ -685,6 +696,287 @@ ALLOWED_EXTENSIONS = {*EXCEL_EXTENSIONS, *CSV_EXTENSIONS, *COLUMNAR_EXTENSIONS}
 # method.
 # note: index option should not be overridden
 CSV_EXPORT = {"encoding": "utf-8"}
+
+FLASH_CREATION = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "datastoreId": {
+                "title": "Target DB Name",
+                "type": "number",
+            },
+            "domainName": {"type": "string", "title": "Domain"},
+            "serviceName": {"type": "string", "title": "Service"},
+            "datasetName": {"type": "string", "title": "Dataset"},
+            "tableName": {
+                "type": "string",
+                "title": "Table Name",
+                "readOnly": True,
+            },
+            "flashType": {
+                "title": "Flash Type",
+                "type": "string",
+                "enum": ["", "One Time", "Short Term", "Long Term"],
+                "enumNames": [
+                    "Please Select",
+                    "One Time (Valid upto 7 days)",
+                    "Short Term (Valid upto 7 days)",
+                    "Long Term (Valid upto 90 days)",
+                ],
+                "default": "Please Select",
+            },
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "7 days from now",
+                "readOnly": True,
+            },
+        },
+        "required": [
+            "datastoreId",
+            "domainName",
+            "serviceName",
+            "datasetName",
+            "flashType",
+            "ttl",
+        ],
+        "dependencies": {
+            "flashType": {
+                "oneOf": [
+                    {
+                        "properties": {
+                            "flashType": {"enum": ["Long Term"]},
+                            "teamSlackChannel": {
+                                "type": "string",
+                                "title": "Slack Channel",
+                                "pattern": "^(#)[A-Za-z0-9_-]+$",
+                            },
+                            "teamSlackHandle": {
+                                "type": "string",
+                                "title": "Slack Handle",
+                                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
+                            },
+                            "scheduleType": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Hourly",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "scheduleStartTime": {
+                                "type": "string",
+                                "title": "Schedule Start Time (In UTC)",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": [
+                            "teamSlackChannel",
+                            "teamSlackHandle",
+                            "scheduleType",
+                            "scheduleStartTime",
+                        ],
+                    },
+                    {
+                        "properties": {
+                            "flashType": {"enum": ["Short Term"]},
+                            "scheduleType": {
+                                "title": "Schedule Type",
+                                "type": "string",
+                                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
+                                "enumNames": [
+                                    "Please Select",
+                                    "Hourly",
+                                    "Daily",
+                                    "Weekly",
+                                    "Monthly",
+                                ],
+                                "default": "Please Select",
+                            },
+                            "scheduleStartTime": {
+                                "type": "string",
+                                "title": "Schedule Start Time (In UTC)",
+                                "format": "date-time",
+                            },
+                        },
+                        "required": ["scheduleType", "scheduleStartTime"],
+                    },
+                ]
+            }
+        },
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "datastoreId",
+            "domainName",
+            "serviceName",
+            "datasetName",
+            "tableName",
+            "flashType",
+            "*",
+            "ttl",
+            "scheduleType",
+            "scheduleStartTime",
+        ],
+        "datastoreId": {"ui:help": "Database where the flash object is stored"},
+        "domainName": {"ui:help": "Name of the owning team"},
+        "serviceName": {"ui:help": "Careem Service for which the flash object is used"},
+        "datasetName": {"ui:help": "Flash dataset name"},
+        "tableName": {"ui:help": "Name of the flash object created"},
+        "teamSlackChannel": {
+            "ui:placeholder": "#slack_channel_name",
+            "ui:help": "Slack channel for notification",
+        },
+        "teamSlackHandle": {
+            "ui:placeholder": "@slack_handle_name",
+            "ui:help": "Slack handle for notification",
+        },
+        "ttl": {"ui:help": "Flash object validity"},
+        "scheduleType": {"ui:help": "Schedule type for the Flash object"},
+        "scheduleStartTime": {
+            "ui:help": "Start time from which the flash object is to be scheduled."
+        },
+    },
+    "VALIDATION": [],
+    # link to the scheduler; this example links to an Airflow pipeline
+    # that uses the query id and the output table as its name
+    "linkback": (
+        "https://airflow.example.com/admin/airflow/tree?"
+        "dag_id=query_${id}_${extra_json.schedule_info.output_table}"
+    ),
+}
+
+FLASH_OWNERSHIP = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "teamSlackChannel": {
+                "type": "string",
+                "title": "Slack Channel",
+                "pattern": "^(#)[A-Za-z0-9_-]+$",
+            },
+            "teamSlackHandle": {
+                "type": "string",
+                "title": "Slack Handle",
+                "pattern": "^(@)[A-Za-z0-9_-\\s]+$",
+            },
+            "ownershipType": {
+                "type": "boolean",
+                "title": "Assign to me",
+                "enum": [True, False],
+                "default": False,
+            },
+            "owner": {"type": "string", "title": "Owner Email", "format": "email"},
+        },
+        "required": [
+            "teamSlackChannel",
+            "teamSlackHandle",
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "teamSlackChannel",
+            "teamSlackHandle",
+            "ownershipType",
+            "owner",
+        ],
+        "teamSlackChannel": {
+            "ui:placeholder": "#slack_channel_name",
+            "ui:help": "Slack channel for notification",
+        },
+        "teamSlackHandle": {
+            "ui:placeholder": "@slack_handle_name",
+            "ui:help": "Slack handle for notification",
+        },
+        "owner": {
+            "ui:placeholder": "abc@abc.com",
+            "ui:help": "The email to whom the ownership should be transferred",
+        },
+    },
+    "VALIDATION": [],
+}
+
+FLASH_TTL = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "ttl": {
+                "type": "string",
+                "title": "TTL",
+                "format": "date",
+                "default": "7 days from now",
+            },
+        },
+        "required": ["ttl"],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "ttl",
+        ],
+        "ttl": {"ui:help": "Flash object validity"},
+    },
+    "VALIDATION": [],
+}
+
+FLASH_SCHEDULE = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "scheduleType": {
+                "title": "Schedule Type",
+                "type": "string",
+                "enum": ["", "Hourly", "Daily", "Weekly", "Monthly"],
+                "enumNames": [
+                    "Please Select",
+                    "Hourly",
+                    "Daily",
+                    "Weekly",
+                    "Monthly",
+                ],
+                "default": "Please Select",
+            },
+            "scheduleStartTime": {
+                "type": "string",
+                "title": "Schedule Start Time (In UTC)",
+                "format": "date-time",
+            },
+        },
+        "required": [
+            "scheduleType",
+            "scheduleStartTime",
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "scheduleType",
+            "scheduleStartTime",
+        ],
+        "scheduleType": {"ui:help": "Schedule type for the Flash object"},
+        "scheduleStartTime": {
+            "ui:help": "Start time from which the flash object is to be scheduled"
+        },
+    },
+    "VALIDATION": [],
+}
+
 
 # ---------------------------------------------------
 # Time grain configurations

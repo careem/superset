@@ -40,9 +40,18 @@ setupApp();
 setupPlugins();
 
 const user = { ...bootstrapData.user };
-const menu = {
+let menu = {
   ...bootstrapData.common.menu_data,
 };
+
+// let menuItem = {
+//   name: 'Flash Management',
+//   label: 'Flash Management',
+//   url: '/flashmanagement/list/',
+// };
+
+// menu['menu'].push(menuItem);
+
 let lastLocationPathname: string;
 
 const LocationPathnameLogger = () => {

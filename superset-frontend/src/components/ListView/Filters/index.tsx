@@ -33,6 +33,7 @@ import {
 import SearchFilter from './Search';
 import SelectFilter from './Select';
 import DateRangeFilter from './DateRange';
+import DateFilter from './Date'
 import { FilterHandler } from './Base';
 
 interface UIFiltersProps {
@@ -97,6 +98,18 @@ function UIFilters(
           if (input === 'datetime_range') {
             return (
               <DateRangeFilter
+                ref={filterRefs[index]}
+                Header={Header}
+                initialValue={initialValue}
+                key={id}
+                name={id}
+                onSubmit={value => updateFilterValue(index, value)}
+              />
+            );
+          }
+          if (input === 'date') {
+            return (
+              <DateFilter
                 ref={filterRefs[index]}
                 Header={Header}
                 initialValue={initialValue}

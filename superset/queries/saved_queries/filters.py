@@ -69,5 +69,6 @@ class SavedQueryFilter(BaseFilter):  # pylint: disable=too-few-public-methods
             return query.filter()
         else:
             return query.filter(
-                SavedQuery.created_by == g.user  # pylint: disable=comparison-with-callable
+                SavedQuery.created_by
+                == g.user  # pylint: disable=comparison-with-callable
             )

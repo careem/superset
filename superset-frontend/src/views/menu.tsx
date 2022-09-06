@@ -36,7 +36,16 @@ const store = setupStore(true);
 const container = document.getElementById('app');
 const bootstrapJson = container?.getAttribute('data-bootstrap') ?? '{}';
 const bootstrap = JSON.parse(bootstrapJson);
-const menu = { ...bootstrap.common.menu_data };
+
+let menu = { ...bootstrap.common.menu_data };
+
+// let menuItem = {
+//   name: 'Flash Management',
+//   label: 'Flash Management',
+//   url: '/flashmanagement/list/',
+// };
+
+// menu['menu'].push(menuItem);
 
 const emotionCache = createCache({
   key: 'menu',

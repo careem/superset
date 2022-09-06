@@ -240,7 +240,7 @@ class Database(
             "parameters": self.parameters,
             "disable_data_preview": self.disable_data_preview,
             "parameters_schema": self.parameters_schema,
-            "has_catalogs": self.has_catalogs
+            "has_catalogs": self.has_catalogs,
         }
 
     @property
@@ -658,7 +658,9 @@ class Database(
         :param catalog_name: catalog name from the database
         :return: catalog list
         """
-        return self.db_engine_spec.get_all_catalog_schema_names(self.inspector, catalog_name)
+        return self.db_engine_spec.get_all_catalog_schema_names(
+            self.inspector, catalog_name
+        )
 
     @cache_util.memoized_func(
         key=lambda self, *args, **kwargs: f"db:{self.id}:catalog_list",

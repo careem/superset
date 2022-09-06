@@ -24,7 +24,7 @@ import Welcome from 'src/views/CRUD/welcome/Welcome';
 const ExtentedSliceContainer = lazy(
   () =>
     import(
-      /* webpackChunkName: "ExtendedSliceContainer.tsx" */ 'src/addSlice/ExtendedSliceContainer.tsx'
+      /* webpackChunkName: "ExtendedSliceContainer.tsx" */ 'src/addSlice/ExtendedSliceContainer'
     ),
 );
 const AnnotationLayersList = lazy(
@@ -49,6 +49,12 @@ const ChartList = lazy(
   () =>
     import(
       /* webpackChunkName: "ChartList" */ 'src/views/CRUD/chart/ChartList'
+    ),
+);
+const FlashList = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "FlashList" */ 'src/views/CRUD/FlashManagement/components/FlashGrid/FlashList'
     ),
 );
 const CssTemplatesList = lazy(
@@ -130,6 +136,10 @@ export const routes: Routes = [
   {
     path: '/chart/list/',
     Component: ChartList,
+  },
+  {
+    path: '/flashmanagement/list/',
+    Component: FlashList,
   },
   {
     path: '/tablemodelview/list/',
