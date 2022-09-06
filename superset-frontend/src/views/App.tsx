@@ -44,13 +44,13 @@ let menu = {
   ...bootstrapData.common.menu_data,
 };
 
-let menuItem = {
-  name: 'Flash',
-  label: 'Flash',
-  url: '/flash/list/',
-};
+// let menuItem = {
+//   name: 'Flash',
+//   label: 'Flash',
+//   url: '/flash/list/',
+// };
 
-menu['menu'].push(menuItem);
+// menu['menu'].push(menuItem);
 
 let lastLocationPathname: string;
 
