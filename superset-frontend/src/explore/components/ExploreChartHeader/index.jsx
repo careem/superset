@@ -35,7 +35,7 @@ import Icons from 'src/components/Icons';
 import PropertiesModal from 'src/explore/components/PropertiesModal';
 import { sliceUpdated } from 'src/explore/actions/exploreActions';
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
-import FlashCreationButton from 'src/views/CRUD/FlashManagement/components/FlashCreationButton/FlashCreationButton';
+import FlashCreationButton from 'src/views/CRUD/flash/components/FlashCreationButton/FlashCreationButton';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 
 const propTypes = {

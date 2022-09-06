@@ -22,7 +22,7 @@ import Button from 'src/components/Button';
 import {
   FlashServiceObject,
   FlashUpdateQuery,
-} from 'src/views/CRUD/FlashManagement/types';
+} from 'src/views/CRUD/flash/types';
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';

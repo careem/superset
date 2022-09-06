@@ -43,7 +43,6 @@ import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 import { TooltipPlacement } from 'antd/lib/tooltip';
-import { action } from '@storybook/addon-actions';
 
 const PAGE_SIZE = 25;
 
