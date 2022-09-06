@@ -35,11 +35,8 @@ import {
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -64,6 +61,8 @@ interface FlashOwnershipButtonProps {
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -113,6 +112,8 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
@@ -182,7 +183,6 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
       delete payload.ownershipType;
     }
     flashOwnershipService(Number(flash?.id), UPDATE_TYPES.OWNER, payload);
-    onHide();
   };
 
   const flashOwnershipService = useCallback(
@@ -194,6 +194,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
               'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
             ),
           );
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
@@ -252,4 +253,4 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   );
 };
 
-export default FlashOwnership;
+export default withToasts(FlashOwnership);

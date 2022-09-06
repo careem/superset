@@ -35,11 +35,8 @@ import {
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -60,6 +57,8 @@ interface FlashExtendTTLButtonProps {
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -109,6 +108,8 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
@@ -136,7 +137,6 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
     flashTtlService(Number(flash?.id), UPDATE_TYPES.TTL, payload);
-    onHide();
   };
 
   const flashTtlService = useCallback(
@@ -148,6 +148,7 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
               'Your flash object ttl has been extended. To see details of your flash, navigate to Flash Management',
             ),
           );
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
@@ -202,4 +203,4 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   );
 };
 
-export default FlashExtendTTL;
+export default withToasts(FlashExtendTTL);

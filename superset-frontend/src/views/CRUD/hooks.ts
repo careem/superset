@@ -308,7 +308,6 @@ export function useFlashListViewResource<D extends object = any>(
       return fetchUsers(queryParams)
         .then(
           (json = {}) => {
-            console.log('results', json);
             updateState({
               collection: json?.data.results as D[],
               count: json?.data?.totalCount,

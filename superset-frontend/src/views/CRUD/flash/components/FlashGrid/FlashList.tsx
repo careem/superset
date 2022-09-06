@@ -87,8 +87,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const [savedQueryCurrentlyPreviewing, setSavedQueryCurrentlyPreviewing] =
     useState<SavedQueryObject | null>(null);
 
-  console.log('current User==', user);
-
   useEffect(() => {
     fetchDatabaseDropdown();
   }, []);
