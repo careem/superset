@@ -138,7 +138,7 @@ export const routes: Routes = [
     Component: ChartList,
   },
   {
-    path: '/flashmanagement/list/',
+    path: '/flash/list/',
     Component: FlashList,
   },
   {
