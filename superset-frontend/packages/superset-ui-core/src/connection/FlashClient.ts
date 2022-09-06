@@ -31,8 +31,13 @@ const headers: Readonly<Record<string, string | boolean>> = {
   'Content-Type': 'application/json; charset=utf-8',
   'Access-Control-Allow-Credentials': true,
   'X-Requested-With': 'XMLHttpRequest',
+  'Access-Control-Allow-Origin' : "*"
+
 };
 
+// 'Access-Control-Allow-Origin' : '*',
+// 'Access-Control-Allow-Headers':'content-type, access-control-allow-credentials,x-requested-with',
+// 'access-control-allow-methods' : 'PUT, GET, HEAD, POST, DELETE, OPTIONS, PATCH'
 // We can use the following function to inject the JWT token through an interceptor
 // We get the `accessToken` from the localStorage that we set when we authenticate
 

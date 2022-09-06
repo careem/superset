@@ -112,7 +112,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         setDatabaseDropdown(dropdown);
       },
       createErrorHandler(errMsg =>
-        addDangerToast(t('There was an issue deleting %s', errMsg)),
+        addDangerToast(t('There was an issue getting Databases %s', errMsg)),
       ),
     );
   };

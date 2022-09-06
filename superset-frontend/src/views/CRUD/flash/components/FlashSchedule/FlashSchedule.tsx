@@ -35,12 +35,13 @@ import {
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
+// import {
+//   addDangerToast,
+//   addSuccessToast,
+// } from 'src/components/MessageToasts/actions';
 import moment from 'moment';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -61,6 +62,8 @@ interface FlashSchedulingButtonProps {
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -110,6 +113,8 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [formData, setFormData] = useState<FlashUpdateSchedule>({
@@ -216,4 +221,4 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   );
 };
 
-export default FlashSchedule;
+export default withToasts(FlashSchedule);
