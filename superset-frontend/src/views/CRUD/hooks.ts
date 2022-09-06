@@ -317,7 +317,7 @@ export function useFlashListViewResource<D extends object = any>(
           createErrorHandler(errMsg =>
             handleErrorMsg(
               t(
-                'An error occurred while fetching %ss: %s',
+                'An error occurred while fetching %s: %s',
                 resourceLabel,
                 errMsg,
               ),
