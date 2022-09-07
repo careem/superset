@@ -152,11 +152,7 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your flash object schedule has been updated. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your flash object schedule has been updated.'));
           onHide();
           refreshData();
         },
