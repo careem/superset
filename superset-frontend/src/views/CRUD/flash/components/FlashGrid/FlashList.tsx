@@ -177,11 +177,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         accessor: 'datastoreId',
         size: 'l',
       },
-      // {
-      //   accessor: 'datastoreId',
-      //   Header: t('Database name'),
-      //   size: 'l',
-      // },
       {
         accessor: 'tableName',
         Header: t('Flash Name'),
@@ -199,11 +194,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         accessor: 'flashType',
         size: 'l',
       },
-      // {
-      //   accessor: 'flashType',
-      //   Header: t('Flash Type'),
-      //   size: 'l',
-      // },
       {
         accessor: 'ttl',
         Header: t('TTL'),
