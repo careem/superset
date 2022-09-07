@@ -89,11 +89,7 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your sql query has been modified. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your sql query has been modified.'));
           onHide();
           refreshData();
         },

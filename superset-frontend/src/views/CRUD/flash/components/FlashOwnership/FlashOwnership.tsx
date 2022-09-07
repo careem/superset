@@ -189,11 +189,7 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your flash object ownership has been changed.'));
           onHide();
           refreshData();
         },

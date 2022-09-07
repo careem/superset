@@ -162,20 +162,48 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const columns = useMemo(
     () => [
       {
+        Cell: ({
+          row: {
+            original: { datastoreId: id },
+          },
+        }: any) => {
+          if (databaseDropdown && databaseDropdown.length > 0) {
+            return databaseDropdown.find(item => item.value == id).label;
+          } else {
+            return id;
+          }
+        },
+        Header: t('Database Name'),
         accessor: 'datastoreId',
-        Header: t('Database name'),
         size: 'l',
       },
+      // {
+      //   accessor: 'datastoreId',
+      //   Header: t('Database name'),
+      //   size: 'l',
+      // },
       {
         accessor: 'tableName',
         Header: t('Flash Name'),
         size: 'l',
       },
       {
-        accessor: 'flashType',
+        Cell: ({
+          row: {
+            original: { flashType: flash_Type },
+          },
+        }: any) => {
+          return flash_Type.replace(/([A-Z])/g, ' $1').trim();
+        },
         Header: t('Flash Type'),
+        accessor: 'flashType',
         size: 'l',
       },
+      // {
+      //   accessor: 'flashType',
+      //   Header: t('Flash Type'),
+      //   size: 'l',
+      // },
       {
         accessor: 'ttl',
         Header: t('TTL'),
@@ -276,7 +304,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
         disableSortBy: true,
       },
     ],
-    [],
+    [databaseDropdown],
   );
 
   const filters: Filters = useMemo(
