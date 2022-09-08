@@ -19,8 +19,8 @@
 import React, {
   FunctionComponent,
   useState,
-  useCallback,
   useEffect,
+  useCallback,
 } from 'react';
 import SchemaForm from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
@@ -28,39 +28,37 @@ import { t, styled } from '@superset-ui/core';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import {
+  FlashExtendTtl,
   FlashServiceObject,
-  FlashUpdateSchedule,
   FormErrors,
-} from 'src/views/CRUD/FlashManagement/types';
+} from 'src/views/CRUD/flash/types';
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
-import moment from 'moment';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-const flashScheduleConf = bootstrapData?.common?.conf?.FLASH_SCHEDULE;
+const flashTTLConf = bootstrapData?.common?.conf?.FLASH_TTL;
 
 const getJSONSchema = () => {
-  const jsonSchema = flashScheduleConf?.JSONSCHEMA;
+  const jsonSchema = flashTTLConf?.JSONSCHEMA;
   return jsonSchema;
 };
 
-const getUISchema = () => flashScheduleConf?.UISCHEMA;
+const getUISchema = () => flashTTLConf?.UISCHEMA;
 
-interface FlashSchedulingButtonProps {
+interface FlashExtendTTLButtonProps {
   flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -105,24 +103,23 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
+const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   flash,
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
-  const [formData, setFormData] = useState<FlashUpdateSchedule>({
-    scheduleType: '',
-    scheduleStartTime: '',
+
+  const [formData, setFormData] = useState<FlashExtendTtl>({
+    ttl: '',
   });
 
   useEffect(() => {
     if (flash) {
-      formData.scheduleType = flash?.scheduleType ? flash?.scheduleType : '';
-      formData.scheduleStartTime = flash?.scheduleStartTime
-        ? new Date(flash?.scheduleStartTime).toISOString()
-        : '';
+      formData.ttl = flash?.ttl ? flash?.ttl : '';
     }
   }, []);
 
@@ -134,38 +131,25 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    console.log(formData);
-    if (formData) {
-      setFormData(formData);
-    }
+    setFormData(formData);
   };
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    payload.scheduleStartTime = moment(payload.scheduleStartTime).format(
-      'YYYY-MM-DD hh:mm:ss',
-    );
-    flashScheduleService(Number(flash?.id), UPDATE_TYPES.SCHEDULE, payload);
-    onHide();
+    flashTtlService(Number(flash?.id), UPDATE_TYPES.TTL, payload);
   };
 
-  const flashScheduleService = useCallback(
+  const flashTtlService = useCallback(
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your flash object schedule has been updated. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your flash object ttl has been extended.'));
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
           addDangerToast(
-            t(
-              'There was an issue changing the schedule of the Flash %s',
-              errMsg,
-            ),
+            t('There was an issue extending the ttl of your Flash %s', errMsg),
           ),
         ),
       );
@@ -204,10 +188,9 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   return (
     <div role="none">
       <StyledModal
-        draggable={true}
         onHide={onHide}
         show={show}
-        title={t('Update Schedule')}
+        title={t('Update TTL')}
         footer={<></>}
       >
         {renderModalBody()}
@@ -216,4 +199,4 @@ const FlashSchedule: FunctionComponent<FlashSchedulingButtonProps> = ({
   );
 };
 
-export default FlashSchedule;
+export default withToasts(FlashExtendTTL);

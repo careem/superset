@@ -19,8 +19,8 @@
 import React, {
   FunctionComponent,
   useState,
-  useEffect,
   useCallback,
+  useEffect,
 } from 'react';
 import SchemaForm from 'react-jsonschema-form';
 import { Row, Col } from 'src/components';
@@ -28,38 +28,41 @@ import { t, styled } from '@superset-ui/core';
 import { Form } from 'src/components/Form';
 import Button from 'src/components/Button';
 import {
-  FlashExtendTtl,
   FlashServiceObject,
+  FlashUpdateOwnership,
   FormErrors,
-} from 'src/views/CRUD/FlashManagement/types';
+} from 'src/views/CRUD/flash/types';
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
   appContainer?.getAttribute('data-bootstrap') || '{}',
 );
 
-const flashTTLConf = bootstrapData?.common?.conf?.FLASH_TTL;
+const { user } = JSON.parse(
+  appContainer?.getAttribute('data-bootstrap') || '{}',
+);
+
+const flashOwnershipConf = bootstrapData?.common?.conf?.FLASH_OWNERSHIP;
 
 const getJSONSchema = () => {
-  const jsonSchema = flashTTLConf?.JSONSCHEMA;
+  const jsonSchema = flashOwnershipConf?.JSONSCHEMA;
   return jsonSchema;
 };
 
-const getUISchema = () => flashTTLConf?.UISCHEMA;
+const getUISchema = () => flashOwnershipConf?.UISCHEMA;
 
-interface FlashExtendTTLButtonProps {
+interface FlashOwnershipButtonProps {
   flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -104,55 +107,98 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
+const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
   flash,
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
 
-  const [formData, setFormData] = useState<FlashExtendTtl>({
-    ttl: '',
+  const [formData, setFormData] = useState<FlashUpdateOwnership>({
+    teamSlackChannel: '',
+    teamSlackHandle: '',
+    owner: '',
   });
 
   useEffect(() => {
     if (flash) {
-      formData.ttl = flash?.ttl ? flash?.ttl : '';
+      formData.teamSlackChannel = flash?.teamSlackChannel
+        ? flash?.teamSlackChannel
+        : '';
+      formData.teamSlackHandle = flash?.teamSlackHandle
+        ? flash?.teamSlackHandle
+        : '';
     }
   }, []);
 
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
+      if (error.name === 'pattern') {
+        if (error.property === '.teamSlackChannel') {
+          newError.message = 'Slack Channel must start with #';
+        }
+        if (error.property === '.teamSlackHandle') {
+          newError.message = 'Slack Handle must start with @';
+        }
+      }
       return newError;
     });
 
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
-    setFormData(formData);
+    let jsonSchema = { ...flashSchema };
+    if (formData) {
+      if (formData.ownershipType) {
+        formData.owner = user?.email;
+      } else {
+        if (formData.owner == user?.email) {
+          formData.owner = '';
+        }
+      }
+      if (jsonSchema) {
+        Object.entries(jsonSchema.properties).forEach(
+          ([key, value]: [string, any]) => {
+            if (value)
+              if (key === 'owner') {
+                jsonSchema.properties[key] = {
+                  ...value,
+                  readOnly: formData.ownershipType,
+                };
+              }
+          },
+        );
+      }
+      setFlashSchema(jsonSchema);
+      setFormData(formData);
+    }
   };
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
-    flashTtlService(Number(flash?.id), UPDATE_TYPES.TTL, payload);
-    onHide();
+    if (payload.ownershipType === true || payload.ownershipType === false) {
+      delete payload.ownershipType;
+    }
+    flashOwnershipService(Number(flash?.id), UPDATE_TYPES.OWNER, payload);
   };
 
-  const flashTtlService = useCallback(
+  const flashOwnershipService = useCallback(
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your flash object ttl has been extended. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your flash object ownership has been changed.'));
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
           addDangerToast(
-            t('There was an issue extending the ttl of your Flash %s', errMsg),
+            t(
+              'There was an issue changing the ownership of the Flash %s',
+              errMsg,
+            ),
           ),
         ),
       );
@@ -191,9 +237,10 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   return (
     <div role="none">
       <StyledModal
+        draggable={true}
         onHide={onHide}
         show={show}
-        title={t('Update TTL')}
+        title={t('Update Ownership')}
         footer={<></>}
       >
         {renderModalBody()}
@@ -202,4 +249,4 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   );
 };
 
-export default FlashExtendTTL;
+export default withToasts(FlashOwnership);

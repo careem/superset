@@ -22,22 +22,21 @@ import Button from 'src/components/Button';
 import {
   FlashServiceObject,
   FlashUpdateQuery,
-} from 'src/views/CRUD/FlashManagement/types';
+} from 'src/views/CRUD/flash/types';
 import Modal from 'src/components/Modal';
 import { updateFlash } from '../../services/flash.service';
 import { createErrorHandler } from 'src/views/CRUD/utils';
-import {
-  addDangerToast,
-  addSuccessToast,
-} from 'src/components/MessageToasts/actions';
 import Editor from '@monaco-editor/react';
 import { UPDATE_TYPES } from '../../constants';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 interface FlashQueryButtonProps {
   flash: FlashServiceObject;
   show: boolean;
   onHide: () => void;
   refreshData: () => void;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledModal = styled(Modal)`
@@ -62,6 +61,8 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
   onHide,
   show,
   refreshData,
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [formData, setFormData] = useState<FlashUpdateQuery>({
     sqlQuery: flash?.sqlQuery,
@@ -82,18 +83,14 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
   const onFlashUpdation = (formData: FlashUpdateQuery) => {
     const payload = { ...formData };
     flashSqlQueryService(Number(flash?.id), UPDATE_TYPES.SQL, payload);
-    onHide();
   };
 
   const flashSqlQueryService = useCallback(
     (id, type, payload) => {
       updateFlash(id, type, payload).then(
         () => {
-          addSuccessToast(
-            t(
-              'Your flash object ownership has been changed. To see details of your flash, navigate to Flash Management',
-            ),
-          );
+          addSuccessToast(t('Your sql query has been modified.'));
+          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
@@ -147,4 +144,4 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
   );
 };
 
-export default FlashQuery;
+export default withToasts(FlashQuery);

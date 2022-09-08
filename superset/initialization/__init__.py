@@ -152,7 +152,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             AnnotationModelView,
         )
         from superset.views.api import Api
-        from superset.views.flash.views import Flashmanagement
+        from superset.views.flash.views import Flash
         from superset.views.chart.views import SliceAsync, SliceModelView
         from superset.views.core import Superset
         from superset.views.css_templates import (
@@ -309,7 +309,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(TabStateView)
         appbuilder.add_view_no_menu(TagView)
         appbuilder.add_view_no_menu(ReportView)
-        appbuilder.add_view_no_menu(Flashmanagement)
+        appbuilder.add_view_no_menu(Flash)
 
         #
         # Add links
@@ -369,9 +369,9 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_icon="fa-table",
         )
         appbuilder.add_link(
-            "Flash Management",
-            label=__("Flash Management"),
-            href="/flashmanagement/list/",
+            "Flash",
+            label=__("Flash"),
+            href="/flash/list/",
             icon="fa-table",
         )
 

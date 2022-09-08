@@ -33,7 +33,7 @@ import copyTextToClipboard from 'src/utils/copy';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import SupersetText from 'src/utils/textUtils';
 import { FavoriteStatus, ImportResourceName, DatabaseObject } from './types';
-import { fetchUsers } from './FlashManagement/services/flash.service';
+import { fetchUsers } from './flash/services/flash.service';
 
 interface ListViewResourceState<D extends object = any> {
   loading: boolean;
@@ -47,14 +47,14 @@ interface ListViewResourceState<D extends object = any> {
 
 let flashResults = [
   {
-    target_table_name:'food_orders_groceries',
+    target_table_name: 'food_orders_groceries',
     teamSlackHandle: '@Samra Hanif',
   },
   {
-    target_table_name:'food_orders_groceries',
+    target_table_name: 'food_orders_groceries',
     teamSlackHandle: '@Samra Hanif',
   },
-]
+];
 
 const parsedErrorMessage = (
   errorMessage: Record<string, string[] | string> | string,
@@ -233,7 +233,6 @@ interface FlashListViewResourceState<D extends object = any> {
   lastFetched?: string;
 }
 
-
 export function useFlashListViewResource<D extends object = any>(
   resource: string,
   resourceLabel: string, // resourceLabel for translations
@@ -294,21 +293,21 @@ export function useFlashListViewResource<D extends object = any>(
           value:
             value && typeof value === 'object' && 'value' in value
               ? value.value
-              : value
+              : value,
         }));
 
-        let filtersConcatenated = filterExps.reduce( (acc,val) => {
-          if(val.value){
-            acc += '&' + val.col + '=' + val.value
-          }
-          return acc
-        },'')
-        let offset = Number(pageIndex) + 1
-        let queryParams = 'limit=' + pageSize + '&offset=' + offset + filtersConcatenated
+      let filtersConcatenated = filterExps.reduce((acc, val) => {
+        if (val.value) {
+          acc += '&' + val.col + '=' + val.value;
+        }
+        return acc;
+      }, '');
+      let offset = Number(pageIndex) + 1;
+      let queryParams =
+        'limit=' + pageSize + '&offset=' + offset + filtersConcatenated;
       return fetchUsers(queryParams)
         .then(
           (json = {}) => {
-            console.log('results', json)
             updateState({
               collection: json?.data.results as D[],
               count: json?.data?.totalCount,
@@ -318,7 +317,7 @@ export function useFlashListViewResource<D extends object = any>(
           createErrorHandler(errMsg =>
             handleErrorMsg(
               t(
-                'An error occurred while fetching %ss: %s',
+                'An error occurred while fetching %s: %s',
                 resourceLabel,
                 errMsg,
               ),

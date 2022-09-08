@@ -45,9 +45,9 @@ let menu = {
 };
 
 // let menuItem = {
-//   name: 'Flash Management',
-//   label: 'Flash Management',
-//   url: '/flashmanagement/list/',
+//   name: 'Flash',
+//   label: 'Flash',
+//   url: '/flash/list/',
 // };
 
 // menu['menu'].push(menuItem);

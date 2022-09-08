@@ -32,12 +32,8 @@ import {
 import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
-import { FlashTypes } from 'src/views/CRUD/FlashManagement/enums';
-import {
-  FlashObject,
-  FormErrors,
-  Dropdown,
-} from 'src/views/CRUD/FlashManagement/types';
+import { FlashTypes } from 'src/views/CRUD/flash/enums';
+import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/flash/types';
 import moment from 'moment';
 import { fetchDatabases } from '../../services/flash.service';
 
