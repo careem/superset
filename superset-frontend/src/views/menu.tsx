@@ -39,14 +39,6 @@ const bootstrap = JSON.parse(bootstrapJson);
 
 let menu = { ...bootstrap.common.menu_data };
 
-let menuItem = {
-  name: 'Flash',
-  label: 'Flash',
-  url: '/flash/list/',
-};
-
-menu['menu'].push(menuItem);
-
 const emotionCache = createCache({
   key: 'menu',
 });
