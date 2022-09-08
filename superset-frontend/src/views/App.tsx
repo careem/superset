@@ -44,6 +44,17 @@ let menu = {
   ...bootstrapData.common.menu_data,
 };
 
+<<<<<<< HEAD
+=======
+let menuItem = {
+  name: 'Flash',
+  label: 'Flash',
+  url: '/flash/list/',
+};
+
+menu['menu'].push(menuItem);
+
+>>>>>>> 897d0ee44641f6480e9a467e6e6da220a35f17f7
 let lastLocationPathname: string;
 
 const LocationPathnameLogger = () => {
