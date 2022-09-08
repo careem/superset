@@ -108,13 +108,9 @@ RUN cd /app \
         && pip install -e . \
         && flask fab babel-compile --target superset/translations
 
-COPY ./secrets.sh /usr/bin/
 COPY ./docker/run-server.sh /usr/bin/
 
-RUN chmod a+x /usr/bin/secrets.sh
 RUN chmod a+x /usr/bin/run-server.sh
-
-CMD /usr/bin/secrets.sh
 
 WORKDIR /app
 
