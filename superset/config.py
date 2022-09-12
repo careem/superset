@@ -878,7 +878,7 @@ FLASH_OWNERSHIP = {
                 "enum": [True, False],
                 "default": False,
             },
-            "owner": {"type": "string", "title": "Owner Email", "format": "email"},
+            "owner": {"type": "string", "title": "Owner Email", "format": "email", "pattern": "[a-z0-9]+@careem.com"},
         },
         "required": [
             "teamSlackChannel",

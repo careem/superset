@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- import React, {
+import React, {
   useState,
   useMemo,
   forwardRef,
@@ -28,7 +28,6 @@ import { DatePicker } from 'src/components/DatePicker';
 import { FormLabel } from 'src/components/Form';
 import { BaseFilter, FilterHandler } from './Base';
 import { SELECT_WIDTH } from 'src/components/ListView/utils';
-
 
 interface DateFilterProps extends BaseFilter {
   onSubmit: (val: ValueState) => void;
@@ -42,7 +41,7 @@ const DateFilterContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  width: ${SELECT_WIDTH}px;
+  width: 150px;
 `;
 
 function DateFilter(
@@ -70,7 +69,7 @@ function DateFilter(
             return;
           }
           setValue(momentRange);
-          onSubmit(moment(momentRange).format("YYYY-MM-DD"));
+          onSubmit(moment(momentRange).format('YYYY-MM-DD'));
         }}
       />
     </DateFilterContainer>
