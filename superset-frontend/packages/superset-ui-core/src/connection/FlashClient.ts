@@ -29,10 +29,10 @@ enum StatusCode {
 const headers: Readonly<Record<string, string | boolean>> = {
   Accept: 'application/json',
   'Content-Type': 'application/json; charset=utf-8',
-  'Access-Control-Allow-Credentials': true,
-  'X-Requested-With': 'XMLHttpRequest',
-  'Access-Control-Allow-Origin' : "*"
-
+  // 'Access-Control-Allow-Credentials': true,
+  // 'X-Requested-With': 'XMLHttpRequest',
+  // 'Access-Control-Allow-Origin': 'http://localhost:8088',
+  // 'Access-Control-Allow-Methods': 'PUT, GET, HEAD, POST, DELETE, OPTIONS',
 };
 
 // 'Access-Control-Allow-Origin' : '*',
