@@ -368,8 +368,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("Data"),
             category_icon="fa-table",
         )
-        appbuilder.add_view(
-            Flash,
+        appbuilder.add_link(
             "Flash",
             label=__("Flash"),
             href="/flash/list/",
