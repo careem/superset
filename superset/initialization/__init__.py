@@ -368,11 +368,12 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("Data"),
             category_icon="fa-table",
         )
-        appbuilder.add_link(
+        appbuilder.add_view(
+            Flash,
             "Flash",
             label=__("Flash"),
-            href="/flash/list/",
             icon="fa-table",
+            href="/flash/list"
         )
 
         appbuilder.add_separator("Data")
