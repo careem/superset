@@ -144,6 +144,9 @@ const FlashOwnership: FunctionComponent<FlashOwnershipButtonProps> = ({
         if (error.property === '.teamSlackHandle') {
           newError.message = 'Slack Handle must start with @';
         }
+        if (error.property === '.owner') {
+          newError.message = 'The email must contain @careem.com';
+        }
       }
       return newError;
     });
