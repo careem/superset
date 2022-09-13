@@ -190,6 +190,18 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
   }, [JSON.stringify(latestQueryFormData)]);
 
+  const validate = (formData: any, errors: any) => {
+    if (
+      Date.parse(formData.scheduleStartTime) <
+      Date.parse(new Date().toISOString())
+    ) {
+      errors.scheduleStartTime.addError(
+        'Schedule Start Time can be tomorrow or onwards',
+      );
+    }
+    return errors;
+  };
+
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
       const newError = { ...error };
@@ -303,6 +315,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
               uiSchema={getUISchema()}
               onSubmit={onFlashCreationSubmit}
               transformErrors={transformErrors}
+              validate={validate}
               onChange={e => onFieldChange(e.formData)}
             >
               <Button
