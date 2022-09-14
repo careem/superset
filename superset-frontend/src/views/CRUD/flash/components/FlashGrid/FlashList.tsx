@@ -271,7 +271,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               icon: 'Edit',
               onClick: handleChangeCost,
             },
-            (original?.owner === user?.email || user?.roles?.Admin) && {
+            original?.owner === user?.email && {
               label: 'delete-action',
               tooltip: t('Delete Flash'),
               placement: 'bottom' as TooltipPlacement,
