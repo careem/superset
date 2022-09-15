@@ -269,7 +269,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           formData.datasetName,
         ]
           .filter(val => val != null)
-          .join('__');
+          .join('_');
       }
       setFormData(formData);
     }
