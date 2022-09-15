@@ -43,6 +43,7 @@ import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 import { TooltipPlacement } from 'antd/lib/tooltip';
+import { FlashTypesEnum } from '../../enums';
 
 const PAGE_SIZE = 25;
 
@@ -250,13 +251,14 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
               icon: 'SwitchUser',
               onClick: handleChangeOwnership,
             },
-            (original?.owner === user?.email || user?.roles?.Admin) && {
-              label: 'copy-action',
-              tooltip: t('Change Schedule'),
-              placement: 'bottom' as TooltipPlacement,
-              icon: 'Calendar',
-              onClick: handleChangeSchedule,
-            },
+            original?.flashType !== FlashTypesEnum.ONE_TIME &&
+              (original?.owner === user?.email || user?.roles?.Admin) && {
+                label: 'copy-action',
+                tooltip: t('Change Schedule'),
+                placement: 'bottom' as TooltipPlacement,
+                icon: 'Calendar',
+                onClick: handleChangeSchedule,
+              },
             (original?.owner === user?.email || user?.roles?.Admin) && {
               label: 'copy-action',
               tooltip: t('Update Sql Query'),
