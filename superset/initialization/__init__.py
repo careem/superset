@@ -372,8 +372,8 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             Flash,
             "Flash",
             label=__("Flash"),
-            href="/flash/list/",
             icon="fa-table",
+            href="/flash/list"
         )
 
         appbuilder.add_separator("Data")

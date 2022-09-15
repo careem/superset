@@ -277,8 +277,8 @@ SCHEDULED_QUERIES: Dict[str, Any] = {
             "schedule_interval": {
                 "type": "string",
                 "title": "Schedule interval",
-                "enum": ["@hourly", "@daily", "@weekly", "@monthly", "@quaterly"],
-                "enumNames": ["Hourly", "Daily", "Weekly", "Monthly", "Quaterly"],
+                "enum": ["@15minutes, @30minutes, @45minutes ,@hourly", "@daily", "@weekly", "@monthly", "@quaterly"],
+                "enumNames": ["15 Minutes", "30 Minutes", "45 Minutes", "Hourly", "Daily", "Weekly", "Monthly", "Quaterly"],
             },
             "slack_handle": {
                 "type": "string",

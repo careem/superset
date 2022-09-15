@@ -235,57 +235,50 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
-          let actions: ActionProps[] | [] = [];
-
-          if (original?.owner === user?.email || user?.roles?.Admin) {
-            actions = [
-              {
-                label: 'export-action',
-                tooltip: t('Extend TTL'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'Share',
-                onClick: handleChangeTtl,
-              },
-              {
-                label: 'ownership-action',
-                tooltip: t('Change Ownership'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'SwitchUser',
-                onClick: handleChangeOwnership,
-              },
-
-              {
-                label: 'copy-action',
-                tooltip: t('Change Schedule'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'Calendar',
-                onClick: handleChangeSchedule,
-              },
-              {
-                label: 'copy-action',
-                tooltip: t('Update Sql Query'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'Sql',
-                onClick: handleSqlQuery,
-              },
-              {
-                label: 'copy-action',
-                tooltip: t('Change Costing Attributes'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'Edit',
-                onClick: handleChangeCost,
-              },
-              {
-                label: 'delete-action',
-                tooltip: t('Delete Flash'),
-                placement: 'bottom' as TooltipPlacement,
-                icon: 'Trash',
-                onClick: handleDelete,
-              },
-            ].filter(item => !!item);
-          } else {
-            actions = [];
-          }
+          let actions: ActionProps[] | [] = [
+            (original?.owner === user?.email || user?.roles?.Admin) && {
+              label: 'export-action',
+              tooltip: t('Extend TTL'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'Share',
+              onClick: handleChangeTtl,
+            },
+            {
+              label: 'ownership-action',
+              tooltip: t('Change Ownership'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'SwitchUser',
+              onClick: handleChangeOwnership,
+            },
+            (original?.owner === user?.email || user?.roles?.Admin) && {
+              label: 'copy-action',
+              tooltip: t('Change Schedule'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'Calendar',
+              onClick: handleChangeSchedule,
+            },
+            (original?.owner === user?.email || user?.roles?.Admin) && {
+              label: 'copy-action',
+              tooltip: t('Update Sql Query'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'Sql',
+              onClick: handleSqlQuery,
+            },
+            (original?.owner === user?.email || user?.roles?.Admin) && {
+              label: 'copy-action',
+              tooltip: t('Change Costing Attributes'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'Edit',
+              onClick: handleChangeCost,
+            },
+            original?.owner === user?.email && {
+              label: 'delete-action',
+              tooltip: t('Delete Flash'),
+              placement: 'bottom' as TooltipPlacement,
+              icon: 'Trash',
+              onClick: handleDelete,
+            },
+          ].filter(item => !!item);
 
           return <ActionsBar actions={actions as ActionProps[]} />;
         },
