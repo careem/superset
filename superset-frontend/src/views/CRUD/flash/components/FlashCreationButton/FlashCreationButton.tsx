@@ -35,7 +35,8 @@ import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/views/CRUD/flash/enums';
 import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/flash/types';
 import moment from 'moment';
-import { fetchDatabases } from '../../services/flash.service';
+import { fetchDatabases, validateSqlQuery } from '../../services/flash.service';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -62,6 +63,8 @@ interface FlashCreationButtonProps {
   latestQueryFormData?: object;
   sql?: string;
   onCreate?: Function;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -93,6 +96,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   sql,
   latestQueryFormData,
   onCreate = () => {},
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Dropdown>({
@@ -190,6 +195,13 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
   }, [JSON.stringify(latestQueryFormData)]);
 
+  // useEffect(() => {
+  //   let query = sql ? sql : sqlQuery ? sqlQuery.query : undefined;
+  //   if (query) {
+  //     validateQuery(query);
+  //   }
+  // }, [sql, sqlQuery]);
+
   const validate = (formData: any, errors: any) => {
     if (
       Date.parse(formData.scheduleStartTime) <
@@ -227,6 +239,12 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         });
       }
       setDbDropdown(dropdown);
+    });
+  };
+
+  const validateQuery = async (sql: string): Promise<any> => {
+    return await validateSqlQuery(sql).then(({ data }) => {
+      console.log('query validation ===', data);
     });
   };
 
@@ -337,7 +355,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       <ModalTrigger
         ref={saveModal}
         modalTitle={t('Create Flash Object')}
-        modalBody={renderModalBody()}
+        modalBody={false ? renderModalBody() : null}
         disabled={!canCreateFlashObject}
         triggerNode={
           <Button
@@ -351,6 +369,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
             disabled={!canCreateFlashObject}
             buttonSize="small"
             buttonStyle="primary"
+            onClick={sql ? () => validateSqlQuery(sql) : undefined}
           >
             <Icons.PlusOutlined iconSize="l" />
             {t('Create Flash Object')}
@@ -361,4 +380,4 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   );
 };
 
-export default FlashCreationButton;
+export default withToasts(FlashCreationButton);

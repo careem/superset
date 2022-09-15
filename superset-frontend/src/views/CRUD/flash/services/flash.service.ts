@@ -34,3 +34,7 @@ export const updateFlash = async (id: number, type: string, payload: FlashUpdate
 
 export const removeFlash = async (id:number): Promise<any> =>
   await FlashClient.delete<FlashServiceObject>(`v1/flash/${id}`);
+
+export const validateSqlQuery = (payload: string): Promise<any> =>
+  FlashClient.post<any>('v1/flash/sql/validate', payload);
+
