@@ -817,7 +817,7 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     # Allow users to export full CSV of table viz type.
     # This could cause the server to run out of memory or compute.
     "ALLOW_FULL_CSV_EXPORT": False,
-    "UX_BETA": False,
+    "UX_BETA": True,
     "GENERIC_CHART_AXES": False,
     "ALLOW_ADHOC_SUBQUERY": False,
     "USE_ANALAGOUS_COLORS": True,

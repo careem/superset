@@ -49,6 +49,7 @@ from tests.integration_tests.fixtures.world_bank_dashboard import (
     load_world_bank_dashboard_with_slices,
     load_world_bank_data,
 )
+from tests.integration_tests.test_app import app
 
 
 class TestExportDatasetsCommand(SupersetTestCase):
@@ -132,7 +133,7 @@ class TestExportDatasetsCommand(SupersetTestCase):
             "description": "Energy consumption",
             "extra": None,
             "fetch_values_predicate": None,
-            "filter_select_enabled": False,
+            "filter_select_enabled": app.config["DEFAULT_FEATURE_FLAGS"]["UX_BETA"],
             "main_dttm_col": None,
             "metrics": [
                 {
