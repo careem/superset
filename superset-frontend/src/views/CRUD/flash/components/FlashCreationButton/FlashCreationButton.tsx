@@ -38,6 +38,7 @@ import { fetchDatabases, validateSqlQuery } from '../../services/flash.service';
 import { QueryEditor, SqlLabRootState } from 'src/SqlLab/types';
 import { getUpToDateQuery } from 'src/SqlLab/actions/sqlLab';
 import { useSelector } from 'react-redux';
+import withToasts from 'src/components/MessageToasts/withToasts';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -64,6 +65,8 @@ interface FlashCreationButtonProps {
   latestQueryFormData?: object;
   sqlEditor?: any;
   onCreate?: Function;
+  addDangerToast: (msg: string) => void;
+  addSuccessToast: (msg: string) => void;
 }
 
 const StyledJsonSchema = styled.div`
@@ -95,6 +98,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   sqlEditor,
   latestQueryFormData,
   onCreate = () => {},
+  addDangerToast,
+  addSuccessToast,
 }) => {
   const sql = useSelector<SqlLabRootState, string | undefined>(
     rootState =>
@@ -335,17 +340,16 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     let payload = {
       sqlQuery: sql,
     };
-    // return await validateSqlQuery(payload)
-    //   .then(({ data }) => {
-    //     console.log('query validation ===', data);
-    //     saveModal?.current?.open();
-    //   })
-    //   .catch(() => {
-    //     console.log('in catch');
-    //     saveModal?.current?.open();
-    //   });
-    console.log('inside valdate q', saveModal);
-    saveModal?.current?.open({ preventDefault: () => {} });
+    return await validateSqlQuery(payload)
+      .then(({ data }) => {
+        console.log('query validation ===', data);
+        saveModal?.current?.open({ preventDefault: () => {} });
+      })
+      .catch(error => {
+        console.log('in catch');
+        addDangerToast(t('Please Add a valid Sql Query', error));
+        // saveModal?.current?.open({ preventDefault: () => {} });
+      });
   };
 
   const renderModalBody = () => (
@@ -405,7 +409,9 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
             // }
             onClick={e => {
               e.stopPropagation();
-              validateQuery('query');
+              if (sql) {
+                validateQuery(sql);
+              }
             }}
           >
             <Icons.PlusOutlined iconSize="l" />
@@ -417,4 +423,4 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   );
 };
 
-export default FlashCreationButton;
+export default withToasts(FlashCreationButton);
