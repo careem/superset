@@ -180,17 +180,8 @@ export function scheduleQuery(query) {
 }
 
 export function createFlashObject(flash) {
-  return (dispatch, getState) => {
-    const newFlash = { ...flash };
-    if (typeof flash.sqlQuery !== 'string') {
-      const qe = getUpToDateQuery(
-        getState(),
-        flash.sqlQuery,
-        flash.sqlQuery.id,
-      );
-      newFlash.sqlQuery = qe.selectedText || qe.sql;
-    }
-    return createFlash(newFlash)
+  return dispatch => {
+    return createFlash(flash)
       .then(() =>
         dispatch(
           addSuccessToast(

@@ -29,13 +29,15 @@ import {
   convertToLocalDateTime,
   removeUnnecessaryProperties,
 } from 'src/utils/commonHelper';
-import Loading from 'src/components/Loading';
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/views/CRUD/flash/enums';
 import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/flash/types';
 import moment from 'moment';
 import { fetchDatabases, validateSqlQuery } from '../../services/flash.service';
+import { QueryEditor, SqlLabRootState } from 'src/SqlLab/types';
+import { getUpToDateQuery } from 'src/SqlLab/actions/sqlLab';
+import { useSelector } from 'react-redux';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -94,6 +96,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   latestQueryFormData,
   onCreate = () => {},
 }) => {
+  const sql = useSelector<SqlLabRootState, string | undefined>(
+    rootState =>
+      (getUpToDateQuery(rootState, sqlEditor) as unknown as QueryEditor).sql,
+  );
   const [flashSchema, setFlashSchema] = useState(getJSONSchema());
   const [dbDropdown, setDbDropdown] = useState<Dropdown>({
     enum: [''],
@@ -103,8 +109,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
   const [sqlQuery, setSqlQuery] = useState<Query>({ query: '', language: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const canCreateFlashObject = !!sqlEditor || !!latestQueryFormData;
+  const canCreateFlashObject = !!sql || !!latestQueryFormData;
   const saveModal: ModalTriggerRef | null = useRef() as ModalTriggerRef;
+
+  console.log('sql===', sql);
 
   useEffect(() => {
     fetchDatabaseDropdown();
@@ -295,7 +303,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
     const flash = {
       owner: user?.email,
-      sqlQuery: sqlQuery?.query ? sqlQuery?.query : sqlEditor,
+      sqlQuery: sql ? sql : sqlQuery?.query,
       ...payload,
     } as FlashObject;
 
