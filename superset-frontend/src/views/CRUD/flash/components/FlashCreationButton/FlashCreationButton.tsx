@@ -35,7 +35,7 @@ import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { FlashTypes } from 'src/views/CRUD/flash/enums';
 import { FlashObject, FormErrors, Dropdown } from 'src/views/CRUD/flash/types';
 import moment from 'moment';
-import { fetchDatabases } from '../../services/flash.service';
+import { fetchDatabases, validateSqlQuery } from '../../services/flash.service';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -100,7 +100,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     enumNames: ['Please Select'],
   });
   const [formData, setFormData] = useState<FlashObject | null>(null);
-  const [sqlQuery, setSqlQuery] = useState<Query>({});
+  const [sqlQuery, setSqlQuery] = useState<Query>({ query: '', language: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const canCreateFlashObject = !!sqlEditor || !!latestQueryFormData;
@@ -236,13 +236,6 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       setDbDropdown(dropdown);
     });
 
-  if (isLoading) {
-    return <Loading />;
-  }
-  if (error) {
-    return <pre>{error}</pre>;
-  }
-
   const onFieldChange = (formValues: any) => {
     const formData = { ...formValues };
     if (formData) {
@@ -329,6 +322,24 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         .split('T')[0];
     }
   };
+
+  const validateQuery = async (sql: string): Promise<any> => {
+    let payload = {
+      sqlQuery: sql,
+    };
+    // return await validateSqlQuery(payload)
+    //   .then(({ data }) => {
+    //     console.log('query validation ===', data);
+    //     saveModal?.current?.open();
+    //   })
+    //   .catch(() => {
+    //     console.log('in catch');
+    //     saveModal?.current?.open();
+    //   });
+    console.log('inside valdate q', saveModal);
+    saveModal?.current?.open({ preventDefault: () => {} });
+  };
+
   const renderModalBody = () => (
     <Form layout="vertical">
       <Row>
@@ -377,6 +388,17 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
             disabled={!canCreateFlashObject}
             buttonSize="small"
             buttonStyle="primary"
+            // onClick={
+            //   sqlQuery && sqlQuery.query
+            //     ? () => {
+            //         validateQuery('query');
+            //       }
+            //     : undefined
+            // }
+            onClick={e => {
+              e.stopPropagation();
+              validateQuery('query');
+            }}
           >
             <Icons.PlusOutlined iconSize="l" />
             {t('Create Flash Object')}
