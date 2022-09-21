@@ -55,6 +55,11 @@ export interface FlashUpdateSchedule {
   scheduleStartTime: string;
 }
 
+export interface FlashUpdateCosting {
+  cdomain: string;
+  cservice: string;
+}
+
 export type FlashServiceObject = {
   cdomain?: string;
   cservice?: string;

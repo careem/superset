@@ -44,6 +44,7 @@ import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 import { FlashTypesEnum } from '../../enums';
+import FlashCosting from '../FlashCosting/FlashCosting';
 
 const PAGE_SIZE = 25;
 
@@ -85,6 +86,8 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const [showFlashTtl, setShowFlashTtl] = useState<boolean>(false);
   const [showFlashSchedule, setShowFlashSchedule] = useState<boolean>(false);
   const [showFlashQuery, setShowFlashQuery] = useState<boolean>(false);
+  const [showFlashCosting, setShowFlashCosting] = useState<boolean>(false);
+
   const savedQueryCurrentlyPreviewing: SavedQueryObject | undefined = undefined;
 
   useEffect(() => {
@@ -130,6 +133,11 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   const changeSqlQuery = (flash: FlashServiceObject) => {
     setCurrentFlash(flash);
     setShowFlashQuery(true);
+  };
+
+  const changeCosting = (flash: FlashServiceObject) => {
+    setCurrentFlash(flash);
+    setShowFlashCosting(true);
   };
 
   const handleDeleteFlash = (flash: FlashServiceObject) => {
@@ -225,7 +233,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           };
           const handleChangeSchedule = () => changeSchedule(original);
           const handleChangeOwnership = () => changeOwnership(original);
-          const handleChangeCost = () => console.log('costing==', original);
+          const handleChangeCost = () => changeCosting(original);
           const handleChangeTtl = () => changeTtl(original);
           const handleDelete = () => setDeleteFlash(original);
 
@@ -377,6 +385,15 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           flash={currentFlash as FlashServiceObject}
           show={showFlashQuery}
           onHide={() => setShowFlashQuery(false)}
+          refreshData={refreshData}
+        />
+      )}
+
+      {showFlashCosting && (
+        <FlashCosting
+          flash={currentFlash as FlashServiceObject}
+          show={showFlashCosting}
+          onHide={() => setShowFlashCosting(false)}
           refreshData={refreshData}
         />
       )}

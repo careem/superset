@@ -644,6 +644,41 @@ FLASH_SCHEDULE = {
     "VALIDATION": [],
 }
 
+FLASH_COSTING = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    "JSONSCHEMA": {
+        "type": "object",
+        "properties": {
+            "cdomain": {
+                "type": "string",
+                "title": "C-Domain",
+            },
+            "cservice": {
+                "type": "string",
+                "title": "C-Service",
+            },
+        },
+        "required": [
+            "cdomain",
+            "cservice",
+        ],
+    },
+    "UISCHEMA": {
+        "ui:order": [
+            "cdomain",
+            "cservice",
+        ],
+        "cdomain": {
+            "ui:help": "Domain Costing attributes",
+        },
+        "cservice": {
+            "ui:help": "Service Costing attributes",
+        },
+    },
+    "VALIDATION": [],
+}
 # ------------------------------
 # GLOBALS FOR APP Builder
 # ------------------------------
