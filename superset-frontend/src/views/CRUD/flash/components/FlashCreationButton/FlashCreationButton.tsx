@@ -350,15 +350,37 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     let payload = {
       sqlQuery: sql,
     };
+    let newData = {
+      valid: false,
+      message: 'Query is invalid because of xyz',
+    };
     return await validateSqlQuery(payload)
       .then(({ data }) => {
         console.log('query validation ===', data);
-        saveModal?.current?.open({ preventDefault: () => {} });
+        // if (newData && Boolean(newData.valid) === true) {
+        //   saveModal?.current?.open({ preventDefault: () => {} });
+        // } else {
+        //   addDangerToast(
+        //     t(
+        //       'Please Add a valid Sql Query',
+        //       newData?.message ? newData?.message : '',
+        //     ),
+        //   );
+        // }
+        if (data && data?.valid === true) {
+          saveModal?.current?.open({ preventDefault: () => {} });
+        } else {
+          addDangerToast(t('Please Add a valid Sql Query', data?.message));
+        }
       })
       .catch(error => {
         console.log('in catch');
-        addDangerToast(t('Please Add a valid Sql Query', error));
-        // saveModal?.current?.open({ preventDefault: () => {} });
+        // if (newData && newData?.valid == true) {
+        //   saveModal?.current?.open({ preventDefault: () => {} });
+        // } else {
+        //   addDangerToast(t(newData?.message ? newData?.message : ''));
+        // }
+        addDangerToast(t('Please Add a valid Sql Query', error?.data?.message));
       });
   };
 

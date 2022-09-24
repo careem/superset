@@ -113,11 +113,15 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
     };
     return await validateSqlQuery(payload)
       .then(({ data }) => {
-        flashSqlQueryService(Number(flash?.id), UPDATE_TYPES.SQL, payload);
+        if (Boolean(data.valid) === true) {
+          flashSqlQueryService(Number(flash?.id), UPDATE_TYPES.SQL, payload);
+        } else {
+          addDangerToast(t('Please Add a valid Sql Query', data.message));
+        }
       })
       .catch(error => {
         console.log('in catch');
-        addDangerToast(t('Please Add a valid Sql Query', error));
+        addDangerToast(t('Please Add a valid Sql Query', error?.data?.message));
         // saveModal?.current?.open({ preventDefault: () => {} });
       });
   };
