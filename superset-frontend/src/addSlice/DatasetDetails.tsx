@@ -25,9 +25,12 @@ import { Select, AsyncSelect } from 'src/components';
 import { Button, Col, Row, Tooltip } from 'antd';
 import { FormLabel } from 'src/components/Form';
 
-import { OptionsType } from 'src/components/Select/Select';
 import { MinusCircleOutlined } from '@ant-design/icons';
-import { OptionsPagePromise } from 'src/components/Select/AsyncSelect';
+
+import {
+  SelectOptionsType,
+  SelectOptionsPagePromise,
+} from 'src/components/Select/types';
 import {
   StyledLabel,
   StyledStepDescription,
@@ -45,12 +48,12 @@ import DatasetJoins from './DatasetJoins';
 interface DatasetDetailsProps {
   index: number;
   firstDatasetName: string;
-  joinOptions: OptionsType;
+  joinOptions: SelectOptionsType;
   dataset: AdditionalStateDataset;
   datasets: AdditionalStateDataset[];
   datasourceJoins: DatasourceJoins[];
-  firstDatasourceColumns: OptionsType;
-  datasetOptions: OptionsPagePromise;
+  firstDatasourceColumns: SelectOptionsType;
+  datasetOptions: SelectOptionsPagePromise;
   changeDatasourceJoins: (datasourceJoins: DatasourceJoins[]) => void;
   changeAdditionalDatasource: (datasets: AdditionalStateDataset[]) => void;
 }
@@ -185,13 +188,14 @@ function DatasetDetails({
             <AsyncSelect
               autoFocus
               showSearch
-              value={dataset.value}
               ariaLabel={t('Dataset')}
               name="select-datasource"
               options={datasetOptions}
               onChange={changeDatasource}
               placeholder={t('Choose a dataset')}
               optionFilterProps={['id', 'label']}
+              // @ts-ignore:next-line
+              value={dataset?.value ? dataset : undefined}
               header={<FormLabel>{t('Dataset')}</FormLabel>}
             />
           </StyledStepDescription>

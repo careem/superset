@@ -269,11 +269,11 @@ sqlalchemy==1.4.36
     #   flask-sqlalchemy
     #   marshmallow-sqlalchemy
     #   sqlalchemy-utils
-sqlalchemy-utils==0.37.8
+sqlalchemy-utils==0.38.3
     # via
     #   apache-superset
     #   flask-appbuilder
-sqlparse==0.3.0
+sqlparse==0.4.3
     # via apache-superset
 tabulate==0.8.9
     # via apache-superset

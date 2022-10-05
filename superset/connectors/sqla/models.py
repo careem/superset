@@ -380,9 +380,7 @@ class TableColumn(Model, BaseColumn, CertificationMixin):
             col = literal_column(expression, type_=type_)
         else:
             col = column(self.column_name, type_=type_)
-        time_expr = self.db_engine_spec.get_timestamp_expr(
-            col, pdf, time_grain, self.type
-        )
+        time_expr = self.db_engine_spec.get_timestamp_expr(col, pdf, time_grain)
         return self.table.make_sqla_column_compatible(time_expr, label)
 
     def dttm_sql_literal(self, dttm: DateTime) -> str:
@@ -1198,9 +1196,9 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
             and (time_grain := col.get("timeGrain"))
         ):
             sqla_column = self.db_engine_spec.get_timestamp_expr(
-                sqla_column,
-                None,
-                time_grain,
+                col=sqla_column,
+                pdf=None,
+                time_grain=time_grain,
             )
         return self.make_sqla_column_compatible(sqla_column, label)
 
@@ -1537,16 +1535,7 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                     )
                 )
 
-            if (
-                self.database.backend == "presto" or self.database.backend == "trino"
-            ) and (dttm_col.column_name == "day"):
-                dttm_col.expression = "cast({} as VARCHAR(10))".format(
-                    dttm_col.column_name
-                )
-                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
-                dttm_col.expression = ""
-            else:
-                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
 
         # Always remove duplicates by column name, as sometimes `metrics_exprs`
         # can have the same name as a groupby column (e.g. when users use

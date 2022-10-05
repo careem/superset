@@ -66,7 +66,6 @@ export type DatabaseObject = {
   allow_ctas?: boolean;
   allow_cvas?: boolean;
   allow_dml?: boolean;
-  allow_multi_schema_metadata_fetch?: boolean;
   force_ctas_schema?: string;
 
   // Security
@@ -102,6 +101,11 @@ export type DatabaseObject = {
   catalog?: Array<CatalogObject>;
   query_input?: string;
   extra?: string;
+
+  // DB Engine Spec information
+  engine_information?: {
+    supports_file_upload?: boolean;
+  };
 };
 
 export type DatabaseForm = {

@@ -543,7 +543,7 @@ FLASH_OWNERSHIP = {
             "owner": {
                 "type": "string",
                 "title": "Owner Email",
-                "pattern": "[a-z0-9]+@careem.com",
+                "pattern": "^[a-z0-9._-]+@careem.com+$",
             },
         },
         "required": [
@@ -754,6 +754,7 @@ LANGUAGES = {}
 DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     # allow dashboard to use sub-domains to send chart request
     # you also need ENABLE_CORS and
+    "TRINO_SPLIT_VIEWS_FROM_TABLES": False,
     # SUPERSET_WEBSERVER_DOMAINS for list of domains
     "ALLOW_DASHBOARD_DOMAIN_SHARDING": True,
     # Experimental feature introducing a client (browser) cache
@@ -1130,9 +1131,6 @@ DISPLAY_MAX_ROW = 10000
 # the SQL Lab UI
 DEFAULT_SQLLAB_LIMIT = 1000
 
-# Maximum number of tables/views displayed in the dropdown window in SQL Lab.
-MAX_TABLE_NAMES = 3000
-
 # Adds a warning message on sqllab save query and schedule query modals.
 SQLLAB_SAVE_WARNING_MESSAGE = None
 SQLLAB_SCHEDULE_WARNING_MESSAGE = None
@@ -1479,6 +1477,13 @@ def EMAIL_HEADER_MUTATOR(  # pylint: disable=invalid-name,unused-argument
     msg: MIMEMultipart, **kwargs: Any
 ) -> MIMEMultipart:
     return msg
+
+
+# Define a list of usernames to be excluded from all dropdown lists of users
+# Owners, filters for created_by, etc.
+# The users can also be excluded by overriding the get_exclude_users_from_lists method
+# in security manager
+EXCLUDE_USERS_FROM_LISTS: Optional[List[str]] = None
 
 
 # This auth provider is used by background (offline) tasks that need to access
