@@ -249,31 +249,34 @@ class Database(
 
     @property
     def backend(self) -> str:
-        sqlalchemy_url = make_url_safe(self.sqlalchemy_uri_decrypted)
-        return sqlalchemy_url.get_backend_name()
+        return self.url_object.get_backend_name()
 
     @property
-    def masked_encrypted_extra(self) -> str:
+    def driver(self) -> str:
+        return self.url_object.get_driver_name()
+
+    @property
+    def masked_encrypted_extra(self) -> Optional[str]:
         return self.db_engine_spec.mask_encrypted_extra(self.encrypted_extra)
 
     @property
     def parameters(self) -> Dict[str, Any]:
-        db_engine_spec = self.db_engine_spec
-
+        # Database parameters are a dictionary of values that are used to make up
+        # the sqlalchemy_uri
         # When returning the parameters we should use the masked SQLAlchemy URI and the
         # masked ``encrypted_extra`` to prevent exposing sensitive credentials.
         masked_uri = make_url_safe(self.sqlalchemy_uri)
-        masked_encrypted_extra = db_engine_spec.mask_encrypted_extra(
-            self.encrypted_extra
-        )
-        try:
-            encrypted_config = json.loads(masked_encrypted_extra)
-        except (TypeError, json.JSONDecodeError):
-            encrypted_config = {}
+        masked_encrypted_extra = self.masked_encrypted_extra
+        encrypted_config = {}
+        if masked_encrypted_extra is not None:
+            try:
+                encrypted_config = json.loads(masked_encrypted_extra)
+            except (TypeError, json.JSONDecodeError):
+                pass
 
         try:
             # pylint: disable=useless-suppression
-            parameters = db_engine_spec.get_parameters_from_uri(  # type: ignore
+            parameters = self.db_engine_spec.get_parameters_from_uri(  # type: ignore
                 masked_uri,
                 encrypted_extra=encrypted_config,
             )

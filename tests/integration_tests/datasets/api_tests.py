@@ -1906,6 +1906,8 @@ class TestDatasetApi(SupersetTestCase):
         buf = self.create_dataset_import()
         form_data = {
             "formData": (buf, "dataset_export.zip"),
+            "sync_columns": "true",
+            "sync_metrics": "true",
         }
         rv = self.client.post(uri, data=form_data, content_type="multipart/form-data")
         response = json.loads(rv.data.decode("utf-8"))
@@ -1948,6 +1950,8 @@ class TestDatasetApi(SupersetTestCase):
         buf.seek(0)
         form_data = {
             "formData": (buf, "dataset_export.zip"),
+            "sync_columns": "true",
+            "sync_metrics": "true",
         }
         rv = self.client.post(uri, data=form_data, content_type="multipart/form-data")
         response = json.loads(rv.data.decode("utf-8"))
