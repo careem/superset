@@ -833,7 +833,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   };
 
   const onMsgChange = (value: string) => {
-    updateAlertState('message_content', value || '');
+    updateAlertState('extra', { msg_content: value } || '');
   };
 
   const onOwnersChange = (value: Array<SelectValue>) => {
@@ -1383,8 +1383,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               options={loadDashboardOptions}
               onChange={onDashboardChange}
             />
-            {contentType === 'text' &&
-            <StyledInputContainer>
+            {contentType === 'text' && (
+              <StyledInputContainer>
                 <div className="control-label">
                   {t('Text Box')}
                   <span className="required">*</span>
@@ -1399,8 +1399,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                   // initialValue={resource?.sql}
                   key={currentAlert?.id}
                 />
-            </StyledInputContainer>
-            }
+              </StyledInputContainer>
+            )}
             {formatOptionEnabled && (
               <>
                 <div className="inline-container">
