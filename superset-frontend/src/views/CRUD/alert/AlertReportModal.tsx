@@ -1386,17 +1386,16 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
             {contentType === 'text' && (
               <StyledInputContainer>
                 <div className="control-label">
-                  {t('Text Box')}
+                  {t('Message')}
                   <span className="required">*</span>
                 </div>
                 <TextAreaControl
-                  name="message_context"
+                  name="Text Message"
                   offerEditInModal={false}
                   minLines={1}
                   maxLines={5}
                   onChange={onMsgChange}
                   readOnly={false}
-                  // initialValue={resource?.sql}
                   key={currentAlert?.id}
                 />
               </StyledInputContainer>
