@@ -1399,7 +1399,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               }}
             >
               <div className="control-label">
-                {t('Text Box')}
+                {t('Message')}
                 <span className="required">*</span>
               </div>
               <TextAreaControl
