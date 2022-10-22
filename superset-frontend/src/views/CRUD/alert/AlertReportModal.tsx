@@ -833,7 +833,9 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   };
 
   const onMsgChange = (value: string) => {
-    updateAlertState('extra', { msg_content: value } || '');
+    updateAlertState('extra', { msg_content: value } || undefined);
+    updateAlertState('dashboard', null);
+    updateAlertState('chart', null);
   };
 
   const onOwnersChange = (value: Array<SelectValue>) => {
@@ -847,12 +849,16 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   const onDashboardChange = (dashboard: SelectValue) => {
     updateAlertState('dashboard', dashboard || undefined);
     updateAlertState('chart', null);
+    updateAlertState('extra', null);
+    // console.log('currentAlert after ===', currentAlert);
   };
 
   const onChartChange = (chart: SelectValue) => {
     getChartVisualizationType(chart);
     updateAlertState('chart', chart || undefined);
     updateAlertState('dashboard', null);
+    updateAlertState('extra', null);
+    // console.log('currentAlert after ===', currentAlert);
   };
 
   const onActiveSwitch = (checked: boolean) => {
@@ -934,7 +940,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
       currentAlert.crontab?.length &&
       currentAlert.working_timeout !== undefined &&
       ((contentType === 'dashboard' && !!currentAlert.dashboard) ||
-        (contentType === 'chart' && !!currentAlert.chart)) &&
+        (contentType === 'chart' && !!currentAlert.chart) ||
+        (contentType === 'text' && !!currentAlert.extra)) &&
       checkNotificationSettings()
     ) {
       if (isReport) {
@@ -1017,6 +1024,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
 
       setCurrentAlert({
         ...resource,
+        extra: resource?.extra ? resource.extra : { msg_content: null },
         chart: resource.chart
           ? getChartData(resource.chart) || {
               value: (resource.chart as ChartObject).id,
@@ -1066,6 +1074,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
     currentAlertSafe.working_timeout,
     currentAlertSafe.dashboard,
     currentAlertSafe.chart,
+    currentAlertSafe.extra?.msg_content,
     contentType,
     notificationSettings,
     conditionNotNull,
@@ -1383,24 +1392,29 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               options={loadDashboardOptions}
               onChange={onDashboardChange}
             />
-            {contentType === 'text' && (
-              <StyledInputContainer>
-                <div className="control-label">
-                  {t('Text Box')}
-                  <span className="required">*</span>
-                </div>
-                <TextAreaControl
-                  name="message_context"
-                  offerEditInModal={false}
-                  minLines={1}
-                  maxLines={5}
-                  onChange={onMsgChange}
-                  readOnly={false}
-                  // initialValue={resource?.sql}
-                  key={currentAlert?.id}
-                />
-              </StyledInputContainer>
-            )}
+            {/* {contentType === 'text' && ( */}
+            <StyledInputContainer
+              css={{
+                display: contentType === 'text' ? 'inline' : 'none',
+              }}
+            >
+              <div className="control-label">
+                {t('Text Box')}
+                <span className="required">*</span>
+              </div>
+              <TextAreaControl
+                name="msg_content"
+                language="text-area"
+                offerEditInModal={false}
+                minLines={6}
+                maxLines={15}
+                onChange={onMsgChange}
+                readOnly={false}
+                initialValue={currentAlert?.extra?.msg_content}
+                key={currentAlert?.id}
+              />
+            </StyledInputContainer>
+            {/* )} */}
             {formatOptionEnabled && (
               <>
                 <div className="inline-container">
