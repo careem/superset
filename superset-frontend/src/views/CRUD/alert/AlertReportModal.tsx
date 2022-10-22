@@ -941,7 +941,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
       currentAlert.working_timeout !== undefined &&
       ((contentType === 'dashboard' && !!currentAlert.dashboard) ||
         (contentType === 'chart' && !!currentAlert.chart) ||
-        (contentType === 'text' && !!currentAlert.extra)) &&
+        (contentType === 'text_message' && !!currentAlert.extra)) &&
       checkNotificationSettings()
     ) {
       if (isReport) {
@@ -1356,7 +1356,9 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
             <Radio.Group onChange={onContentTypeChange} value={contentType}>
               <StyledRadio value="dashboard">{t('Dashboard')}</StyledRadio>
               <StyledRadio value="chart">{t('Chart')}</StyledRadio>
-              <StyledRadio value="text">{t('Text')}</StyledRadio>
+              <StyledRadio value="text_message">
+                {t('Text Message')}
+              </StyledRadio>
             </Radio.Group>
             <AsyncSelect
               ariaLabel={t('Chart')}
@@ -1392,10 +1394,9 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               options={loadDashboardOptions}
               onChange={onDashboardChange}
             />
-            {/* {contentType === 'text' && ( */}
             <StyledInputContainer
               css={{
-                display: contentType === 'text' ? 'inline' : 'none',
+                display: contentType === 'text_message' ? 'inline' : 'none',
               }}
             >
               <div className="control-label">
@@ -1414,7 +1415,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                 key={currentAlert?.id}
               />
             </StyledInputContainer>
-            {/* )} */}
             {formatOptionEnabled && (
               <>
                 <div className="inline-container">
