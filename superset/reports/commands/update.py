@@ -102,7 +102,7 @@ class UpdateReportScheduleCommand(UpdateMixin, BaseReportScheduleCommand):
                 self._properties["database"] = database
 
         # Validate chart or dashboard relations
-        self.validate_chart_dashboard(exceptions, update=True)
+        # self.validate_chart_dashboard(exceptions, update=True)
 
         if "validator_config_json" in self._properties:
             self._properties["validator_config_json"] = json.dumps(

@@ -1276,13 +1276,17 @@ ENABLE_ACCESS_REQUEST = False
 
 # smtp server configuration
 EMAIL_NOTIFICATIONS = False  # all the emails are sent using dryrun
-SMTP_HOST = "localhost"
+# SMTP_HOST = "localhost"
+SMTP_HOST = os.getenv('SMTP_HOST')
 SMTP_STARTTLS = True
 SMTP_SSL = False
-SMTP_USER = "superset"
+# SMTP_USER = "superset"
+SMTP_USER = os.getenv('SMTP_USER')
 SMTP_PORT = 25
-SMTP_PASSWORD = "superset"
-SMTP_MAIL_FROM = "superset@superset.com"
+# SMTP_PASSWORD = "superset"
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+# SMTP_MAIL_FROM = "superset@superset.com"
+SMTP_MAIL_FROM = os.getenv('SMTP_MAIL_FROM')
 # If True creates a default SSL context with ssl.Purpose.CLIENT_AUTH using the
 # default system root CA certificates.
 SMTP_SSL_SERVER_AUTH = False
