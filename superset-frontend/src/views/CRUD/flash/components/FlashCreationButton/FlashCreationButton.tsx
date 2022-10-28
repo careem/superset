@@ -39,7 +39,12 @@ import { useSelector } from 'react-redux';
 import { QueryEditor, SqlLabRootState } from 'src/SqlLab/types';
 import { getUpToDateQuery } from 'src/SqlLab/actions/sqlLab';
 import withToasts from 'src/components/MessageToasts/withToasts';
-import { createFlash, fetchDatabases } from '../../services/flash.service';
+import { DATASOURCE_TYPES } from '../../constants';
+import {
+  createFlash,
+  fetchDatabases,
+  validateSqlQuery,
+} from '../../services/flash.service';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -62,6 +67,7 @@ type Query = {
   language?: string;
 };
 interface FlashCreationButtonProps {
+  buttonType: string;
   latestQueryFormData?: object;
   sqlEditor?: any;
   addDangerToast: (msg: string) => void;
@@ -97,6 +103,7 @@ const StyledJsonSchema = styled.div`
 `;
 
 const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
+  buttonType,
   sqlEditor,
   latestQueryFormData,
   addDangerToast,
@@ -132,6 +139,10 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
           ([key, value]: [string, any]) => {
             if (key === 'datastoreId') {
               if (dbDropdown) {
+                const index = dbDropdown
+                  ? dbDropdown.enumNames?.indexOf('Hive Flashes')
+                  : 0;
+                const defaultValue = index ? dbDropdown.enum[index] : '';
                 jsonSchema.properties[key] = {
                   ...value,
                   enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [''],
@@ -140,7 +151,12 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
                       ? dbDropdown.enumNames
                       : ['Please Select'],
                   default:
-                    dbDropdown && dbDropdown.enum ? dbDropdown.enum[0] : '',
+                    dbDropdown && dbDropdown.enum
+                      ? buttonType === DATASOURCE_TYPES.HIVE
+                        ? defaultValue
+                        : dbDropdown.enum[0]
+                      : '',
+                  readOnly: buttonType === DATASOURCE_TYPES.HIVE,
                 };
               }
             }
@@ -370,6 +386,38 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     }
   };
 
+  const queryValidation = (e: any) => {
+    e.stopPropagation();
+    const sqlToValidate = sql || sqlQuery.query;
+    if (sqlToValidate) {
+      validateQueryService(sqlToValidate);
+    }
+  };
+
+  const validateQueryService = (sql: string): Promise<any> => {
+    const payload = {
+      sql,
+    };
+    return validateSqlQuery(payload)
+      .then(({ data }) => {
+        if (data && data?.valid === true) {
+          saveModal?.current?.open({ preventDefault: () => {} });
+          getSchemas();
+        } else {
+          const error = data?.message
+            ? data?.message
+            : t('Please Add a valid Sql Query');
+          addDangerToast(error);
+        }
+      })
+      .catch(error => {
+        const apiError = error?.data?.message
+          ? error?.data?.message
+          : t('Please Add a valid Sql Query');
+        addDangerToast(apiError);
+      });
+  };
+
   const renderModalBody = () => (
     <Form layout="vertical">
       <Row>
@@ -390,7 +438,7 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
                 htmlType="submit"
                 css={{ float: 'right' }}
               >
-                Create
+                {buttonType === DATASOURCE_TYPES.HIVE ? 'Schedule' : 'Create'}
               </Button>
             </SchemaForm>
           </StyledJsonSchema>
@@ -403,24 +451,34 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
     <span className="flashCreationButton">
       <ModalTrigger
         ref={saveModal}
-        modalTitle={t('Create Flash Object')}
+        modalTitle={
+          buttonType === DATASOURCE_TYPES.HIVE
+            ? t('Schedule')
+            : t('Create Flash Object')
+        }
         modalBody={renderModalBody()}
         disabled={!canCreateFlashObject}
         triggerNode={
           <Button
             tooltip={
               canCreateFlashObject
-                ? t('Create Flash Object')
-                : t(
-                    'You must run the query successfully first and then try creating a flash object',
-                  )
+                ? buttonType === DATASOURCE_TYPES.HIVE
+                  ? t('Schedule')
+                  : t('Create Flash Object')
+                : t('Please add a valid SQL QUERY first')
             }
             disabled={!canCreateFlashObject}
             buttonSize="small"
             buttonStyle="primary"
+            onClick={e => queryValidation(e)}
           >
-            <Icons.PlusOutlined iconSize="l" />
-            {t('Create Flash Object')}
+            {buttonType === DATASOURCE_TYPES.HIVE ? (
+              t('Schedule')
+            ) : (
+              <>
+                <Icons.PlusOutlined iconSize="l" /> {t('Create Flash Object')}
+              </>
+            )}
           </Button>
         }
       />
