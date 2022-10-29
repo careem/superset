@@ -45,7 +45,7 @@ export const convertValueToLabel = (
     const itemValue = dropdown.find(
       (item: FilterDropdown) => item.value === id,
     );
-    if (itemValue && itemValue.label) {
+    if (itemValue?.label) {
       return itemValue.label;
     }
 

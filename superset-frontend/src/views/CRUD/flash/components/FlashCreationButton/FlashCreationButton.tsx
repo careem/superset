@@ -145,17 +145,15 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
                 const defaultValue = index ? dbDropdown.enum[index] : '';
                 jsonSchema.properties[key] = {
                   ...value,
-                  enum: dbDropdown && dbDropdown.enum ? dbDropdown.enum : [''],
-                  enumNames:
-                    dbDropdown && dbDropdown.enumNames
-                      ? dbDropdown.enumNames
-                      : ['Please Select'],
-                  default:
-                    dbDropdown && dbDropdown.enum
-                      ? buttonType === DATASOURCE_TYPES.HIVE
-                        ? defaultValue
-                        : dbDropdown.enum[0]
-                      : '',
+                  enum: dbDropdown?.enum ? dbDropdown.enum : [''],
+                  enumNames: dbDropdown?.enumNames
+                    ? dbDropdown.enumNames
+                    : ['Please Select'],
+                  default: dbDropdown?.enum
+                    ? buttonType === DATASOURCE_TYPES.HIVE
+                      ? defaultValue
+                      : dbDropdown.enum[0]
+                    : '',
                   readOnly: buttonType === DATASOURCE_TYPES.HIVE,
                 };
               }

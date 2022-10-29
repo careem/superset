@@ -131,7 +131,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
   };
 
   const flashDeleteService = (flash: FlashServiceObject) => {
-    if (flash && flash?.id) {
+    if (flash?.id) {
       removeFlash(flash?.id).then(
         () => {
           setDeleteFlash(null);
@@ -284,6 +284,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       {
         Header: t('Database Name'),
         id: 'datastoreId',
+        key: 'datastoreId',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -292,6 +293,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       {
         Header: t('Flash Name'),
         id: 'tableName',
+        key: 'tableName',
         input: 'search',
         operator: FilterOperator.contains,
       },
@@ -299,6 +301,7 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       {
         Header: t('Flash Type'),
         id: 'flashType',
+        key: 'flashType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -307,11 +310,13 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       {
         Header: t('TTL'),
         id: 'ttl',
+        key: 'ttl',
         input: 'date',
       },
       {
         Header: t('Schedule Type'),
         id: 'scheduleType',
+        key: 'scheduleType',
         input: 'select',
         operator: FilterOperator.equals,
         unfilteredLabel: 'All',
@@ -320,12 +325,14 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       {
         Header: t('Owner Name'),
         id: 'owner',
+        key: 'owner',
         input: 'search',
         operator: FilterOperator.contains,
       },
       {
         Header: t('Status'),
         id: 'status',
+        key: 'status',
         input: 'select',
         operator: FilterOperator.relationOneMany,
         unfilteredLabel: 'All',

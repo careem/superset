@@ -24,7 +24,7 @@ import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import Mousetrap from 'mousetrap';
 import PropTypes from 'prop-types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Split from 'react-split';
 import { CSSTransition } from 'react-transition-group';
@@ -39,30 +39,41 @@ import ResizableSidebar from 'src/components/ResizableSidebar';
 import Timer from 'src/components/Timer';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import {
-  addNewQueryEditor, addSavedQueryToTabState, CtasEnum,
+  addNewQueryEditor,
+  addSavedQueryToTabState,
+  CtasEnum,
   estimateQueryCost,
   persistEditorHeight,
-  postStopQuery, queryEditorSetAndSaveSql, queryEditorSetAutorun,
-  queryEditorSetSql, queryEditorSetTemplateParams,
+  postStopQuery,
+  queryEditorSetAndSaveSql,
+  queryEditorSetAutorun,
+  queryEditorSetSql,
+  queryEditorSetTemplateParams,
   runQueryFromSqlEditor,
-  saveQuery, scheduleQuery,
+  saveQuery,
+  scheduleQuery,
   setActiveSouthPaneTab,
   updateSavedQuery,
-  validateQuery
+  validateQuery,
 } from 'src/SqlLab/actions/sqlLab';
 import {
   INITIAL_NORTH_PERCENT,
   INITIAL_SOUTH_PERCENT,
-  SET_QUERY_EDITOR_SQL_DEBOUNCE_MS, SQL_EDITOR_GUTTER_HEIGHT,
-  SQL_EDITOR_GUTTER_MARGIN, SQL_EDITOR_LEFTBAR_WIDTH,
-  SQL_EDITOR_PADDING, SQL_TOOLBAR_HEIGHT, STATE_TYPE_MAP, VALIDATION_DEBOUNCE_MS,
-  WINDOW_RESIZE_THROTTLE_MS
+  SET_QUERY_EDITOR_SQL_DEBOUNCE_MS,
+  SQL_EDITOR_GUTTER_HEIGHT,
+  SQL_EDITOR_GUTTER_MARGIN,
+  SQL_EDITOR_LEFTBAR_WIDTH,
+  SQL_EDITOR_PADDING,
+  SQL_TOOLBAR_HEIGHT,
+  STATE_TYPE_MAP,
+  VALIDATION_DEBOUNCE_MS,
+  WINDOW_RESIZE_THROTTLE_MS,
 } from 'src/SqlLab/constants';
 import { detectOS } from 'src/utils/common';
 import {
   getItem,
   LocalStorageKeys,
-  setItem
+  setItem,
 } from 'src/utils/localStorageHelpers';
 import FlashCreationButton from 'src/views/CRUD/flash/components/FlashCreationButton/FlashCreationButton';
 import { DATASOURCE_TYPES } from 'src/views/CRUD/flash/constants';

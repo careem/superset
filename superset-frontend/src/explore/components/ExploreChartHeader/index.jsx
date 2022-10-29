@@ -22,10 +22,10 @@ import {
   logging,
   SupersetClient,
   t,
-  tn
+  tn,
 } from '@superset-ui/core';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AlteredSliceTag from 'src/components/AlteredSliceTag';
 import Button from 'src/components/Button';
