@@ -17,7 +17,7 @@
 import json
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
@@ -39,10 +39,10 @@ from superset.reports.commands.exceptions import (
     ReportScheduleCsvFailedError,
     ReportScheduleCsvTimeout,
     ReportScheduleNotFoundError,
-    ReportScheduleNotificationError,
     ReportSchedulePreviousWorkingError,
     ReportScheduleScreenshotFailedError,
     ReportScheduleScreenshotTimeout,
+    ReportScheduleUnexpectedError,
     ReportScheduleWorkingTimeoutError,
 )
 from superset.reports.commands.execute import AsyncExecuteReportScheduleCommand
@@ -113,6 +113,7 @@ def assert_log(state: str, error_message: Optional[str] = None):
 
     if state == ReportState.ERROR:
         # On error we send an email
+        print(logs)
         assert len(logs) == 3
     else:
         assert len(logs) == 2
@@ -129,18 +130,14 @@ def assert_log(state: str, error_message: Optional[str] = None):
 
 @contextmanager
 def create_test_table_context(database: Database):
-    database.get_sqla_engine().execute(
-        "CREATE TABLE test_table AS SELECT 1 as first, 2 as second"
-    )
-    database.get_sqla_engine().execute(
-        "INSERT INTO test_table (first, second) VALUES (1, 2)"
-    )
-    database.get_sqla_engine().execute(
-        "INSERT INTO test_table (first, second) VALUES (3, 4)"
-    )
+    with database.get_sqla_engine_with_context() as engine:
+        engine.execute("CREATE TABLE test_table AS SELECT 1 as first, 2 as second")
+        engine.execute("INSERT INTO test_table (first, second) VALUES (1, 2)")
+        engine.execute("INSERT INTO test_table (first, second) VALUES (3, 4)")
 
     yield db.session
-    database.get_sqla_engine().execute("DROP TABLE test_table")
+    with database.get_sqla_engine_with_context() as engine:
+        engine.execute("DROP TABLE test_table")
 
 
 @pytest.fixture()
@@ -1321,7 +1318,7 @@ def test_email_dashboard_report_fails(
     screenshot_mock.return_value = SCREENSHOT_FILE
     email_mock.side_effect = SMTPException("Could not connect to SMTP XPTO")
 
-    with pytest.raises(ReportScheduleNotificationError):
+    with pytest.raises(ReportScheduleUnexpectedError):
         AsyncExecuteReportScheduleCommand(
             TEST_ID, create_report_email_dashboard.id, datetime.utcnow()
         ).run()

@@ -197,7 +197,6 @@ class HeaderDataType(TypedDict):
     notification_source: Optional[str]
     chart_id: Optional[int]
     dashboard_id: Optional[int]
-    error_text: Optional[str]
 
 
 class DatasourceDict(TypedDict):
@@ -1271,7 +1270,9 @@ def is_adhoc_metric(metric: Metric) -> TypeGuard[AdhocMetric]:
 
 
 def is_adhoc_column(column: Column) -> TypeGuard[AdhocColumn]:
-    return isinstance(column, dict)
+    return isinstance(column, dict) and ({"label", "sqlExpression"}).issubset(
+        column.keys()
+    )
 
 
 def get_base_axis_labels(columns: Optional[List[Column]]) -> Tuple[str, ...]:

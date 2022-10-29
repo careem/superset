@@ -30,6 +30,7 @@ import {
   SharedControlConfig,
   Dataset,
   Metric,
+  isDataset,
 } from '../types';
 import { DATASET_TIME_COLUMN_OPTION, TIME_FILTER_LABELS } from '../constants';
 import {
@@ -77,10 +78,8 @@ export const dndGroupByControl: SharedControlConfig<
   valueKey: 'column_name',
   allowAll: true,
   filterOption: ({ data: opt }: FilterOption<ColumnMeta>, text: string) =>
-    (opt.column_name &&
-      opt.column_name.toLowerCase().includes(text.toLowerCase())) ||
-    (opt.verbose_name &&
-      opt.verbose_name.toLowerCase().includes(text.toLowerCase())) ||
+    opt.column_name?.toLowerCase().includes(text.toLowerCase()) ||
+    opt.verbose_name?.toLowerCase().includes(text.toLowerCase()) ||
     false,
   promptTextCreator: (label: unknown) => label,
   mapStateToProps(state, controlState) {
@@ -140,8 +139,8 @@ export const dndAdhocFilterControl: SharedControlConfig<
   default: [],
   description: '',
   mapStateToProps: ({ datasource, form_data }) => ({
-    columns: datasource?.columns[0]?.hasOwnProperty('filterable')
-      ? (datasource as Dataset)?.columns.filter(c => c.filterable)
+    columns: isDataset(datasource)
+      ? datasource.columns.filter(c => c.filterable)
       : datasource?.columns || [],
     savedMetrics: defineSavedMetrics(datasource),
     // current active adhoc metrics

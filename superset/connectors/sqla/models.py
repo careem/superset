@@ -95,6 +95,7 @@ from superset.exceptions import (
     DatasetInvalidPermissionEvaluationException,
     QueryClauseValidationException,
     QueryObjectValidationError,
+    SupersetSecurityException,
 )
 from superset.extensions import feature_flag_manager
 from superset.jinja_context import (
@@ -119,6 +120,7 @@ from superset.sql_parse import (
 from superset.superset_typing import (
     AdhocColumn,
     AdhocMetric,
+    Column as ColumnTyping,
     Metric,
     OrderBy,
     QueryObjectDict,
@@ -659,19 +661,19 @@ def _process_sql_expression(
     expression: Optional[str],
     database_id: int,
     schema: str,
-    template_processor: Optional[BaseTemplateProcessor],
+    template_processor: Optional[BaseTemplateProcessor] = None,
 ) -> Optional[str]:
     if template_processor and expression:
         expression = template_processor.process_template(expression)
     if expression:
-        expression = validate_adhoc_subquery(
-            expression,
-            database_id,
-            schema,
-        )
         try:
+            expression = validate_adhoc_subquery(
+                expression,
+                database_id,
+                schema,
+            )
             expression = sanitize_clause(expression)
-        except QueryClauseValidationException as ex:
+        except (QueryClauseValidationException, SupersetSecurityException) as ex:
             raise QueryObjectValidationError(ex.message) from ex
     return expression
 
@@ -1296,7 +1298,7 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
     def get_sqla_query(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
         self,
         apply_fetch_values_predicate: bool = False,
-        columns: Optional[List[Column]] = None,
+        columns: Optional[List[ColumnTyping]] = None,
         extras: Optional[Dict[str, Any]] = None,
         filter: Optional[  # pylint: disable=redefined-builtin
             List[QueryObjectFilterClause]
@@ -1492,15 +1494,24 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                 select_exprs.append(outer)
         elif columns:
             for selected in columns:
+                if is_adhoc_column(selected):
+                    _sql = selected["sqlExpression"]
+                    _column_label = selected["label"]
+                elif isinstance(selected, str):
+                    _sql = selected
+                    _column_label = selected
+
                 selected = validate_adhoc_subquery(
-                    selected,
+                    _sql,
                     self.database_id,
                     self.schema,
                 )
                 select_exprs.append(
                     columns_by_name[selected].get_sqla_col()
-                    if selected in columns_by_name
-                    else self.make_sqla_column_compatible(literal_column(selected))
+                    if isinstance(selected, str) and selected in columns_by_name
+                    else self.make_sqla_column_compatible(
+                        literal_column(selected), _column_label
+                    )
                 )
             metrics_exprs = []
 
@@ -1670,7 +1681,14 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                 elif op == utils.FilterOperator.IS_FALSE.value:
                     where_clause_and.append(sqla_col.is_(False))
                 else:
-                    if eq is None:
+                    if (
+                        op
+                        not in {
+                            utils.FilterOperator.EQUALS.value,
+                            utils.FilterOperator.NOT_EQUALS.value,
+                        }
+                        and eq is None
+                    ):
                         raise QueryObjectValidationError(
                             _(
                                 "Must specify a value for filters "
@@ -1710,6 +1728,11 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                             msg=ex.message,
                         )
                     ) from ex
+                where = _process_sql_expression(
+                    expression=where,
+                    database_id=self.database_id,
+                    schema=self.schema,
+                )
                 where_clause_and += [self.text(where)]
             having = extras.get("having")
             if having:
@@ -1722,7 +1745,13 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                             msg=ex.message,
                         )
                     ) from ex
+                having = _process_sql_expression(
+                    expression=having,
+                    database_id=self.database_id,
+                    schema=self.schema,
+                )
                 having_clause_and += [self.text(having)]
+
         if apply_fetch_values_predicate and self.fetch_values_predicate:
             qry = qry.where(self.get_fetch_values_predicate())
         if granularity:

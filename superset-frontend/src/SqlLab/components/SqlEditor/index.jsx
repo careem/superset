@@ -18,76 +18,64 @@
  */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { CSSTransition } from 'react-transition-group';
-import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
-import Split from 'react-split';
-import { t, styled, useTheme } from '@superset-ui/core';
+import { styled, t, useTheme } from '@superset-ui/core';
+import { isEmpty } from 'lodash';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
-import Modal from 'src/components/Modal';
 import Mousetrap from 'mousetrap';
-import Button from 'src/components/Button';
-import Timer from 'src/components/Timer';
-import ResizableSidebar from 'src/components/ResizableSidebar';
+import PropTypes from 'prop-types';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Split from 'react-split';
+import { CSSTransition } from 'react-transition-group';
 import { AntdDropdown, AntdSwitch } from 'src/components';
+import Button from 'src/components/Button';
+import { EmptyStateBig } from 'src/components/EmptyState';
+import Icons from 'src/components/Icons';
 import { Input } from 'src/components/Input';
 import { Menu } from 'src/components/Menu';
-import Icons from 'src/components/Icons';
-import { detectOS } from 'src/utils/common';
+import Modal from 'src/components/Modal';
+import ResizableSidebar from 'src/components/ResizableSidebar';
+import Timer from 'src/components/Timer';
+import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import {
-  addQueryEditor,
-  CtasEnum,
+  addNewQueryEditor, addSavedQueryToTabState, CtasEnum,
   estimateQueryCost,
   persistEditorHeight,
-  postStopQuery,
-  queryEditorSetAutorun,
-  queryEditorSetSql,
-  queryEditorSetAndSaveSql,
-  queryEditorSetTemplateParams,
+  postStopQuery, queryEditorSetAndSaveSql, queryEditorSetAutorun,
+  queryEditorSetSql, queryEditorSetTemplateParams,
   runQueryFromSqlEditor,
-  saveQuery,
-  addSavedQueryToTabState,
-  scheduleQuery,
+  saveQuery, scheduleQuery,
   setActiveSouthPaneTab,
   updateSavedQuery,
-  validateQuery,
+  validateQuery
 } from 'src/SqlLab/actions/sqlLab';
 import {
-  STATE_TYPE_MAP,
-  SQL_EDITOR_GUTTER_HEIGHT,
-  SQL_EDITOR_GUTTER_MARGIN,
-  SQL_TOOLBAR_HEIGHT,
-  SQL_EDITOR_LEFTBAR_WIDTH,
-  SQL_EDITOR_PADDING,
   INITIAL_NORTH_PERCENT,
   INITIAL_SOUTH_PERCENT,
-  SET_QUERY_EDITOR_SQL_DEBOUNCE_MS,
-  VALIDATION_DEBOUNCE_MS,
-  WINDOW_RESIZE_THROTTLE_MS,
+  SET_QUERY_EDITOR_SQL_DEBOUNCE_MS, SQL_EDITOR_GUTTER_HEIGHT,
+  SQL_EDITOR_GUTTER_MARGIN, SQL_EDITOR_LEFTBAR_WIDTH,
+  SQL_EDITOR_PADDING, SQL_TOOLBAR_HEIGHT, STATE_TYPE_MAP, VALIDATION_DEBOUNCE_MS,
+  WINDOW_RESIZE_THROTTLE_MS
 } from 'src/SqlLab/constants';
+import { detectOS } from 'src/utils/common';
 import {
   getItem,
   LocalStorageKeys,
-  setItem,
+  setItem
 } from 'src/utils/localStorageHelpers';
-import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
-import { EmptyStateBig } from 'src/components/EmptyState';
-import { isEmpty } from 'lodash';
 import FlashCreationButton from 'src/views/CRUD/flash/components/FlashCreationButton/FlashCreationButton';
 import { DATASOURCE_TYPES } from 'src/views/CRUD/flash/constants';
-import TemplateParamsEditor from '../TemplateParamsEditor';
-import ConnectedSouthPane from '../SouthPane/state';
+import AceEditorWrapper from '../AceEditorWrapper';
+import EstimateQueryCostButton from '../EstimateQueryCostButton';
+import QueryLimitSelect from '../QueryLimitSelect';
+import RunQueryActionButton from '../RunQueryActionButton';
 import SaveQuery from '../SaveQuery';
 import ScheduleQueryButton from '../ScheduleQueryButton';
-import EstimateQueryCostButton from '../EstimateQueryCostButton';
 import ShareSqlLabQuery from '../ShareSqlLabQuery';
+import ConnectedSouthPane from '../SouthPane/state';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
-import AceEditorWrapper from '../AceEditorWrapper';
-import RunQueryActionButton from '../RunQueryActionButton';
-import { newQueryTabName } from '../../utils/newQueryTabName';
-import QueryLimitSelect from '../QueryLimitSelect';
+import TemplateParamsEditor from '../TemplateParamsEditor';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -141,8 +129,6 @@ const StyledSidebar = styled.div`
 const propTypes = {
   actions: PropTypes.object.isRequired,
   tables: PropTypes.array.isRequired,
-  editorQueries: PropTypes.array.isRequired,
-  dataPreviewQueries: PropTypes.array.isRequired,
   queryEditor: PropTypes.object.isRequired,
   defaultQueryLimit: PropTypes.number.isRequired,
   maxRow: PropTypes.number.isRequired,
@@ -154,8 +140,6 @@ const propTypes = {
 const SqlEditor = ({
   actions,
   tables,
-  editorQueries,
-  dataPreviewQueries,
   queryEditor,
   defaultQueryLimit,
   maxRow,
@@ -166,13 +150,8 @@ const SqlEditor = ({
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { currentQueryEditor, database, latestQuery, hideLeftBar } =
-    useSelector(({ sqlLab: { unsavedQueryEditor, databases, queries } }) => {
-      const currentQueryEditor = {
-        ...queryEditor,
-        ...(queryEditor.id === unsavedQueryEditor.id && unsavedQueryEditor),
-      };
-
+  const { database, latestQuery, hideLeftBar } = useSelector(
+    ({ sqlLab: { unsavedQueryEditor, databases, queries } }) => {
       let { dbId, latestQueryId, hideLeftBar } = queryEditor;
       if (unsavedQueryEditor.id === queryEditor.id) {
         dbId = unsavedQueryEditor.dbId || dbId;
@@ -180,14 +159,12 @@ const SqlEditor = ({
         hideLeftBar = unsavedQueryEditor.hideLeftBar || hideLeftBar;
       }
       return {
-        currentQueryEditor,
         database: databases[dbId],
         latestQuery: queries[latestQueryId],
         hideLeftBar,
       };
-    });
-
-  const queryEditors = useSelector(({ sqlLab }) => sqlLab.queryEditors);
+    },
+  );
 
   const [height, setHeight] = useState(0);
   const [autorun, setAutorun] = useState(queryEditor.autorun);
@@ -230,6 +207,7 @@ const SqlEditor = ({
     if (latestQuery && ['running', 'pending'].indexOf(latestQuery.state) >= 0) {
       dispatch(postStopQuery(latestQuery));
     }
+    return false;
   };
 
   const runQuery = () => {
@@ -238,7 +216,7 @@ const SqlEditor = ({
     }
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (autorun) {
       setAutorun(false);
       dispatch(queryEditorSetAutorun(queryEditor, false));
@@ -255,7 +233,6 @@ const SqlEditor = ({
   const getHotkeyConfig = () => {
     // Get the user's OS
     const userOS = detectOS();
-
     const base = [
       {
         name: 'runQuery1',
@@ -282,13 +259,7 @@ const SqlEditor = ({
         key: userOS === 'Windows' ? 'ctrl+q' : 'ctrl+t',
         descr: t('New tab'),
         func: () => {
-          const name = newQueryTabName(queryEditors || []);
-          dispatch(
-            addQueryEditor({
-              ...queryEditor,
-              name,
-            }),
-          );
+          dispatch(addNewQueryEditor(queryEditor));
         },
       },
       {
@@ -343,17 +314,20 @@ const SqlEditor = ({
     window.addEventListener('resize', handleWindowResizeWithThrottle);
     window.addEventListener('beforeunload', onBeforeUnload);
 
-    // setup hotkeys
-    const hotkeys = getHotkeyConfig();
-    hotkeys.forEach(keyConfig => {
-      Mousetrap.bind([keyConfig.key], keyConfig.func);
-    });
-
     return () => {
       window.removeEventListener('resize', handleWindowResizeWithThrottle);
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
   }, []);
+
+  useEffect(() => {
+    // setup hotkeys
+    Mousetrap.reset();
+    const hotkeys = getHotkeyConfig();
+    hotkeys.forEach(keyConfig => {
+      Mousetrap.bind([keyConfig.key], keyConfig.func);
+    });
+  }, [latestQuery]);
 
   const onResizeStart = () => {
     // Set the heights on the ace editor and the ace content area after drag starts
@@ -507,8 +481,8 @@ const SqlEditor = ({
     );
   };
 
-  const onSaveQuery = async query => {
-    const savedQuery = await dispatch(saveQuery(query));
+  const onSaveQuery = async (query, clientId) => {
+    const savedQuery = await dispatch(saveQuery(query, clientId));
     dispatch(addSavedQueryToTabState(queryEditor, savedQuery));
   };
 
@@ -549,7 +523,7 @@ const SqlEditor = ({
           <span>
             <RunQueryActionButton
               allowAsync={database ? database.allow_run_async : false}
-              queryEditor={queryEditor}
+              queryEditorId={queryEditor.id}
               queryState={latestQuery?.state}
               runQuery={runQuery}
               stopQuery={stopQuery}
@@ -568,7 +542,7 @@ const SqlEditor = ({
             )}
           <span>
             <QueryLimitSelect
-              queryEditor={queryEditor}
+              queryEditorId={queryEditor.id}
               maxRow={maxRow}
               defaultQueryLimit={defaultQueryLimit}
             />
@@ -601,16 +575,18 @@ const SqlEditor = ({
           )}
           <span>
             <SaveQuery
-              queryEditor={queryEditor}
+              queryEditorId={queryEditor.id}
               columns={latestQuery?.results?.columns || []}
               onSave={onSaveQuery}
-              onUpdate={query => dispatch(updateSavedQuery(query))}
+              onUpdate={(query, remoteId, id) =>
+                dispatch(updateSavedQuery(query, remoteId, id))
+              }
               saveQueryWarning={saveQueryWarning}
               database={database}
             />
           </span>
           <span>
-            <ShareSqlLabQuery queryEditor={queryEditor} />
+            <ShareSqlLabQuery queryEditorId={queryEditor.id} />
           </span>
           <AntdDropdown overlay={renderDropdown()} trigger="click">
             <Icons.MoreHoriz iconColor={theme.colors.grayscale.base} />
@@ -641,7 +617,7 @@ const SqlEditor = ({
             autocomplete={autocompleteEnabled}
             onBlur={setQueryEditorAndSaveSql}
             onChange={onSqlChanged}
-            queryEditor={currentQueryEditor}
+            queryEditorId={queryEditor.id}
             database={database}
             extendedTables={tables}
             height={`${aceEditorHeight}px`}
@@ -650,9 +626,8 @@ const SqlEditor = ({
           {renderEditorBottomBar(hotkeys)}
         </div>
         <ConnectedSouthPane
-          editorQueries={editorQueries}
+          queryEditorId={queryEditor.id}
           latestQueryId={latestQuery?.id}
-          dataPreviewQueries={dataPreviewQueries}
           actions={actions}
           height={southPaneHeight}
           displayLimit={displayLimit}
