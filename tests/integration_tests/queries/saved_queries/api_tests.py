@@ -480,7 +480,7 @@ class TestSavedQueryApi(SupersetTestCase):
         rv = self.client.get(uri)
         print(rv.status_code)
         logger.info(rv.status_code)
-        assert rv.status_code == 200
+        assert rv.status_code == 100
         data = json.loads(rv.data.decode("utf-8"))
         expected_response = {
             "count": len(saved_queries),
