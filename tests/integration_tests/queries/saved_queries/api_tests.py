@@ -16,6 +16,7 @@
 # under the License.
 # isort:skip_file
 """Unit tests for Superset"""
+from asyncio.log import logger
 import json
 from io import BytesIO
 from typing import Optional
@@ -477,6 +478,8 @@ class TestSavedQueryApi(SupersetTestCase):
         self.login(username="admin")
         uri = f"api/v1/saved_query/distinct/schema"
         rv = self.client.get(uri)
+        print(rv.status_code)
+        logger.info(rv.status_code)
         assert rv.status_code == 200
         data = json.loads(rv.data.decode("utf-8"))
         expected_response = {
@@ -486,6 +489,13 @@ class TestSavedQueryApi(SupersetTestCase):
                 for i in range(len(saved_queries))
             ],
         }
+
+        print("data = ",data)
+        print("ER = ",expected_response)
+
+        logger.info("data = ",data)
+        logger.info("ER = ",expected_response)
+
         assert data == expected_response
 
     def test_get_saved_query_not_allowed(self):
