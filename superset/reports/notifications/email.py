@@ -70,7 +70,6 @@ class EmailContent:
     header_data: Optional[HeaderDataType] = None
     data: Optional[Dict[str, Any]] = None
     images: Optional[Dict[str, bytes]] = None
-    text_msg: Optional[Dict[str, str]] = None
 
 
 class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-methods
@@ -101,16 +100,12 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
         csv_data = None
         domain = self._get_smtp_domain()
         images = {}
-        text_msg = {}
 
         if self._content.screenshots:
             images = {
                 make_msgid(domain)[1:-1]: screenshot
                 for screenshot in self._content.screenshots
             }
-        
-        if self._content.extra:
-            text_msg = {"msg_content": self._content.extra}
 
         # Strip any malicious HTML from the description
         description = bleach.clean(
@@ -180,8 +175,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             body=body,
             images=images,
             data=csv_data,
-            header_data=self._content.header_data,
-            text_msg=text_msg,
+            header_data=self._content.header_data
         )
 
     def _get_subject(self) -> str:
@@ -211,8 +205,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 bcc="",
                 mime_subtype="related",
                 dryrun=False,
-                header_data=content.header_data,
-                text_msg=content.text_msg
+                header_data=content.header_data
             )
             logger.info("Report sent to email")
         except Exception as ex:
