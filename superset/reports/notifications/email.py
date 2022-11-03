@@ -32,6 +32,7 @@ from superset.reports.notifications.exceptions import NotificationError
 from superset.utils.core import HeaderDataType, send_email_smtp
 from superset.utils.decorators import statsd_gauge
 from superset.utils.urls import modify_url_query
+from superset.reports.api import add_model_schema, edit_model_schema
 
 logger = logging.getLogger(__name__)
 
@@ -142,32 +143,60 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 """
             )
         img_tag = "".join(img_tags)
-        body = textwrap.dedent(
-            f"""
-            <html>
-              <head>
-                <style type="text/css">
-                  table, th, td {{
-                    border-collapse: collapse;
-                    border-color: rgb(200, 212, 227);
-                    color: rgb(42, 63, 95);
-                    padding: 4px 8px;
-                  }}
-                  .image{{
-                      margin-bottom: 18px;
-                  }}
-                </style>
-              </head>
-              <body>
-                <div>{description}</div>
-                <br>
-                <b><a href="{url}">{call_to_action}</a></b><p></p>
-                {html_table}
-                {img_tag}
-              </body>
-            </html>
-            """
-        )
+
+        if (add_model_schema.extra is not None or edit_model_schema.extra is not None):
+            body = textwrap.dedent(
+                f"""
+                <html>
+                <head>
+                    <style type="text/css">
+                    table, th, td {{
+                        border-collapse: collapse;
+                        border-color: rgb(200, 212, 227);
+                        color: rgb(42, 63, 95);
+                        padding: 4px 8px;
+                    }}
+                    .image{{
+                        margin-bottom: 18px;
+                    }}
+                    </style>
+                </head>
+                <body>
+                    <div>{description}</div>
+                    <br>
+                    {add_model_schema.extra.msg_content}
+                </body>
+                </html>
+                """
+            )
+        else:
+            body = textwrap.dedent(
+                f"""
+                <html>
+                <head>
+                    <style type="text/css">
+                    table, th, td {{
+                        border-collapse: collapse;
+                        border-color: rgb(200, 212, 227);
+                        color: rgb(42, 63, 95);
+                        padding: 4px 8px;
+                    }}
+                    .image{{
+                        margin-bottom: 18px;
+                    }}
+                    </style>
+                </head>
+                <body>
+                    <div>{description}</div>
+                    <br>
+                    <b><a href="{url}">{call_to_action}</a></b><p></p>
+                    {html_table}
+                    {img_tag}
+                </body>
+                </html>
+                """
+            )
+        
 
         if self._content.csv:
             csv_data = {__("%(name)s.csv", name=self._content.name): self._content.csv}
@@ -194,6 +223,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
         content = self._get_content()
         to = self._get_to()
         try:
+            print(content.body)
             send_email_smtp(
                 to,
                 subject,
