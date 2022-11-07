@@ -229,7 +229,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             body=body,
             images=images,
             data=csv_data,
-            header_data=self._content.header_data
+            header_data=self._content.header_data,
         )
 
     def _get_subject(self) -> str:
@@ -260,7 +260,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 bcc="",
                 mime_subtype="related",
                 dryrun=False,
-                header_data=content.header_data
+                header_data=content.header_data,
             )
             logger.info("Report sent to email")
         except Exception as ex:
