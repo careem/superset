@@ -32,7 +32,7 @@ from superset.reports.notifications.exceptions import NotificationError
 from superset.utils.core import HeaderDataType, send_email_smtp
 from superset.utils.decorators import statsd_gauge
 from superset.utils.urls import modify_url_query
-from superset.reports.api import add_model_schema, edit_model_schema
+from superset.reports.api import ReportScheduleRestApi
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +144,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             )
         img_tag = "".join(img_tags)
 
-        if add_model_schema.extra:
+        if ReportScheduleRestApi.add_model_schema.extra:
             body = textwrap.dedent(
                 f"""
                 <html>
@@ -164,12 +164,12 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 <body>
                     <div>{description}</div>
                     <br>
-                    {add_model_schema.extra.msg_content}
+                    {ReportScheduleRestApi.add_model_schema.extra.msg_content}
                 </body>
                 </html>
                 """
             )
-        elif edit_model_schema.extra:
+        elif ReportScheduleRestApi.edit_model_schema.extra:
             body = textwrap.dedent(
                 f"""
                 <html>
@@ -189,7 +189,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 <body>
                     <div>{description}</div>
                     <br>
-                    {edit_model_schema.extra.msg_content}
+                    {ReportScheduleRestApi.edit_model_schema.extra.msg_content}
                 </body>
                 </html>
                 """

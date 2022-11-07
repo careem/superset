@@ -31,7 +31,7 @@ from superset.reports.notifications.base import BaseNotification
 from superset.reports.notifications.exceptions import NotificationError
 from superset.utils.decorators import statsd_gauge
 from superset.utils.urls import modify_url_query
-from superset.reports.api import add_model_schema, edit_model_schema
+from superset.reports.api import ReportScheduleRestApi
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
             else ""
         )
 
-        if add_model_schema.extra:
+        if ReportScheduleRestApi.add_model_schema.extra:
             return __(
             """*%(name)s*
 
@@ -66,9 +66,9 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
     """,
                 name=self._content.name,
                 description=self._content.description or "",
-                text_message=add_model_schema.extra.msg_content
+                text_message=ReportScheduleRestApi.add_model_schema.extra.msg_content
             )
-        elif edit_model_schema.extra:
+        elif ReportScheduleRestApi.edit_model_schema.extra:
             return __(
             """*%(name)s*
 
@@ -78,7 +78,7 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
     """,
                 name=self._content.name,
                 description=self._content.description or "",
-                text_message=edit_model_schema.extra.msg_content
+                text_message=ReportScheduleRestApi.edit_model_schema.extra.msg_content
             )
         else:
             return __(
