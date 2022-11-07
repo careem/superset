@@ -93,7 +93,7 @@ class CreateReportScheduleCommand(CreateMixin, BaseReportScheduleCommand):
                 self._properties["database"] = database
 
         # Validate chart or dashboard relations
-        # self.validate_chart_dashboard(exceptions)
+        self.validate_chart_dashboard(exceptions)
         self._validate_report_extra(exceptions)
 
         # Validate that each chart or dashboard only has one report with
