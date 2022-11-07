@@ -31,6 +31,7 @@ from superset.reports.notifications.base import BaseNotification
 from superset.reports.notifications.exceptions import NotificationError
 from superset.utils.decorators import statsd_gauge
 from superset.utils.urls import modify_url_query
+from superset.reports.api import add_model_schema, edit_model_schema
 
 logger = logging.getLogger(__name__)
 
@@ -54,20 +55,46 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
             if self._content.url is not None
             else ""
         )
-        return __(
+
+        if add_model_schema.extra:
+            return __(
             """*%(name)s*
 
-%(description)s
+    %(description)s
 
-<%(url)s|Explore in Careem Insights>
+    %(text_message)s
+    """,
+                name=self._content.name,
+                description=self._content.description or "",
+                text_message=add_model_schema.extra.msg_content
+            )
+        elif edit_model_schema.extra:
+            return __(
+            """*%(name)s*
 
-%(table)s
-""",
-            name=self._content.name,
-            description=self._content.description or "",
-            url=url,
-            table=table,
-        )
+    %(description)s
+
+    %(text_message)s
+    """,
+                name=self._content.name,
+                description=self._content.description or "",
+                text_message=edit_model_schema.extra.msg_content
+            )
+        else:
+            return __(
+                """*%(name)s*
+
+    %(description)s
+
+    <%(url)s|Explore in Careem Insights>
+
+    %(table)s
+    """,
+                name=self._content.name,
+                description=self._content.description or "",
+                url=url,
+                table=table,
+            )
 
     @staticmethod
     def _error_template(name: str, description: str, text: str) -> str:

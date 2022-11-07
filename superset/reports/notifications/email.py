@@ -144,7 +144,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             )
         img_tag = "".join(img_tags)
 
-        if (add_model_schema.extra is not None or edit_model_schema.extra is not None):
+        if add_model_schema.extra:
             body = textwrap.dedent(
                 f"""
                 <html>
@@ -165,6 +165,31 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                     <div>{description}</div>
                     <br>
                     {add_model_schema.extra.msg_content}
+                </body>
+                </html>
+                """
+            )
+        elif edit_model_schema.extra:
+            body = textwrap.dedent(
+                f"""
+                <html>
+                <head>
+                    <style type="text/css">
+                    table, th, td {{
+                        border-collapse: collapse;
+                        border-color: rgb(200, 212, 227);
+                        color: rgb(42, 63, 95);
+                        padding: 4px 8px;
+                    }}
+                    .image{{
+                        margin-bottom: 18px;
+                    }}
+                    </style>
+                </head>
+                <body>
+                    <div>{description}</div>
+                    <br>
+                    {edit_model_schema.extra.msg_content}
                 </body>
                 </html>
                 """
