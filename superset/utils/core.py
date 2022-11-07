@@ -921,7 +921,6 @@ def send_email_smtp(  # pylint: disable=invalid-name,too-many-arguments,too-many
     bcc: Optional[str] = None,
     mime_subtype: str = "mixed",
     header_data: Optional[HeaderDataType] = None,
-    text_msg: Optional[Dict[str, str]] = None,
 ) -> None:
     """
     Send an email with html content, eg:
