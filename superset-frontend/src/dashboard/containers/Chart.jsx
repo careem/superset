@@ -95,6 +95,7 @@ function mapStateToProps(
     supersetCanExplore: !!dashboardInfo.superset_can_explore,
     supersetCanShare: !!dashboardInfo.superset_can_share,
     supersetCanCSV: !!dashboardInfo.superset_can_csv,
+    supersetCanExcel: !!dashboardInfo.superset_can_excel,
     sliceCanEdit: !!dashboardInfo.slice_can_edit,
     ownState: dataMask[id]?.ownState,
     filterState: dataMask[id]?.filterState,
