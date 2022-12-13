@@ -727,7 +727,7 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     "VERSIONED_EXPORT": True,
     "EMBEDDED_SUPERSET": False,
     # Enables Alerts and reports new implementation
-    "ALERT_REPORTS": False,
+    "ALERT_REPORTS": True,
     "DASHBOARD_RBAC": False,
     "ENABLE_EXPLORE_DRAG_AND_DROP": True,
     "ENABLE_FILTER_BOX_MIGRATION": False,
@@ -1279,18 +1279,18 @@ FLASK_APP_MUTATOR = None
 ENABLE_ACCESS_REQUEST = False
 
 # smtp server configuration
-EMAIL_NOTIFICATIONS = False  # all the emails are sent using dryrun
+EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
 # SMTP_HOST = "localhost"
-SMTP_HOST = os.getenv('SMTP_HOST')
+SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_STARTTLS = True
 SMTP_SSL = False
 # SMTP_USER = "superset"
-SMTP_USER = os.getenv('SMTP_USER')
+SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PORT = 25
 # SMTP_PASSWORD = "superset"
-SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 # SMTP_MAIL_FROM = "superset@superset.com"
-SMTP_MAIL_FROM = os.getenv('SMTP_MAIL_FROM')
+SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM")
 # If True creates a default SSL context with ssl.Purpose.CLIENT_AUTH using the
 # default system root CA certificates.
 SMTP_SSL_SERVER_AUTH = False
@@ -1442,7 +1442,7 @@ ALERT_REPORTS_QUERY_EXECUTION_MAX_TRIES = 1
 EMAIL_REPORTS_SUBJECT_PREFIX = "[Report] "
 
 # Slack API token for the superset reports, either string or callable
-SLACK_API_TOKEN: Optional[Union[Callable[[], str], str]] = None
+SLACK_API_TOKEN: Optional[Union[Callable[[], str], str]] = "SLACK"
 SLACK_PROXY = None
 
 # The webdriver to use for generating reports. Use one of the following
@@ -1452,7 +1452,7 @@ SLACK_PROXY = None
 # chrome:
 #   Requires: headless chrome
 #   Limitations: unable to generate screenshots of elements
-WEBDRIVER_TYPE = "firefox"
+WEBDRIVER_TYPE = "chrome"
 
 # Window size - this will impact the rendering of the data
 WEBDRIVER_WINDOW = {

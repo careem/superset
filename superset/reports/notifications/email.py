@@ -144,59 +144,86 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             )
         img_tag = "".join(img_tags)
 
-        if ReportScheduleRestApi.add_model_schema.extra:
-            body = textwrap.dedent(
-                f"""
-                <html>
-                <head>
-                    <style type="text/css">
-                    table, th, td {{
-                        border-collapse: collapse;
-                        border-color: rgb(200, 212, 227);
-                        color: rgb(42, 63, 95);
-                        padding: 4px 8px;
-                    }}
-                    .image{{
-                        margin-bottom: 18px;
-                    }}
-                    </style>
-                </head>
-                <body>
-                    <div>{description}</div>
-                    <br>
-                    {ReportScheduleRestApi.add_model_schema.extra.msg_content}
-                </body>
-                </html>
-                """
-            )
-        elif ReportScheduleRestApi.edit_model_schema.extra:
-            body = textwrap.dedent(
-                f"""
-                <html>
-                <head>
-                    <style type="text/css">
-                    table, th, td {{
-                        border-collapse: collapse;
-                        border-color: rgb(200, 212, 227);
-                        color: rgb(42, 63, 95);
-                        padding: 4px 8px;
-                    }}
-                    .image{{
-                        margin-bottom: 18px;
-                    }}
-                    </style>
-                </head>
-                <body>
-                    <div>{description}</div>
-                    <br>
-                    {ReportScheduleRestApi.edit_model_schema.extra.msg_content}
-                </body>
-                </html>
-                """
-            )
-        else:
-            body = textwrap.dedent(
-                f"""
+        # if self._content.msg_content:
+        #     body = textwrap.dedent(
+        #         f"""
+        #         <html>
+        #         <head>
+        #             <style type="text/css">
+        #             table, th, td {{
+        #                 border-collapse: collapse;
+        #                 border-color: rgb(200, 212, 227);
+        #                 color: rgb(42, 63, 95);
+        #                 padding: 4px 8px;
+        #             }}
+        #             .image{{
+        #                 margin-bottom: 18px;
+        #             }}
+        #             </style>
+        #         </head>
+        #         <body>
+        #             <div>{description}</div>
+        #             <br>
+        #             {self._content.msg_content}
+        #         </body>
+        #         </html>
+        #         """
+        #     )
+        # elif self._content.msg_content:
+        #     body = textwrap.dedent(
+        #         f"""
+        #         <html>
+        #         <head>
+        #             <style type="text/css">
+        #             table, th, td {{
+        #                 border-collapse: collapse;
+        #                 border-color: rgb(200, 212, 227);
+        #                 color: rgb(42, 63, 95);
+        #                 padding: 4px 8px;
+        #             }}
+        #             .image{{
+        #                 margin-bottom: 18px;
+        #             }}
+        #             </style>
+        #         </head>
+        #         <body>
+        #             <div>{description}</div>
+        #             <br>
+        #             {self._content.msg_content}
+        #         </body>
+        #         </html>
+        #         """
+        #     )
+        # else:
+        #     body = textwrap.dedent(
+        #         f"""
+        #         <html>
+        #         <head>
+        #             <style type="text/css">
+        #             table, th, td {{
+        #                 border-collapse: collapse;
+        #                 border-color: rgb(200, 212, 227);
+        #                 color: rgb(42, 63, 95);
+        #                 padding: 4px 8px;
+        #             }}
+        #             .image{{
+        #                 margin-bottom: 18px;
+        #             }}
+        #             </style>
+        #         </head>
+        #         <body>
+        #             <div>{description}</div>
+        #             <br>
+        #             <b><a href="{url}">{call_to_action}</a></b><p></p>
+        #             {html_table}
+        #             {img_tag}
+        #         </body>
+        #         </html>
+        #         """
+        #     )
+
+        body = textwrap.dedent(
+            f"""
                 <html>
                 <head>
                     <style type="text/css">
@@ -220,8 +247,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 </body>
                 </html>
                 """
-            )
-        
+        )
 
         if self._content.csv:
             csv_data = {__("%(name)s.csv", name=self._content.name): self._content.csv}

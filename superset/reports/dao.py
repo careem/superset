@@ -162,6 +162,8 @@ class ReportScheduleDAO(BaseDAO):
 
         try:
             model = ReportSchedule()
+            logger.info("REPORTS data in create %s", model)
+            logger.info("PROPERTIES data in create %s", properties.items())
             for key, value in properties.items():
                 if key != "recipients":
                     setattr(model, key, value)

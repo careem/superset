@@ -58,7 +58,7 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
 
         if ReportScheduleRestApi.add_model_schema.extra:
             return __(
-            """*%(name)s*
+                """*%(name)s*
 
     %(description)s
 
@@ -66,11 +66,11 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
     """,
                 name=self._content.name,
                 description=self._content.description or "",
-                text_message=ReportScheduleRestApi.add_model_schema.extra.msg_content
+                text_message=ReportScheduleRestApi.add_model_schema.extra.msg_content,
             )
         elif ReportScheduleRestApi.edit_model_schema.extra:
             return __(
-            """*%(name)s*
+                """*%(name)s*
 
     %(description)s
 
@@ -78,7 +78,7 @@ class SlackNotification(BaseNotification):  # pylint: disable=too-few-public-met
     """,
                 name=self._content.name,
                 description=self._content.description or "",
-                text_message=ReportScheduleRestApi.edit_model_schema.extra.msg_content
+                text_message=ReportScheduleRestApi.edit_model_schema.extra.msg_content,
             )
         else:
             return __(

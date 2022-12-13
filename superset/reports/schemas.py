@@ -203,9 +203,8 @@ class ReportSchedulePostSchema(Schema):
         default=ReportDataFormat.VISUALIZATION,
         validate=validate.OneOf(choices=tuple(key.value for key in ReportDataFormat)),
     )
-    extra = fields.Dict(
-        default=None,
-    )
+    msg_content = fields.String(required=False, allow_none=True)
+    extra = fields.Dict(default=None)
     force_screenshot = fields.Boolean(default=False)
 
     @validates_schema
@@ -297,5 +296,6 @@ class ReportSchedulePutSchema(Schema):
         default=ReportDataFormat.VISUALIZATION,
         validate=validate.OneOf(choices=tuple(key.value for key in ReportDataFormat)),
     )
+    msg_content = fields.String(required=False, allow_none=True)
     extra = fields.Dict(default=None)
     force_screenshot = fields.Boolean(default=False)

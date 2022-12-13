@@ -833,7 +833,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   };
 
   const onMsgChange = (value: string) => {
-    updateAlertState('extra', { msg_content: value } || undefined);
+    updateAlertState('msg_content', value || undefined);
     updateAlertState('dashboard', null);
     updateAlertState('chart', null);
   };
@@ -849,16 +849,14 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   const onDashboardChange = (dashboard: SelectValue) => {
     updateAlertState('dashboard', dashboard || undefined);
     updateAlertState('chart', null);
-    updateAlertState('extra', null);
-    // console.log('currentAlert after ===', currentAlert);
+    updateAlertState('msg_content', null);
   };
 
   const onChartChange = (chart: SelectValue) => {
     getChartVisualizationType(chart);
     updateAlertState('chart', chart || undefined);
     updateAlertState('dashboard', null);
-    updateAlertState('extra', null);
-    // console.log('currentAlert after ===', currentAlert);
+    updateAlertState('msg_content', null);
   };
 
   const onActiveSwitch = (checked: boolean) => {
@@ -941,7 +939,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
       currentAlert.working_timeout !== undefined &&
       ((contentType === 'dashboard' && !!currentAlert.dashboard) ||
         (contentType === 'chart' && !!currentAlert.chart) ||
-        (contentType === 'text_message' && !!currentAlert.extra)) &&
+        (contentType === 'text_message' && !!currentAlert.msg_content)) &&
       checkNotificationSettings()
     ) {
       if (isReport) {
@@ -1004,7 +1002,13 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
           ? 'hidden'
           : 'active',
       );
-      setContentType(resource.chart ? 'chart' : 'dashboard');
+      setContentType(
+        resource.chart
+          ? 'chart'
+          : resource.msg_content
+          ? 'text_message'
+          : 'dashboard',
+      );
       setReportFormat(
         resource.chart
           ? resource.report_format || DEFAULT_NOTIFICATION_FORMAT
@@ -1024,7 +1028,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
 
       setCurrentAlert({
         ...resource,
-        extra: resource?.extra ? resource.extra : { msg_content: null },
+        msg_content: resource?.msg_content ? resource.msg_content : null,
         chart: resource.chart
           ? getChartData(resource.chart) || {
               value: (resource.chart as ChartObject).id,
@@ -1074,7 +1078,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
     currentAlertSafe.working_timeout,
     currentAlertSafe.dashboard,
     currentAlertSafe.chart,
-    currentAlertSafe.extra?.msg_content,
+    currentAlertSafe.msg_content,
     contentType,
     notificationSettings,
     conditionNotNull,
@@ -1411,7 +1415,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                 maxLines={15}
                 onChange={onMsgChange}
                 readOnly={false}
-                initialValue={currentAlert?.extra?.msg_content}
+                initialValue={currentAlert?.msg_content}
                 key={currentAlert?.id}
               />
             </StyledInputContainer>

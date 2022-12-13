@@ -142,6 +142,7 @@ class ReportSchedule(Model, AuditMixinNullable, ExtraJSONMixin):
 
     # (Alerts) Observed value validation related columns
     validator_type = Column(String(100))
+    msg_content = Column(Text, nullable=True)
     validator_config_json = Column(Text, default="{}")
 
     # Log retention
