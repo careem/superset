@@ -106,6 +106,16 @@ export const rootReducer = combineReducers({
   messageToasts: messageToastReducer,
   common: noopReducer(bootstrap.common || {}),
   user: userReducer,
+  loading: (state = false, action) => {
+    switch (action.type) {
+      case 'SHOW_LOADING':
+        return true;
+      case 'HIDE_LOADING':
+        return false;
+      default:
+        return state;
+    }
+  },
   impressionId: noopReducer(shortid.generate()),
   charts,
   datasources: CombinedDatasourceReducers,

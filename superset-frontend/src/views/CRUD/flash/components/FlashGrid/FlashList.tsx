@@ -18,7 +18,7 @@
  */
 
 import { t } from '@superset-ui/core';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { createErrorHandler } from 'src/views/CRUD/utils';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { useFlashListViewResource } from 'src/views/CRUD/hooks';
@@ -26,6 +26,7 @@ import SubMenu, {
   SubMenuProps,
   ButtonProps,
 } from 'src/views/components/SubMenu';
+import Loading from 'src/components/Loading';
 import ListView, { Filters, FilterOperator } from 'src/components/ListView';
 import DeleteModal from 'src/components/DeleteModal';
 import ActionsBar, { ActionProps } from 'src/components/ListView/ActionsBar';
@@ -33,13 +34,14 @@ import { TooltipPlacement } from 'antd/lib/tooltip';
 import { FLASH_STATUS, FLASH_TYPES, SCHEDULE_TYPE } from '../../constants';
 import { FlashServiceObject } from '../../types';
 import FlashOwnership from '../FlashOwnership/FlashOwnership';
-import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
 import FlashSchedule from '../FlashSchedule/FlashSchedule';
 import { fetchDatabases, removeFlash } from '../../services/flash.service';
 import FlashQuery from '../FlashQuery/FlashQuery';
 import { FlashTypesEnum } from '../../enums';
-import FlashView from '../FlashView/FlashView';
+import ErrorBoundary from 'antd/lib/alert/ErrorBoundary';
 
+import FlashExtendTTL from '../FlashExtendTTl/FlashExtendTTl';
+const FlashView = lazy(() => import('../FlashView/FlashView'));
 const PAGE_SIZE = 25;
 
 const appContainer = document.getElementById('app');
@@ -363,30 +365,42 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
       )}
 
       {showFlashSchedule && (
-        <FlashSchedule
-          flash={currentFlash as FlashServiceObject}
-          show={showFlashSchedule}
-          onHide={() => setShowFlashSchedule(false)}
-          refreshData={refreshData}
-        />
+        <Suspense fallback={<Loading />}>
+          <ErrorBoundary>
+            <FlashSchedule
+              flash={currentFlash as FlashServiceObject}
+              show={showFlashSchedule}
+              onHide={() => setShowFlashSchedule(false)}
+              refreshData={refreshData}
+            />
+          </ErrorBoundary>
+        </Suspense>
       )}
 
       {showFlashQuery && (
-        <FlashQuery
-          flash={currentFlash as FlashServiceObject}
-          show={showFlashQuery}
-          onHide={() => setShowFlashQuery(false)}
-          refreshData={refreshData}
-        />
+        <Suspense fallback={<Loading />}>
+          <ErrorBoundary>
+            <FlashQuery
+              flash={currentFlash as FlashServiceObject}
+              show={showFlashQuery}
+              onHide={() => setShowFlashQuery(false)}
+              refreshData={refreshData}
+            />
+          </ErrorBoundary>
+        </Suspense>
       )}
 
       {showFlashView && (
-        <FlashView
-          flash={currentFlash as FlashServiceObject}
-          show={showFlashView}
-          onHide={() => setShowFlashView(false)}
-          databaseDropdown={databaseDropdown}
-        />
+        <Suspense fallback={<Loading />}>
+          <ErrorBoundary>
+            <FlashView
+              flash={currentFlash as FlashServiceObject}
+              show={showFlashView}
+              onHide={() => setShowFlashView(false)}
+              databaseDropdown={databaseDropdown}
+            />
+          </ErrorBoundary>
+        </Suspense>
       )}
 
       {deleteFlash && (
@@ -404,7 +418,6 @@ function FlashList({ addDangerToast, addSuccessToast }: FlashListProps) {
           title={t('Delete Flash Object?')}
         />
       )}
-
       <ListView<FlashServiceObject>
         className="flash-list-view"
         columns={columns}

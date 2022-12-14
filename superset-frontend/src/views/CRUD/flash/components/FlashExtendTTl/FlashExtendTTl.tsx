@@ -37,6 +37,7 @@ import { createErrorHandler } from 'src/views/CRUD/utils';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { updateFlash } from '../../services/flash.service';
 import { UPDATE_TYPES } from '../../constants';
+import { useDispatch, useSelector } from 'react-redux';
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -115,7 +116,8 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   addSuccessToast,
 }) => {
   const flashSchema = getJSONSchema();
-
+  const dispatch = useDispatch();
+  const state: any = useSelector((state: any) => state.loading);
   const [formData, setFormData] = useState<FlashExtendTtl>({
     ttl: '',
   });
@@ -124,7 +126,14 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
     if (flash) {
       formData.ttl = flash?.ttl ? flash?.ttl : '';
     }
-  }, []);
+
+    // console.log('before show loading', state);
+    // dispatch({ type: 'SHOW_LOADING' });
+    // console.log('after show loading', state);
+    // dispatch({ type: 'HIDE_LOADING' });
+    // console.log('after hied loading', state);
+  }, [state]);
+  // if (state) return <Loading />;
 
   const transformErrors = (errors: FormErrors[]) =>
     errors.map((error: FormErrors) => {
@@ -139,15 +148,19 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
 
   const onFlashUpdation = ({ formData }: { formData: any }) => {
     const payload = { ...formData };
+    dispatch({ type: 'SHOW_LOADING' });
+    console.log('called after update', state);
     flashTtlService(Number(flash?.id), UPDATE_TYPES.TTL, payload);
   };
 
   const flashTtlService = useCallback(
-    (id, type, payload) => {
+    (id: any, type: any, payload: any) => {
+      onHide();
       updateFlash(id, type, payload).then(
         () => {
+          setTimeout(() => dispatch({ type: 'HIDE_LOADING' }), 100);
+          console.log('called after hide', state);
           addSuccessToast(t('Your flash object ttl has been extended.'));
-          onHide();
           refreshData();
         },
         createErrorHandler(errMsg =>
@@ -189,17 +202,20 @@ const FlashExtendTTL: FunctionComponent<FlashExtendTTLButtonProps> = ({
   );
 
   return (
-    <div role="none">
-      <StyledModal
-        draggable
-        onHide={onHide}
-        show={show}
-        title={t('Update TTL')}
-        footer={<></>}
-      >
-        {renderModalBody()}
-      </StyledModal>
-    </div>
+    <>
+      <div role="none">
+        <StyledModal
+          draggable
+          onHide={onHide}
+          show={show}
+          title={t('Update TTL')}
+          footer={<></>}
+        >
+          {renderModalBody()}
+        </StyledModal>
+      </div>
+      {/* {state && <Loading />} */}
+    </>
   );
 };
 
