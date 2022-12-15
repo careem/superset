@@ -94,6 +94,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
         )
 
     def _get_content(self) -> EmailContent:
+        logger.info("SAMRA CONTENT %s", self)
         if self._content.text:
             return EmailContent(body=self._error_template(self._content.text))
         # Get the domain from the 'From' address ..

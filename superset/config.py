@@ -876,10 +876,12 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
 
 # Time before selenium times out after trying to locate an element on the page and wait
 # for that element to load for a screenshot.
-SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=10).total_seconds())
+# SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=10).total_seconds())
 # Time before selenium times out after waiting for all DOM class elements named
 # "loading" are gone.
-SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
+# SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
+SCREENSHOT_LOCATE_WAIT = 100
+SCREENSHOT_LOAD_WAIT = 600
 # Selenium destroy retries
 SCREENSHOT_SELENIUM_RETRIES = 5
 # Give selenium an headstart, in seconds
@@ -1281,20 +1283,25 @@ ENABLE_ACCESS_REQUEST = False
 # smtp server configuration
 EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
 # SMTP_HOST = "localhost"
-SMTP_HOST = os.getenv("SMTP_HOST")
+# SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_STARTTLS = True
-SMTP_SSL = False
-# SMTP_USER = "superset"
-SMTP_USER = os.getenv("SMTP_USER")
+SMTP_SSL = True
+# SMTP_USER = "admin"
+# SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PORT = 25
-# SMTP_PASSWORD = "superset"
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-# SMTP_MAIL_FROM = "superset@superset.com"
-SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM")
+# SMTP_PASSWORD = "admin"
+# SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+# SMTP_MAIL_FROM = "admin@superset.com"
+# SMTP_MAIL_FROM = os.getenv("SMTP_MAIL_FROM")
 # If True creates a default SSL context with ssl.Purpose.CLIENT_AUTH using the
 # default system root CA certificates.
 SMTP_SSL_SERVER_AUTH = False
 ENABLE_CHUNK_ENCODING = False
+
+SMTP_USER =	"AKIAIDQBM4OC3RUVTVHA"
+SMTP_HOST	= "email-smtp.us-east-1.amazonaws.com"
+SMTP_PASSWORD =	"AgztKiviV2QiP1dknoqSw/2Dy8tCffGWaaWFC+POW2nV"
+SMTP_MAIL_FROM =	"biteam@careem.com"
 
 # Whether to bump the logging level to ERROR on the flask_appbuilder package
 # Set to False if/when debugging FAB related issues like
@@ -1453,6 +1460,16 @@ SLACK_PROXY = None
 #   Requires: headless chrome
 #   Limitations: unable to generate screenshots of elements
 WEBDRIVER_TYPE = "chrome"
+WEBDRIVER_OPTION_ARGS = [
+    "--force-device-scale-factor=2.0",
+    "--high-dpi-support=2.0",
+    "--headless",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-extensions",
+]
 
 # Window size - this will impact the rendering of the data
 WEBDRIVER_WINDOW = {
