@@ -226,9 +226,18 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
         formData.flashType === FlashTypes.SHORT_TERM ||
         formData.flashType === FlashTypes.LONG_TERM
       ) {
-        if (Date.parse(formData.scheduleStartTime) < Date.now()) {
+        console.log(
+          'previous date',
+          new Date(formData.scheduleStartTime).toLocaleString(),
+        );
+        console.log('currrent date', new Date().toUTCString());
+
+        if (
+          new Date(formData.scheduleStartTime).toLocaleString() <
+          new Date().toUTCString()
+        ) {
           errors.scheduleStartTime.addError(
-            'Schedule Start Time should be greater than current data-time',
+            'Schedule Start Time should be greater than current UTC date-time',
           );
         }
       }
@@ -344,6 +353,8 @@ const FlashCreationButton: FunctionComponent<FlashCreationButtonProps> = ({
       sqlQuery: sql || sqlQuery?.query,
       ...payload,
     } as FlashObject;
+
+    console.log('payload', flash);
 
     flashCreationService(flash);
   };
