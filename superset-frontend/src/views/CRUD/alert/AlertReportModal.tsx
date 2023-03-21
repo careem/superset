@@ -463,7 +463,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
     setting: NotificationSetting,
   ) => {
     const settings = notificationSettings.slice();
-
+    console.log("dummy")
     settings[index] = setting;
     setNotificationSettings(settings);
 
