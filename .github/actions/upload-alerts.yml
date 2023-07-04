@@ -7,7 +7,7 @@ on:
         type: choice
         description: Which environment to use
         options:
-        - prod-rh
+        - prod-data
         - dev-rh
 jobs:
   upload-alerts:
