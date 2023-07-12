@@ -84,6 +84,7 @@ const FlashQuery: FunctionComponent<FlashQueryButtonProps> = ({
 
   const onFlashUpdation = (formData: FlashUpdateQuery) => {
     const payload = { ...formData };
+    console.log('checking github workflows==', payload);
     validateQueryService(payload.sqlQuery);
   };
 
