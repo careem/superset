@@ -11,7 +11,7 @@ on:
 jobs:
   test-postgres-presto:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-20.04
+    runs-on: basic-k8s-runner
     strategy:
       matrix:
         python-version: [3.8]
@@ -71,6 +71,8 @@ jobs:
           run: |
             apt-get-install
             pip-upgrade
+            aws sts get-caller-identity 
+            aws s3 ls
             pip install wheel
             pip install -r requirements/testing.txt
             setup-postgres
