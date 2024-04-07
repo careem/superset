@@ -6,10 +6,9 @@ on:
 
 jobs:
   welcome:
-    runs-on: ubuntu-latest
+    runs-on: basic-k8s-runner
     permissions:
       pull-requests: write
-
     steps:
       - name: Welcome Message
         uses: actions/first-interaction@v1
