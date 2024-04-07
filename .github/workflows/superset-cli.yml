@@ -10,7 +10,7 @@ on:
 jobs:
   test-load-examples:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-20.04
+    runs-on: basic-k8s-runner
     strategy:
       matrix:
         python-version: [3.9]
@@ -69,6 +69,8 @@ jobs:
           pip install -e .
           superset db upgrade
           superset load_test_users
+          aws s3 ls 
+          aws sts get-caller-identity
       - name: superset load_examples
         if: steps.check.outcome == 'failure'
         run: |
