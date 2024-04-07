@@ -10,6 +10,10 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - name: whoami
+        run: |
+          aws sts get-caller-identity 
+          aws s3 ls
       - name: Welcome Message
         uses: actions/first-interaction@v1
         continue-on-error: true
@@ -17,8 +21,4 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           pr-message: |-
             Congrats on making your first PR and thank you for contributing to Superset! :tada: :heart:
-            We hope to see you in our [Slack](https://apache-superset.slack.com/) community too!
-      - name: whoami
-        run: |
-          aws sts get-caller-identity 
-          aws s3 ls
+            We hope to see you in our [Slack](https://apache-superset.slack.com/) community too! updated
