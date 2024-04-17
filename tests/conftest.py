@@ -41,6 +41,7 @@ from tests.example_data.data_loading.pandas.table_df_convertor import (
     TableToDfConvertorImpl,
 )
 
+
 SUPPORT_DATETIME_TYPE = "support_datetime_type"
 
 if TYPE_CHECKING:
