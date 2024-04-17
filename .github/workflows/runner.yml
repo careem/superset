@@ -1,0 +1,14 @@
+name: patch-eng-github-runner
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy:
+    runs-on: basic-k8s-runner
+    steps:
+      - name: List Current sts caller Identity
+        run: |
+          aws sts get-caller-identity
