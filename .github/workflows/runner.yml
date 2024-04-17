@@ -9,6 +9,6 @@ jobs:
   deploy:
     runs-on: basic-k8s-runner
     steps:
-      - name: List Current sts caller Identity
+      - name: Print the statement
         run: |
-          aws sts get-caller-identity
+          echo "welcome to the poc"
