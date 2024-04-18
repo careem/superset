@@ -1,0 +1,14 @@
+name: patch-eng-github-runner
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy:
+    runs-on: basic-k8s-runner
+    steps:
+      - name: Print the statement
+        run: |
+          echo "welcome to the poc first time"
