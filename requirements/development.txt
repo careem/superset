@@ -123,3 +123,4 @@ xlrd==2.0.1
 pinotdb
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+anyio>=4.4.0 # not directly required, pinned by Snyk to avoid a vulnerability
